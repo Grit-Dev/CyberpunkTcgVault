@@ -6,7 +6,7 @@
 
         public string Name { get; set; } = string.Empty;
 
-        public string? setName { get; set; }
+        public string? SetName { get; set; }
 
         public string? Rarity { get; set; }
 
