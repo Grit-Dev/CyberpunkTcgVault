@@ -18,6 +18,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Card>> GetCards()
         {
+            // PMG TODO: Add a test helper for now before DB. 
             var cards = new List<Card>
         {
             new Card
@@ -63,6 +64,27 @@ namespace CyberpunkTcgVault.Api.Controllers
             }};
 
             return Ok(cards);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Card> GetCardById(int id)
+        {
+            // PMG TODO: Add a test helper for now before DB. 
+            var card = new Card
+            {
+                Id = id,
+                Name = $"Example Card {id}",
+                SetName = "Beta",
+                Rarity = "Legend",
+                Colour = "Red",
+                CardType = "Legend",
+                IsLegend = true,
+                HasBetaSymbol = true,
+                QuantityOwned = 1,
+                Condition = "Near Mint",
+                Notes = "Placeholder card for testing the API."
+            };
+            return Ok(card);
         }
     }
 }
