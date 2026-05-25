@@ -18,8 +18,9 @@ namespace CyberpunkTcgVault.Api.Controllers
     public class CardsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<CardsController> _logger;
 
-        public CardsController(AppDbContext context)
+        public CardsController(AppDbContext context, ILogger<CardsController> logger)
         {
             _context = context;
         }
@@ -28,9 +29,13 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Card>>> GetCards()
         {
+            _logger.LogInformation("Received request to get all cards.");
+
             var cards = await _context.Cards
                 .OrderBy(card => card.Name)
                 .ToListAsync();
+
+            _logger.LogInformation("Retrieved {Count} cards from the database.", cards.Count);
 
             return Ok(cards);
         }
@@ -38,14 +43,18 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Card>> GetCardById(int id)
         {
+            _logger.LogInformation("Received request to get card with ID {Id}.", id);
             // PMG TODO: Dummy data for testing the API before we have a database set up.
             var card = await _context.Cards
                 .FirstOrDefaultAsync(card => card.Id == id);
 
             if (card == null)
             {
+                _logger.LogWarning("Card with ID {Id} not found.", id);
                 return NotFound();
             }
+
+            _logger.LogInformation("Card with ID {Id} retrieved successfully.", id);
 
             return Ok(card);
         }
