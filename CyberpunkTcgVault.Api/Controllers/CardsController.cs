@@ -18,50 +18,8 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Card>> GetCards()
         {
-            // PMG TODO: Add a test helper for now before DB. 
-            var cards = new List<Card>
-        {
-            new Card
-            {
-                Id = 1,
-                Name = "Example Legend",
-                SetName = "Beta",
-                Rarity = "Legend",
-                Colour = "Red",
-                CardType = "Legend",
-                IsLegend = true,
-                HasBetaSymbol = true,
-                QuantityOwned = 1,
-                Condition = "Near Mint",
-                Notes = "Placeholder card for testing the API."
-            },
-            new Card
-            {
-                Id = 2,
-                Name = "Example Unit",
-                SetName = "Retail",
-                Rarity = "Rare",
-                Colour = "Blue",
-                CardType = "Unit",
-                Cost = 3,
-                Power = 4,
-                RamCost = 2,
-                QuantityOwned = 3,
-                Condition = "Near Mint",
-                Notes = "Testing normal non-Legend card data."
-            },
-            new Card
-            {
-                Id = 3,
-                Name = "Example Promo",
-                SetName = "Pre-release",
-                Rarity = "Promo",
-                Colour = "Yellow",
-                CardType = "Program",
-                IsPromo = true,
-                QuantityOwned = 0,
-                Notes = "Wishlist-style placeholder card."
-            }};
+            // PMG TODO: Dummy data for testing the API before we have a database set up.
+            var cards = GetSampleCards();
 
             return Ok(cards);
         }
@@ -69,22 +27,67 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpGet("{id}")]
         public ActionResult<Card> GetCardById(int id)
         {
-            // PMG TODO: Add a test helper for now before DB. 
-            var card = new Card
+            // PMG TODO: Dummy data for testing the API before we have a database set up.
+            var cards = GetSampleCards();
+
+            var card = GetSampleCards().FirstOrDefault(card => card.Id == id);
+
+            if (card == null)
             {
-                Id = id,
-                Name = $"Example Card {id}",
-                SetName = "Beta",
-                Rarity = "Legend",
-                Colour = "Red",
-                CardType = "Legend",
-                IsLegend = true,
-                HasBetaSymbol = true,
-                QuantityOwned = 1,
-                Condition = "Near Mint",
-                Notes = "Placeholder card for testing the API."
-            };
+                return NotFound();
+            }
+
             return Ok(card);
+        }
+
+        private static List<Card> GetSampleCards()
+        {
+            var cards = new List<Card>
+            {
+                new Card
+                {
+                    Id = 1,
+                    Name = "Example Legend",
+                    SetName = "Beta",
+                    Rarity = "Legend",
+                    Colour = "Red",
+                    CardType = "Legend",
+                    IsLegend = true,
+                    HasBetaSymbol = true,
+                    QuantityOwned = 1,
+                    Condition = "Near Mint",
+                    Notes = "Placeholder card for testing the API."
+                },
+                new Card
+                {
+                    Id = 2,
+                    Name = "Example Unit",
+                    SetName = "Retail",
+                    Rarity = "Rare",
+                    Colour = "Blue",
+                    CardType = "Unit",
+                    Cost = 3,
+                    Power = 4,
+                    RamCost = 2,
+                    QuantityOwned = 3,
+                    Condition = "Near Mint",
+                    Notes = "Testing normal non-Legend card data."
+                },
+                new Card
+                {
+                    Id = 3,
+                    Name = "Example Promo",
+                    SetName = "Pre-release",
+                    Rarity = "Promo",
+                    Colour = "Yellow",
+                    CardType = "Program",
+                    IsPromo = true,
+                    QuantityOwned = 0,
+                    Notes = "Wishlist-style placeholder card."
+                }
+            };
+
+            return (cards);
         }
     }
 }
