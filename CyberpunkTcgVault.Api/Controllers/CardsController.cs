@@ -1,5 +1,8 @@
-﻿using CyberpunkTcgVault.Api.Models;
+﻿using CyberpunkTcgVault.Api.Data;
+using CyberpunkTcgVault.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace CyberpunkTcgVault.Api.Controllers
 {
@@ -14,23 +17,30 @@ namespace CyberpunkTcgVault.Api.Controllers
     [Route("api/[controller]")]
     public class CardsController : ControllerBase
     {
+        private readonly AppDbContext _context;
+
+        public CardsController(AppDbContext context)
+        {
+            _context = context;
+        }
+
         // GET is used when the client wants to retrieve/read data.
         [HttpGet]
-        public ActionResult<IEnumerable<Card>> GetCards()
+        public async Task<ActionResult<IEnumerable<Card>>> GetCards()
         {
-            // PMG TODO: Dummy data for testing the API before we have a database set up.
-            var cards = GetSampleCards();
+            var cards = await _context.Cards
+                .OrderBy(card => card.Name)
+                .ToListAsync();
 
             return Ok(cards);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Card> GetCardById(int id)
+        public async Task<ActionResult<Card>> GetCardById(int id)
         {
             // PMG TODO: Dummy data for testing the API before we have a database set up.
-            var cards = GetSampleCards();
-
-            var card = GetSampleCards().FirstOrDefault(card => card.Id == id);
+            var card = await _context.Cards
+                .FirstOrDefaultAsync(card => card.Id == id);
 
             if (card == null)
             {
@@ -38,56 +48,6 @@ namespace CyberpunkTcgVault.Api.Controllers
             }
 
             return Ok(card);
-        }
-
-        private static List<Card> GetSampleCards()
-        {
-            var cards = new List<Card>
-            {
-                new Card
-                {
-                    Id = 1,
-                    Name = "Example Legend",
-                    SetName = "Beta",
-                    Rarity = "Legend",
-                    Colour = "Red",
-                    CardType = "Legend",
-                    IsLegend = true,
-                    HasBetaSymbol = true,
-                    QuantityOwned = 1,
-                    Condition = "Near Mint",
-                    Notes = "Placeholder card for testing the API."
-                },
-                new Card
-                {
-                    Id = 2,
-                    Name = "Example Unit",
-                    SetName = "Retail",
-                    Rarity = "Rare",
-                    Colour = "Blue",
-                    CardType = "Unit",
-                    Cost = 3,
-                    Power = 4,
-                    RamCost = 2,
-                    QuantityOwned = 3,
-                    Condition = "Near Mint",
-                    Notes = "Testing normal non-Legend card data."
-                },
-                new Card
-                {
-                    Id = 3,
-                    Name = "Example Promo",
-                    SetName = "Pre-release",
-                    Rarity = "Promo",
-                    Colour = "Yellow",
-                    CardType = "Program",
-                    IsPromo = true,
-                    QuantityOwned = 0,
-                    Notes = "Wishlist-style placeholder card."
-                }
-            };
-
-            return (cards);
         }
 
         // PMG TODO: Space from bottom bracket.
