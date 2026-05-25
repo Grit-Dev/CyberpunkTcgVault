@@ -4,3 +4,10 @@ GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards
 Accept: application/json
 
 ###
+
+GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards/1
+Accept: application/json
+
+###
+GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards/567
+Accept: application/json
