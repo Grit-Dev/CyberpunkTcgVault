@@ -160,5 +160,25 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             return Ok(card);
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCard(int id)
+        {
+            _logger.LogInformation("Recieved request to Delete Card with ID {CardId]}", id);
+
+            var card = await _context.Cards.FirstOrDefaultAsync(card => card.Id == id);
+
+            if (card == null)
+            {
+                return NotFound();
+            }
+
+            _context.Cards.Remove(card);
+
+            await _context.SaveChangesAsync();
+
+
+            return NoContent();
+        }
     }
 }
