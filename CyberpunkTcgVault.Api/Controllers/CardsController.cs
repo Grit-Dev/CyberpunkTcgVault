@@ -24,6 +24,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         public CardsController(AppDbContext context, ILogger<CardsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET is used when the client wants to retrieve/read data.
