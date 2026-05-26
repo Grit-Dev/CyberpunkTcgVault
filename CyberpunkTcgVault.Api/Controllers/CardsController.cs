@@ -72,13 +72,13 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             var card = new Card
             {
-                Name = request.Name,
-                SetName = request.SetName,
-                Rarity = request.Rarity,
-                Colour = request.Colour,
-                CardType = request.CardType,
-                Classification = request.Classification,
-                Keywords = request.Keywords,
+                Name = request.Name.Trim(),
+                SetName = request.SetName?.Trim(),
+                Rarity = request.Rarity?.Trim(),
+                Colour = request.Colour?.Trim(),
+                CardType = request.CardType?.Trim(),
+                Classification = request.Classification?.Trim(),
+                Keywords = request.Keywords?.Trim(),
                 Cost = request.Cost,
                 Power = request.Power,
                 RamCost = request.RamCost,
@@ -91,9 +91,9 @@ namespace CyberpunkTcgVault.Api.Controllers
                 IsBoxTopper = request.IsBoxTopper,
                 IsPromo = request.IsPromo,
                 IsStarterDeckExclusive = request.IsStarterDeckExclusive,
-                CardNumber = request.CardNumber,
-                ImageUrl = request.ImageUrl,
-                Notes = request.Notes
+                CardNumber = request.CardNumber?.Trim(),
+                ImageUrl = request.ImageUrl?.Trim(),
+                Notes = request.Notes?.Trim()
             };
 
             if (string.IsNullOrWhiteSpace(card.Name))
@@ -111,6 +111,53 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             return CreatedAtAction(nameof(GetCardById), new { id = card.Id }, card);
 
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<Card>> UpdateCard(int id, UpdateCardRequest request)
+        {
+            _logger.LogInformation("Received request to update card with ID {Id}.", id);
+
+            var card = await _context.Cards
+                .FirstOrDefaultAsync(card => card.Id == id);
+
+            if (card == null)
+            {
+                _logger.LogWarning("Card with ID {Id} not found for update.", id);
+
+                return NotFound();
+            }
+
+            card.Name = request.Name.Trim();
+            card.SetName = request.SetName?.Trim();
+            card.Rarity = request.Rarity?.Trim();
+            card.Colour = request.Colour?.Trim();
+            card.CardType = request.CardType?.Trim();
+            card.Classification = request.Classification?.Trim();
+            card.Keywords = request.Keywords?.Trim();
+            card.Cost = request.Cost;
+            card.Power = request.Power;
+            card.RamCost = request.RamCost;
+            card.IsLegend = request.IsLegend;
+            card.HasBetaSymbol = request.HasBetaSymbol;
+            card.IsKickstarterVersion = request.IsKickstarterVersion;
+            card.IsRetailVersion = request.IsRetailVersion;
+            card.IsFoil = request.IsFoil;
+            card.IsAltArt = request.IsAltArt;
+            card.IsBoxTopper = request.IsBoxTopper;
+            card.IsPromo = request.IsPromo;
+            card.IsStarterDeckExclusive = request.IsStarterDeckExclusive;
+            card.CardNumber = request.CardNumber?.Trim();
+            card.ImageUrl = request.ImageUrl?.Trim();
+            card.Notes = request.Notes?.Trim();
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Card with ID {Id} updated successfully.", id);
+
+            // PMG TODO: Return NoContent() - However I want to see the response 
+
+            return Ok(card);
         }
     }
 }
