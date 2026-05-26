@@ -54,7 +54,7 @@ namespace CyberpunkTcgVault.Api.DTOs
         public bool IsStarterDeckExclusive { get; set; }
 
         // PMG TODO: Need to consider next new sets that come out
-        [StringLength(200)
+        [StringLength(200)]
         public string? CardNumber { get; set; }
 
         [StringLength(500)]
