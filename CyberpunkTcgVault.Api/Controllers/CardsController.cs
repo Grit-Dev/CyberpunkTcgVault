@@ -1,4 +1,5 @@
 ﻿using CyberpunkTcgVault.Api.Data;
+using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             if (card == null)
             {
                 _logger.LogWarning("Card with ID {Id} not found.", id);
+
                 return NotFound();
             }
 
@@ -61,5 +63,54 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         // PMG TODO: Space from bottom bracket.
 
+        // ADD / Create 
+
+        [HttpPost]
+        public async Task<ActionResult<Card>> CreateCard(CreateCardRequest request)
+        {
+            _logger.LogInformation("Received request to create a new card with name {Name}.", request.Name);
+
+            var card = new Card
+            {
+                Name = request.Name,
+                SetName = request.SetName,
+                Rarity = request.Rarity,
+                Colour = request.Colour,
+                CardType = request.CardType,
+                Classification = request.Classification,
+                Keywords = request.Keywords,
+                Cost = request.Cost,
+                Power = request.Power,
+                RamCost = request.RamCost,
+                IsLegend = request.IsLegend,
+                HasBetaSymbol = request.HasBetaSymbol,
+                IsKickstarterVersion = request.IsKickstarterVersion,
+                IsRetailVersion = request.IsRetailVersion,
+                IsFoil = request.IsFoil,
+                IsAltArt = request.IsAltArt,
+                IsBoxTopper = request.IsBoxTopper,
+                IsPromo = request.IsPromo,
+                IsStarterDeckExclusive = request.IsStarterDeckExclusive,
+                CardNumber = request.CardNumber,
+                ImageUrl = request.ImageUrl,
+                Notes = request.Notes
+            };
+
+            if (string.IsNullOrWhiteSpace(card.Name))
+            {
+                _logger.LogWarning("Card creation failed: Card name is required.");
+
+                return BadRequest("Card name is required.");
+            }
+
+            _context.Cards.Add(card);
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Card with ID {Id} created successfully.", card.Id);
+
+            return CreatedAtAction(nameof(GetCardById), new { id = card.Id }, card);
+
+        }
     }
 }
