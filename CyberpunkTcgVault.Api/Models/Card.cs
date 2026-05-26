@@ -42,10 +42,6 @@
 
         public bool IsStarterDeckExclusive { get; set; }
 
-        public int QuantityOwned { get; set; }
-
-        public string? Condition { get; set; }
-
         public string? CardNumber { get; set; }
 
         public string? ImageUrl { get; set; }
