@@ -1,13 +1,14 @@
-﻿namespace CyberpunkTcgVault.Api.Models
+﻿using CyberpunkTcgVault.Api.Models;
+
+namespace CyberpunkTcgVault.Api.DTOs
 {
-    public class OwnedCard
+    public class CreateOwnedCardRequest
     {
         public int Id { get; set; }
 
         // foreign key to the Card table
         public int CardId { get; set; }
 
-        // navigation property to the related Card entity
         public Card Card { get; set; } = null!;
 
         public int QuantityOwned { get; set; }
