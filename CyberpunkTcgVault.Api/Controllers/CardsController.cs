@@ -170,6 +170,8 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             if (card == null)
             {
+                _logger.LogWarning("Owned card with ID {OwnedCardId} was not found.", id);
+
                 return NotFound();
             }
 
