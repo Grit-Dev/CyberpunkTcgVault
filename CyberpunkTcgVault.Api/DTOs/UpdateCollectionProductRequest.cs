@@ -2,7 +2,7 @@
 
 namespace CyberpunkTcgVault.Api.DTOs
 {
-    public class UpdateCollectionProductRequestcs
+    public class UpdateCollectionProductRequest
     {
         [Required]
         [StringLength(200)]
