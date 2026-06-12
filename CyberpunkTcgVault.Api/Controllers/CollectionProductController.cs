@@ -1,12 +1,8 @@
-﻿using Azure.Core;
-using CyberpunkTcgVault.Api.Data;
+﻿using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
-using static Azure.Core.HttpHeader;
 
 // PMG TO DO: Adding Logging
 namespace CyberpunkTcgVault.Api.Controllers
