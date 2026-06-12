@@ -113,8 +113,8 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         }
 
-        [HttpPut]
-        public async Task<ActionResult<Card>> UpdateCard(int id, UpdateCardRequest request)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCard(int id, UpdateCardRequest request)
         {
             _logger.LogInformation("Received request to update card with ID {Id}.", id);
 
@@ -157,7 +157,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             // PMG TODO: Return NoContent() - However I want to see the response 
 
-            return Ok(card);
+            return NoContent();
         }
 
         [HttpDelete]

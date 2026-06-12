@@ -2,12 +2,8 @@
 
 namespace CyberpunkTcgVault.Api.DTOs
 {
-    public class UpdateWishListItem
+    public class UpdateWishListItemRequest
     {
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int CardId { get; set; }
-
         [Required]
         [Range(1, 999)]
         public int WantedQuantity { get; set; }
