@@ -55,13 +55,13 @@ namespace CyberpunkTcgVault.Api.Controllers
         {
             var cardExists = await _context.Cards.AnyAsync(cards => cards.Id == request.CardId);
 
-            if (cardExists == false)
+            if (!cardExists)
             {
                 return BadRequest("Card does not exist");
 
             }
 
-            var ownedCards = new OwnedCard
+            var ownedCardq = new OwnedCard
             {
                 CardId = request.CardId,
                 QuantityOwned = request.QuantityOwned,
@@ -75,11 +75,45 @@ namespace CyberpunkTcgVault.Api.Controllers
                 Notes = request.Notes?.Trim()
             };
 
-            await _context.OwnedCards.AddAsync(ownedCards);
+            await _context.OwnedCards.AddAsync(ownedCardq);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetOwnedCardById), new { id = ownedCards.Id }, ownedCards);
+            return CreatedAtAction(nameof(GetOwnedCardById), new { id = ownedCardq.Id }, ownedCardq);
             
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOwnedCard(int id, UpdateOwnedCardRequest request)
+        {
+            var ownedCard = await _context.OwnedCards
+                .FirstOrDefaultAsync(ownedCard => ownedCard.Id == id);
+
+            if (ownedCard == null)
+            {
+                return NotFound();
+            }
+
+            var cardExists = await _context.Cards
+                .AnyAsync(card => card.Id == request.CardId);
+
+            if (!cardExists)
+            {
+                return BadRequest("Card does not exist.");
+            }
+
+            ownedCard.QuantityOwned = request.QuantityOwned;
+            ownedCard.Condition = request.Condition?.Trim();
+            ownedCard.IsInMasterCollection = request.IsInMasterCollection;
+            ownedCard.IsDuplicate = request.IsDuplicate;
+            ownedCard.IsGradingCandidate = request.IsGradingCandidate;
+            ownedCard.IsOpenForTrade = request.IsOpenForTrade;
+            ownedCard.IsOpenToMessages = request.IsOpenToMessages;
+            ownedCard.MaySellLater = request.MaySellLater;
+            ownedCard.Notes = request.Notes?.Trim();
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -88,7 +122,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger.LogInformation("Received request to delete owned card with ID {OwnedCardId}.", id);
 
             var ownedCard = await _context.OwnedCards
-                .FirstOrDefaultAsync(OwnedCard => OwnedCard.Id == id);
+                .FirstOrDefaultAsync(ownedCard => ownedCard.Id == id);
 
             if (ownedCard == null)
             {
