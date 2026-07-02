@@ -5,10 +5,6 @@ namespace CyberpunkTcgVault.Api.DTOs
     // PMG TODO: No inheritance right now. This may change
     public class UpdateOwnedCardRequest
     {
-        // Foreign Key
-        [Range(1, int.MaxValue)]
-        public int CardId { get; set; }
-
         [Range(0, 999)]
         public int QuantityOwned { get; set; }
 
