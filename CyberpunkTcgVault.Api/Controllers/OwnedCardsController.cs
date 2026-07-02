@@ -25,6 +25,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger.LogInformation("Received request to get all owned cards.");
 
             var ownedCards = await _context.OwnedCards
+                .AsNoTracking()
                 .Include(ownedCard => ownedCard.Card)
                 .OrderBy(ownedCard => ownedCard.Card.Name)
                 .ToListAsync();
@@ -38,6 +39,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         public async Task<ActionResult<OwnedCard>> GetOwnedCardById(int id)
         {
             var ownedCard = await _context.OwnedCards
+                .AsNoTracking()
                 .Include(ownedCards => ownedCards.Card)
                 .FirstOrDefaultAsync(ownedCard => ownedCard.Id == id);
 

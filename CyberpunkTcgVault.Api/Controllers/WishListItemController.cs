@@ -25,6 +25,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger.LogInformation("Received request to get all wishlist items.");
 
             var wishListItems = await _context.WishList
+                .AsNoTracking()
                 .Include(wl => wl.Card)
                 .OrderBy(wl => wl.Card.Name)
                 .ToListAsync();
@@ -38,6 +39,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         public async Task<ActionResult<WishListItem>> GetWishListItemById(int id)
         {
             var wishlistItem = await _context.WishList
+                .AsNoTracking()
                 .Include(wls => wls.Card)
                 .FirstOrDefaultAsync(wl => wl.Id == id);
 

@@ -25,6 +25,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         public async Task<ActionResult<IEnumerable<CollectionProduct>>> GetCollectionProducts()
         {
             var products = await _context.Products
+                .AsNoTracking()
                 .OrderBy(p => p.ProductName)
                 .ToListAsync();
 

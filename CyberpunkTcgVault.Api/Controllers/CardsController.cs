@@ -33,6 +33,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger.LogInformation("Received request to get all cards.");
 
             var cards = await _context.Cards
+                .AsNoTracking()
                 .OrderBy(card => card.Name)
                 .ToListAsync();
 
@@ -47,6 +48,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger.LogInformation("Received request to get card with ID {Id}.", id);
             // PMG TODO: Dummy data for testing the API before we have a database set up.
             var card = await _context.Cards
+                .AsNoTracking()
                 .FirstOrDefaultAsync(card => card.Id == id);
 
             if (card == null)
