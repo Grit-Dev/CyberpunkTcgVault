@@ -45,5 +45,38 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             Assert.Contains(cards, card => card.Name == "Johnny Silverhand");
 
         }
+
+        [Fact]
+        public async Task GetCardById_WhenCardExists_ReturnsOkWithCard()
+        {
+            // Arrange
+            var context = TestDbContextFactory.Create();
+
+            var card = new Card
+            {
+                Name = "Rebecca",
+                SetName = "Beta",
+                Rarity = "Rare",
+                Colour = "Red",
+                CardNumber = "Legend"
+            };
+
+            context.Cards.Add(card);
+
+            await context.SaveChangesAsync();
+
+            var controller = CreateCardsController(context);
+
+            // Act
+            var result = await controller.GetCardById(card.Id);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+
+            var returnedCard = Assert.IsType<Card>(okResult.Value);
+
+            Assert.Equal(card.Name, returnedCard.Name);
+            Assert.Equal(card.Id, returnedCard.Id);
+        }
     }
 }
