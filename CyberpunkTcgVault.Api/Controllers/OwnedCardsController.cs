@@ -61,7 +61,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             }
 
-            var ownedCardq = new OwnedCard
+            var ownedCard = new OwnedCard
             {
                 CardId = request.CardId,
                 QuantityOwned = request.QuantityOwned,
@@ -75,10 +75,10 @@ namespace CyberpunkTcgVault.Api.Controllers
                 Notes = request.Notes?.Trim()
             };
 
-            await _context.OwnedCards.AddAsync(ownedCardq);
+            await _context.OwnedCards.AddAsync(ownedCard);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetOwnedCardById), new { id = ownedCardq.Id }, ownedCardq);
+            return CreatedAtAction(nameof(GetOwnedCardById), new { id = ownedCard.Id }, ownedCard);
             
         }
 
@@ -91,14 +91,6 @@ namespace CyberpunkTcgVault.Api.Controllers
             if (ownedCard == null)
             {
                 return NotFound();
-            }
-
-            var cardExists = await _context.Cards
-                .AnyAsync(card => card.Id == request.CardId);
-
-            if (!cardExists)
-            {
-                return BadRequest("Card does not exist.");
             }
 
             ownedCard.QuantityOwned = request.QuantityOwned;
