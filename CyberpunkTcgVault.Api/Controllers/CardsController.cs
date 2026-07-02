@@ -46,7 +46,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         public async Task<ActionResult<Card>> GetCardById(int id)
         {
             _logger.LogInformation("Received request to get card with ID {Id}.", id);
-            // PMG TODO: Dummy data for testing the API before we have a database set up.
+
             var card = await _context.Cards
                 .AsNoTracking()
                 .FirstOrDefaultAsync(card => card.Id == id);
@@ -162,10 +162,10 @@ namespace CyberpunkTcgVault.Api.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCard(int id)
         {
-            _logger.LogInformation("Recieved request to Delete Card with ID {CardId]}", id);
+            _logger.LogInformation("Recieved request to delete card with ID {CardId}", id);
 
             var card = await _context.Cards.FirstOrDefaultAsync(card => card.Id == id);
 
