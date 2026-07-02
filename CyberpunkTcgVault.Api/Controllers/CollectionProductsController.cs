@@ -9,12 +9,12 @@ namespace CyberpunkTcgVault.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CollectionProductController : ControllerBase
+    public class CollectionProductsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly ILogger<CollectionProductController> _logger;
+        private readonly ILogger<CollectionProductsController> _logger;
 
-        public CollectionProductController(AppDbContext context, ILogger<CollectionProductController> logger)
+        public CollectionProductsController(AppDbContext context, ILogger<CollectionProductsController> logger)
         {
             _context = context;
             _logger = logger;
