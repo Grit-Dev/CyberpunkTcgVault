@@ -106,7 +106,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             ownedCard.IsInMasterCollection = request.IsInMasterCollection;
             ownedCard.IsDuplicate = request.IsDuplicate;
             ownedCard.IsGradingCandidate = request.IsGradingCandidate;
-            ownedCard.IsOpenForTrade = request.IsOpenForTrade;
+            ownedCard.IsOpenForTrade = request.IsOpenToTrade;
             ownedCard.IsOpenToMessages = request.IsOpenToMessages;
             ownedCard.MaySellLater = request.MaySellLater;
             ownedCard.Notes = request.Notes?.Trim();
