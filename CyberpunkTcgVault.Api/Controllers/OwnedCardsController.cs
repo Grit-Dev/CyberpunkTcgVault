@@ -25,7 +25,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger.LogInformation("Received request to get all owned cards.");
 
             var ownedCards = await _context.OwnedCards
-                .Include(ownedCards => ownedCards.Card)
+                .Include(ownedCard => ownedCard.Card)
                 .OrderBy(ownedCard => ownedCard.Card.Name)
                 .ToListAsync();
 
@@ -53,7 +53,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<OwnedCard>> CreateOwnedCard(CreateOwnedCardRequest request)
         {
-            var cardExists = await _context.Cards.AnyAsync(cards => cards.Id == request.CardId);
+            var cardExists = await _context.Cards.AnyAsync(card => card.Id == request.CardId);
 
             if (!cardExists)
             {
