@@ -21,7 +21,7 @@ namespace CyberpunkTcgVault.Api.DTOs
 
         public bool IsGradingCandidate { get; set; }
 
-        public bool IsOpenToTrade { get; set; }
+        public bool IsOpenForTrade { get; set; }
 
         public bool IsOpenToMessages { get; set; }
 
