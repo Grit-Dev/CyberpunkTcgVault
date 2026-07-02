@@ -83,7 +83,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             if (!cardExists)
             {
-                return BadRequest("Wish List Card Does not Exist");
+                return BadRequest("Wish List card does not exist");
             }
 
             var wishListItem = new WishListItem
@@ -98,7 +98,6 @@ namespace CyberpunkTcgVault.Api.Controllers
                 IsOpenToTrade = request.IsOpenToTrade,
                 Notes = request.Notes?.Trim()
             };
-
 
             await _context.WishList.AddAsync(wishListItem);
             await _context.SaveChangesAsync();
