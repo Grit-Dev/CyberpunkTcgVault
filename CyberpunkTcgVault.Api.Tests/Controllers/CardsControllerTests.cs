@@ -113,5 +113,143 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
 
             Assert.Contains(context.Cards, card => card.Name == "Rebecca");
         }
+
+        [Fact]
+        public async Task GetCardById_WhenCardDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var controller = CreateCardsController(context);
+
+            // Act
+            var result = await controller.GetCardById(999);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task CreateCard_WhenNameIsEmpty_ReturnsBadRequest()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var controller = CreateCardsController(context);
+
+            var request = new CreateCardRequest
+            {
+                Name = "   "
+            };
+
+            // Act
+            var result = await controller.CreateCard(request);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task UpdateCard_WhenCardExists_UpdatesCard()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var card = new Card
+            {
+                Name = "Old Name",
+                SetName = "Beta",
+                Rarity = "Rare",
+                Colour = "Red"
+            };
+
+            context.Cards.Add(card);
+            await context.SaveChangesAsync();
+
+            var controller = CreateCardsController(context);
+
+            var request = new UpdateCardRequest
+            {
+                Name = "Updated Name",
+                SetName = "Full Release",
+                Rarity = "Legend",
+                Colour = "Blue"
+            };
+
+            // Act
+            var result = await controller.UpdateCard(card.Id, request);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+
+            var updatedCard = await context.Cards.FindAsync(card.Id);
+
+            Assert.NotNull(updatedCard);
+            Assert.Equal("Updated Name", updatedCard.Name);
+            Assert.Equal("Full Release", updatedCard.SetName);
+        }
+
+        [Fact]
+        public async Task UpdateCard_WhenCardDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var controller = CreateCardsController(context);
+
+            var request = new UpdateCardRequest
+            {
+                Name = "Updated Name"
+            };
+
+            // Act
+            var result = await controller.UpdateCard(999, request);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task DeleteCard_WhenCardExists_RemovesCard()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var card = new Card
+            {
+                Name = "Card To Delete"
+            };
+
+            context.Cards.Add(card);
+            await context.SaveChangesAsync();
+
+            var controller = CreateCardsController(context);
+
+            // Act
+            var result = await controller.DeleteCard(card.Id);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+
+            var deletedCard = await context.Cards.FindAsync(card.Id);
+
+            Assert.Null(deletedCard);
+        }
+
+        [Fact]
+        public async Task DeleteCard_WhenCardDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var controller = CreateCardsController(context);
+
+            // Act
+            var result = await controller.DeleteCard(999);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
     }
 }
