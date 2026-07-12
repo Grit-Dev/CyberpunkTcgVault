@@ -4,6 +4,10 @@ using CyberpunkTcgVault.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace CyberpunkTcgVault.Api.Controllers
 
@@ -15,11 +19,43 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         private readonly AppDbContext _context;
         private readonly IPasswordHasher<AppUser> _passwordHasher;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(AppDbContext context, IPasswordHasher<AppUser> passwordHasher)
+        public AuthController(AppDbContext context, 
+            IPasswordHasher<AppUser> passwordHasher,
+            IConfiguration configuration)
         {
             _context = context;
             _passwordHasher = passwordHasher;
+            _configuration = configuration;
+        }
+
+        private string GenerateJwtToken(AppUser user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName)
+            };
+
+            var jwtKey = _configuration["Jwt:Key"]
+                ?? throw new InvalidOperationException("JWT key is not configured.");
+
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey));
+
+            var credentials = new SigningCredentials(
+                securityKey,
+                SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         [HttpPost("register")]
@@ -73,9 +109,11 @@ namespace CyberpunkTcgVault.Api.Controllers
                 return Unauthorized("Invalid username or password.");
             }
 
+            var token = GenerateJwtToken(user);
+
             return Ok(new
             {
-                message = "Login successful."
+                token
             });
         }
     }

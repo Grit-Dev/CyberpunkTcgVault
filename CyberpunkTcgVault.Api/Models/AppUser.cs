@@ -10,7 +10,7 @@ namespace CyberpunkTcgVault.Api.Models
         [StringLength(50)]
         public string UserName { get; set; } = string.Empty;
 
-        // PMG TO DO: Do not store Actually pasword
+        // Do not store Actually pasword
         // - We will use a framework hash!
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
