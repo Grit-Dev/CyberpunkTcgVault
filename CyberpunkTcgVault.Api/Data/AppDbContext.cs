@@ -18,5 +18,7 @@ namespace CyberpunkTcgVault.Api.Data
         public DbSet<CollectionProduct> Products { get; set; }
 
         public DbSet<WishListItem> WishList { get; set; }
+
+        public DbSet<AppUser> Users { get; set; }
     }
 }
