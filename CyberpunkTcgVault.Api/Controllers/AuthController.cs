@@ -51,5 +51,32 @@ namespace CyberpunkTcgVault.Api.Controllers
                 StatusCodes.Status201Created,
                 new { message = "User registered successfully." });
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginUserRequest request)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(user => user.UserName == request.UserName);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+
+            var passwordResult = _passwordHasher.VerifyHashedPassword(
+                user,
+                user.PasswordHash,
+                request.Password);
+
+            if (passwordResult == PasswordVerificationResult.Failed)
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+
+            return Ok(new
+            {
+                message = "Login successful."
+            });
+        }
     }
 }
