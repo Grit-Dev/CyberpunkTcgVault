@@ -24,11 +24,9 @@ namespace CyberpunkTcgVault.Api.Migrations
 
             modelBuilder.Entity("CyberpunkTcgVault.Api.Models.AppUser", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -236,9 +234,14 @@ namespace CyberpunkTcgVault.Api.Migrations
                     b.Property<int>("QuantityOwned")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CardId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("OwnedCards");
                 });
@@ -293,7 +296,15 @@ namespace CyberpunkTcgVault.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CyberpunkTcgVault.Api.Models.AppUser", "User")
+                        .WithMany("OwnedCards")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Card");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CyberpunkTcgVault.Api.Models.WishListItem", b =>
@@ -305,6 +316,11 @@ namespace CyberpunkTcgVault.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Card");
+                });
+
+            modelBuilder.Entity("CyberpunkTcgVault.Api.Models.AppUser", b =>
+                {
+                    b.Navigation("OwnedCards");
                 });
 #pragma warning restore 612, 618
         }
