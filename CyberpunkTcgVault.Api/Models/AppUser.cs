@@ -17,6 +17,10 @@ namespace CyberpunkTcgVault.Api.Models
 
         // Navigation property.
         // The user can have many owned cards linked to their account.
-        public ICollection<OwnedCard> OwnedCards { get; set; } = new List<OwnedCard>();
+        public ICollection<OwnedCard> OwnedCards { get; set; } = [];
+
+        // Navigation property.
+        // The user can have many wishlist itemns on their account 
+        public ICollection<WishListItem> WishListitems { get; set; } = [];
     }
 }

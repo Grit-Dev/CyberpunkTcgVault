@@ -5,7 +5,7 @@
         public int Id { get; set; }
 
         //Foriegn Key to the user who owns this card
-        public Guid UserId { get; set; }    
+        public Guid UserId { get; set; }
 
         // foreign key to the Card table
         public int CardId { get; set; }

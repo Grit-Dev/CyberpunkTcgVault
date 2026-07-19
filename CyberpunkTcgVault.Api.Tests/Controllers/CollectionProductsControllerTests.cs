@@ -109,9 +109,9 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             Assert.IsType<NoContentResult>(result);
 
             var updated = await context.Products.FindAsync(product.Id);
-            Assert.Equal("New Name", updated.ProductName);
-            Assert.Equal(5, updated.Quantity);
-            Assert.False(updated.IsSealed);
+            Assert.Equal("New Name", updated?.ProductName);
+            Assert.Equal(5, updated?.Quantity);
+            Assert.False(updated?.IsSealed);
         }
 
         [Fact]

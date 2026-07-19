@@ -21,7 +21,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         private readonly IPasswordHasher<AppUser> _passwordHasher;
         private readonly IConfiguration _configuration;
 
-        public AuthController(AppDbContext context, 
+        public AuthController(AppDbContext context,
             IPasswordHasher<AppUser> passwordHasher,
             IConfiguration configuration)
         {

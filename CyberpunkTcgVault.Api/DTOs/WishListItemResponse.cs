@@ -1,20 +1,18 @@
-﻿namespace CyberpunkTcgVault.Api.Models
+﻿namespace CyberpunkTcgVault.Api.DTOs
 {
-    public class WishListItem
+    public class WishListItemResponse
     {
         public int Id { get; set; }
 
-        // Foreign key to the Cards table.
         public int CardId { get; set; }
 
-        // Foriegn Key to the User Who owns this WishListItem
-        public Guid UserId { get; set; }
+        public string CardName { get; set; } = string.Empty;
 
-        // Navigation property back to the owning user.
-        public AppUser User { get; set; } = null!;
+        public string? SetName { get; set; }
 
-        // Navigation property. Lets EF Core load the related Card.
-        public Card Card { get; set; } = null!;
+        public string? Rarity { get; set; }
+
+        public string? Colour { get; set; }
 
         public int WantedQuantity { get; set; }
 

@@ -1,11 +1,14 @@
 ﻿using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CyberpunkTcgVault.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WishListItemController : ControllerBase
@@ -19,43 +22,154 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<WishListItem>>> GetWishListItems()
+        // Look inside the JWT, find the logged-in user's ID,
+        // convert it back into a Guid, and return it.
+        private Guid GetLoggedInUserId()
         {
-            _logger.LogInformation("Received request to get all wishlist items.");
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdValue, out var userId))
+            {
+                throw new InvalidOperationException("User ID claim was not found or was invalid.");
+            }
+
+            return userId;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<WishListItemResponse>>> GetWishListItems()
+        {
+            var userId = GetLoggedInUserId();
+
+            _logger.LogInformation("Received request to get wishlist items for user {UserId}.", userId);
 
             var wishListItems = await _context.WishList
                 .AsNoTracking()
-                .Include(wl => wl.Card)
-                .OrderBy(wl => wl.Card.Name)
+                .Where(wishListItem => wishListItem.UserId == userId)
+                .OrderBy(wishListItem => wishListItem.Card.Name)
+                .Select(wishListItem => new WishListItemResponse
+                {
+                    Id = wishListItem.Id,
+                    CardId = wishListItem.CardId,
+                    CardName = wishListItem.Card.Name,
+                    SetName = wishListItem.Card.SetName,
+                    Rarity = wishListItem.Card.Rarity,
+                    Colour = wishListItem.Card.Colour,
+                    WantedQuantity = wishListItem.WantedQuantity,
+                    Priority = wishListItem.Priority,
+                    ReasonWanted = wishListItem.ReasonWanted,
+                    WantRaw = wishListItem.WantRaw,
+                    WantGraded = wishListItem.WantGraded,
+                    PreferredGradingCompany = wishListItem.PreferredGradingCompany,
+                    IsOpenToTrade = wishListItem.IsOpenToTrade,
+                    Notes = wishListItem.Notes
+                })
                 .ToListAsync();
 
-            _logger.LogInformation("Retrieved {Count} wishListItems from the database.", wishListItems.Count);
+            _logger.LogInformation("Retrieved {Count} wishlist items for user {UserId}.", wishListItems.Count, userId);
 
             return Ok(wishListItems);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<WishListItem>> GetWishListItemById(int id)
+        public async Task<ActionResult<WishListItemResponse>> GetWishListItemById(int id)
         {
-            var wishlistItem = await _context.WishList
-                .AsNoTracking()
-                .Include(wls => wls.Card)
-                .FirstOrDefaultAsync(wl => wl.Id == id);
+            var userId = GetLoggedInUserId();
 
-            if (wishlistItem == null)
+            var wishListItem = await _context.WishList
+                .AsNoTracking()
+                .Where(wishListItem =>
+                    wishListItem.Id == id &&
+                    wishListItem.UserId == userId)
+                .Select(wishListItem => new WishListItemResponse
+                {
+                    Id = wishListItem.Id,
+                    CardId = wishListItem.CardId,
+                    CardName = wishListItem.Card.Name,
+                    SetName = wishListItem.Card.SetName,
+                    Rarity = wishListItem.Card.Rarity,
+                    Colour = wishListItem.Card.Colour,
+                    WantedQuantity = wishListItem.WantedQuantity,
+                    Priority = wishListItem.Priority,
+                    ReasonWanted = wishListItem.ReasonWanted,
+                    WantRaw = wishListItem.WantRaw,
+                    WantGraded = wishListItem.WantGraded,
+                    PreferredGradingCompany = wishListItem.PreferredGradingCompany,
+                    IsOpenToTrade = wishListItem.IsOpenToTrade,
+                    Notes = wishListItem.Notes
+                })
+                .FirstOrDefaultAsync();
+
+            if (wishListItem == null)
             {
-                _logger.LogWarning("Wishlisted Item with ID {Id} not found.", id);
+                _logger.LogWarning("Wishlist item with ID {Id} was not found for user {UserId}.", id, userId);
                 return NotFound();
             }
 
-            return Ok(wishlistItem);
+            return Ok(wishListItem);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<WishListItemResponse>> CreateWishListItem(CreateWishListItemRequest request)
+        {
+            var userId = GetLoggedInUserId();
+
+            var card = await _context.Cards
+                .AsNoTracking()
+                .FirstOrDefaultAsync(card => card.Id == request.CardId);
+
+            if (card == null)
+            {
+                return BadRequest("Card does not exist");
+            }
+
+            var wishListItem = new WishListItem
+            {
+                UserId = userId,
+                CardId = request.CardId,
+                WantedQuantity = request.WantedQuantity,
+                Priority = request.Priority?.Trim(),
+                ReasonWanted = request.ReasonWanted?.Trim(),
+                WantRaw = request.WantRaw,
+                WantGraded = request.WantGraded,
+                PreferredGradingCompany = request.PreferredGradingCompany?.Trim(),
+                IsOpenToTrade = request.IsOpenToTrade,
+                Notes = request.Notes?.Trim()
+            };
+
+            await _context.WishList.AddAsync(wishListItem);
+            await _context.SaveChangesAsync();
+
+            var response = new WishListItemResponse
+            {
+                Id = wishListItem.Id,
+                CardId = wishListItem.CardId,
+                CardName = card.Name,
+                SetName = card.SetName,
+                Rarity = card.Rarity,
+                Colour = card.Colour,
+                WantedQuantity = wishListItem.WantedQuantity,
+                Priority = wishListItem.Priority,
+                ReasonWanted = wishListItem.ReasonWanted,
+                WantRaw = wishListItem.WantRaw,
+                WantGraded = wishListItem.WantGraded,
+                PreferredGradingCompany = wishListItem.PreferredGradingCompany,
+                IsOpenToTrade = wishListItem.IsOpenToTrade,
+                Notes = wishListItem.Notes
+            };
+
+            return CreatedAtAction(nameof(GetWishListItemById), new { id = wishListItem.Id }, response);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateWishListItem(int id, UpdateWishListItemRequest request)
         {
-            var wishListItem = await _context.WishList.FirstOrDefaultAsync(wl => wl.Id == id);
+            var userId = GetLoggedInUserId();
+
+            var wishListItem = await _context.WishList
+                .FirstOrDefaultAsync(wishListItem =>
+                    wishListItem.Id == id &&
+                    wishListItem.UserId == userId);
 
             if (wishListItem == null)
             {
@@ -74,47 +188,30 @@ namespace CyberpunkTcgVault.Api.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<WishListItem>> CreateWishListItem(CreateWishListItemRequest request)
-        {
-            // Check the card exists before creating a wishlist item.
-            var cardExists = await _context.Cards.AnyAsync(card => card.Id == request.CardId);
-
-            if (!cardExists)
-            {
-                return BadRequest("Wish List card does not exist");
-            }
-
-            var wishListItem = new WishListItem
-            {
-                CardId = request.CardId,
-                WantedQuantity = request.WantedQuantity,
-                Priority = request.Priority?.Trim(),
-                ReasonWanted = request.ReasonWanted?.Trim(),
-                WantRaw = request.WantRaw,
-                WantGraded = request.WantGraded,
-                PreferredGradingCompany = request.PreferredGradingCompany?.Trim(),
-                IsOpenToTrade = request.IsOpenToTrade,
-                Notes = request.Notes?.Trim()
-            };
-
-            await _context.WishList.AddAsync(wishListItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetWishListItemById), new { id = wishListItem.Id }, wishListItem);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWishListItem(int id)
         {
-            var wishListItem = await _context.WishList.FirstOrDefaultAsync(wl => wl.Id == id);
+            var userId = GetLoggedInUserId();
+
+            _logger.LogInformation(
+                "Received request to delete wishlist item with ID {WishListItemId} for user {UserId}.",
+                id,
+                userId);
+
+            var wishListItem = await _context.WishList
+                .FirstOrDefaultAsync(wishListItem =>
+                    wishListItem.Id == id &&
+                    wishListItem.UserId == userId);
 
             if (wishListItem == null)
             {
-                _logger.LogWarning("WishListItem with ID {WishListItemId} was not found.", id);
+                _logger.LogWarning(
+                    "Wishlist item with ID {WishListItemId} was not found for user {UserId}.",
+                    id,
+                    userId);
+
                 return NotFound();
             }
 
@@ -122,7 +219,10 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Deleted WishListItem with ID {WishListItemId}.", id);
+            _logger.LogInformation(
+                "Deleted wishlist item with ID {WishListItemId} for user {UserId}.",
+                id,
+                userId);
 
             return NoContent();
         }
