@@ -14,16 +14,17 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
     {
         private static OwnedCardsController CreateOwnedCardsController(AppDbContext context, Guid userId)
         {
-            var controller = new OwnedCardsController(context, NullLogger<OwnedCardsController>.Instance);
-
-            controller.ControllerContext = new ControllerContext
+            var controller = new OwnedCardsController(context, NullLogger<OwnedCardsController>.Instance)
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                    HttpContext = new DefaultHttpContext
                     {
-                        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-                    }, "TestAuth"))
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                        }, "TestAuth"))
+                    }
                 }
             };
 
