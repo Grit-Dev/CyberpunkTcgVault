@@ -4,7 +4,7 @@ namespace CyberpunkTcgVault.Api.Models
 {
     public class AppUser
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -14,5 +14,9 @@ namespace CyberpunkTcgVault.Api.Models
         // - We will use a framework hash!
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
+
+        // Navigation property.
+        // The user can have many owned cards linked to their account.
+        public ICollection<OwnedCard> OwnedCards { get; set; } = new List<OwnedCard>();
     }
 }
