@@ -20,10 +20,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 {
                     HttpContext = new DefaultHttpContext
                     {
-                        User = new ClaimsPrincipal(new ClaimsIdentity(new[]
-                        {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(
+                        [
                             new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-                        }, "TestAuth"))
+                        ], "TestAuth"))
                     }
                 }
             };
