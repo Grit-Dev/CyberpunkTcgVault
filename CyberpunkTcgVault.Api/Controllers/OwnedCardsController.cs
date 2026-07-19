@@ -4,6 +4,7 @@ using CyberpunkTcgVault.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CyberpunkTcgVault.Api.Controllers
 {
@@ -21,33 +22,90 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<OwnedCard>>> GetOwnedCards()
+        // Look inside the JWT. Find the logged-in user's ID. Convert it back into a Guid. Return it
+        private Guid GetLoggedInUserId()
         {
-            _logger.LogInformation("Received request to get all owned cards.");
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdValue, out var userId))
+            {
+                throw new InvalidOperationException("User ID claim was not found or was invalid.");
+            }
+
+            return userId;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<OwnedCardResponse>>> GetOwnedCards()
+        {
+            var userId = GetLoggedInUserId();
+
+            _logger.LogInformation("Received request to get owned cards for user {UserId}.", userId);
 
             var ownedCards = await _context.OwnedCards
                 .AsNoTracking()
+                .Where(ownedCard => ownedCard.UserId == userId)
                 .Include(ownedCard => ownedCard.Card)
                 .OrderBy(ownedCard => ownedCard.Card.Name)
+                .Select(ownedCard => new OwnedCardResponse
+                {
+                    Id = ownedCard.Id,
+                    CardId = ownedCard.CardId,
+                    CardName = ownedCard.Card.Name,
+                    SetName = ownedCard.Card.SetName,
+                    Rarity = ownedCard.Card.Rarity,
+                    Colour = ownedCard.Card.Colour,
+                    QuantityOwned = ownedCard.QuantityOwned,
+                    Condition = ownedCard.Condition,
+                    IsInMasterCollection = ownedCard.IsInMasterCollection,
+                    IsDuplicate = ownedCard.IsDuplicate,
+                    IsGradingCandidate = ownedCard.IsGradingCandidate,
+                    IsOpenForTrade = ownedCard.IsOpenForTrade,
+                    IsOpenToMessages = ownedCard.IsOpenToMessages,
+                    MaySellLater = ownedCard.MaySellLater,
+                    Notes = ownedCard.Notes
+                })
                 .ToListAsync();
 
-            _logger.LogInformation("Retrieved {Count} owned cards from the database.", ownedCards.Count);
+            _logger.LogInformation("Retrieved {Count} owned cards for user {UserId}.", ownedCards.Count, userId);
 
             return Ok(ownedCards);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<OwnedCard>> GetOwnedCardById(int id)
+        public async Task<ActionResult<OwnedCardResponse>> GetOwnedCardById(int id)
         {
+            var userId = GetLoggedInUserId();
+
             var ownedCard = await _context.OwnedCards
                 .AsNoTracking()
-                .Include(ownedCards => ownedCards.Card)
-                .FirstOrDefaultAsync(ownedCard => ownedCard.Id == id);
+                .Where(ownedCard =>
+                    ownedCard.Id == id &&
+                    ownedCard.UserId == userId)
+                .Select(ownedCard => new OwnedCardResponse
+                {
+                    Id = ownedCard.Id,
+                    CardId = ownedCard.CardId,
+                    CardName = ownedCard.Card.Name,
+                    SetName = ownedCard.Card.SetName,
+                    Rarity = ownedCard.Card.Rarity,
+                    Colour = ownedCard.Card.Colour,
+                    QuantityOwned = ownedCard.QuantityOwned,
+                    Condition = ownedCard.Condition,
+                    IsInMasterCollection = ownedCard.IsInMasterCollection,
+                    IsDuplicate = ownedCard.IsDuplicate,
+                    IsGradingCandidate = ownedCard.IsGradingCandidate,
+                    IsOpenForTrade = ownedCard.IsOpenForTrade,
+                    IsOpenToMessages = ownedCard.IsOpenToMessages,
+                    MaySellLater = ownedCard.MaySellLater,
+                    Notes = ownedCard.Notes
+                })
+                .FirstOrDefaultAsync();
 
             if (ownedCard == null)
             {
-                _logger.LogWarning("Owned card with ID {Id} not found.", id);
+                _logger.LogWarning("Owned card with ID {Id} was not found for user {UserId}.", id, userId);
+
                 return NotFound();
             }
 
@@ -55,18 +113,22 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OwnedCard>> CreateOwnedCard(CreateOwnedCardRequest request)
+        public async Task<ActionResult<OwnedCardResponse>> CreateOwnedCard(CreateOwnedCardRequest request)
         {
-            var cardExists = await _context.Cards.AnyAsync(card => card.Id == request.CardId);
+            var userId = GetLoggedInUserId();
 
-            if (!cardExists)
+            var card = await _context.Cards
+                .AsNoTracking()
+                .FirstOrDefaultAsync(card => card.Id == request.CardId);
+
+            if (card == null)
             {
                 return BadRequest("Card does not exist");
-
             }
 
             var ownedCard = new OwnedCard
             {
+                UserId = userId,
                 CardId = request.CardId,
                 QuantityOwned = request.QuantityOwned,
                 Condition = request.Condition?.Trim(),
@@ -82,15 +144,37 @@ namespace CyberpunkTcgVault.Api.Controllers
             await _context.OwnedCards.AddAsync(ownedCard);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetOwnedCardById), new { id = ownedCard.Id }, ownedCard);
-            
+            var response = new OwnedCardResponse
+            {
+                Id = ownedCard.Id,
+                CardId = ownedCard.CardId,
+                CardName = card.Name,
+                SetName = card.SetName,
+                Rarity = card.Rarity,
+                Colour = card.Colour,
+                QuantityOwned = ownedCard.QuantityOwned,
+                Condition = ownedCard.Condition,
+                IsInMasterCollection = ownedCard.IsInMasterCollection,
+                IsDuplicate = ownedCard.IsDuplicate,
+                IsGradingCandidate = ownedCard.IsGradingCandidate,
+                IsOpenForTrade = ownedCard.IsOpenForTrade,
+                IsOpenToMessages = ownedCard.IsOpenToMessages,
+                MaySellLater = ownedCard.MaySellLater,
+                Notes = ownedCard.Notes
+            };
+
+            return CreatedAtAction(nameof(GetOwnedCardById), new { id = ownedCard.Id }, response);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOwnedCard(int id, UpdateOwnedCardRequest request)
         {
+            var userId = GetLoggedInUserId();
+
             var ownedCard = await _context.OwnedCards
-                .FirstOrDefaultAsync(ownedCard => ownedCard.Id == id);
+                .FirstOrDefaultAsync(ownedCard =>
+                    ownedCard.Id == id &&
+                    ownedCard.UserId == userId);
 
             if (ownedCard == null)
             {
@@ -115,14 +199,24 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOwnedCard(int id)
         {
-            _logger.LogInformation("Received request to delete owned card with ID {OwnedCardId}.", id);
+            var userId = GetLoggedInUserId();
+
+            _logger.LogInformation(
+                "Received request to delete owned card with ID {OwnedCardId} for user {UserId}.",
+                id,
+                userId);
 
             var ownedCard = await _context.OwnedCards
-                .FirstOrDefaultAsync(ownedCard => ownedCard.Id == id);
+                .FirstOrDefaultAsync(ownedCard =>
+                    ownedCard.Id == id &&
+                    ownedCard.UserId == userId);
 
             if (ownedCard == null)
             {
-                _logger.LogWarning("Owned card with ID {OwnedCardId} was not found.", id);
+                _logger.LogWarning(
+                    "Owned card with ID {OwnedCardId} was not found for user {UserId}.",
+                    id,
+                    userId);
 
                 return NotFound();
             }
@@ -131,7 +225,10 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Deleted owned card with ID {OwnedCardId}.", id);
+            _logger.LogInformation(
+                "Deleted owned card with ID {OwnedCardId} for user {UserId}.",
+                id,
+                userId);
 
             return NoContent();
         }
