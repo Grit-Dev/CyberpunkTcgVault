@@ -1,6 +1,7 @@
 ﻿using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,36 @@ namespace CyberpunkTcgVault.Api.Controllers
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<AuthUserResponse>> GetCurrentUser()
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(user => user.Id == userId);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = new AuthUserResponse
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Role = user.Role
+            };
+
+            return Ok(response);
         }
 
         [HttpPost("register")]
