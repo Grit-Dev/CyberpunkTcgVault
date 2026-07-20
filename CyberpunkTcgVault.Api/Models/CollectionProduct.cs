@@ -4,6 +4,12 @@
     {
         public int Id { get; set; }
 
+        // Foreign Key: Collection Product
+        public Guid UserId { get; set; }
+
+        // Navigation back to the owning user.
+        public AppUser User { get; set; } = null!;
+
         public string ProductName { get; set; } = string.Empty;
 
         public string? ProductType { get; set; }
