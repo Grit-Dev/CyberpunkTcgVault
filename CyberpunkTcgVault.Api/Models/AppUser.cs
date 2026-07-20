@@ -10,6 +10,10 @@ namespace CyberpunkTcgVault.Api.Models
         [StringLength(50)]
         public string UserName { get; set; } = string.Empty;
 
+        [Required]
+        [StringLength(50)]
+        public string Role { get; set; } = "User";
+
         // Do not store Actually pasword
         // - We will use a framework hash!
         [Required]

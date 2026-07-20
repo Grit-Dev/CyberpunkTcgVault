@@ -35,7 +35,8 @@ namespace CyberpunkTcgVault.Api.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             var jwtKey = _configuration["Jwt:Key"]
@@ -71,7 +72,8 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             var user = new AppUser
             {
-                UserName = request.UserName.Trim()
+                UserName = request.UserName.Trim(),
+                Role = "User"
             };
 
             // No Password Saved - Its hashed and we only get back the Hash!

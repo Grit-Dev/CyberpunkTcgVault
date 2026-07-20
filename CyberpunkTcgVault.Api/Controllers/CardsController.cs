@@ -1,6 +1,7 @@
 ﻿using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -63,10 +64,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             return Ok(card);
         }
 
-        // PMG TODO: Space from bottom bracket.
-
-        // ADD / Create 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Card>> CreateCard(CreateCardRequest request)
         {
@@ -115,6 +113,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCard(int id, UpdateCardRequest request)
         {
@@ -162,6 +161,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCard(int id)
         {
