@@ -3,58 +3,200 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Tests.TestHelpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Security.Claims;
 
 namespace CyberpunkTcgVault.Api.Tests.Controllers
 {
     public class CollectionProductsControllerTests
     {
-        private static CollectionProductsController CreateController(AppDbContext context)
+        private static CollectionProductsController CreateController(AppDbContext context, Guid userId)
         {
-            return new CollectionProductsController(context, NullLogger<CollectionProductsController>.Instance);
+            var controller = new CollectionProductsController(
+                context,
+                NullLogger<CollectionProductsController>.Instance)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(
+                        [
+                            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                        ], "TestAuth"))
+                    }
+                }
+            };
+
+            return controller;
+        }
+
+        private static AppUser CreateTestUser()
+        {
+            var userId = Guid.NewGuid();
+
+            return new AppUser
+            {
+                Id = userId,
+                UserName = $"test-user-{userId}",
+                PasswordHash = "hashed-password"
+            };
         }
 
         [Fact]
-        public async Task GetCollectionProducts_WhenProductsExist_ReturnOkWithProducts()
+        public async Task GetCollectionProducts_WhenProductsExist_ReturnOkWithProductResponses()
         {
-            var context = TestDbContextFactory.Create();
+            // Arrange
+            using var context = TestDbContextFactory.Create();
 
-            var product = new CollectionProduct { ProductName = "Product A", Quantity = 1 };
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = user.Id,
+                ProductName = "Product A",
+                Quantity = 1
+            };
+
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            var controller = CreateController(context);
+            var controller = CreateController(context, user.Id);
 
+            // Act
             var result = await controller.GetCollectionProducts();
 
+            // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
-            var items = Assert.IsAssignableFrom<IEnumerable<CollectionProduct>>(ok.Value);
-            Assert.Contains(items, p => p.ProductName == "Product A");
+            var items = Assert.IsAssignableFrom<IEnumerable<CollectionProductResponse>>(ok.Value);
+
+            Assert.Contains(items, productResponse => productResponse.ProductName == "Product A");
         }
 
         [Fact]
-        public async Task GetCollectionProductById_WhenExists_ReturnsOk()
+        public async Task GetCollectionProducts_WhenOtherUsersHaveProducts_DoesNotReturnOtherUsersProducts()
         {
-            var context = TestDbContextFactory.Create();
-            var product = new CollectionProduct { ProductName = "ById Product" };
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var userOne = CreateTestUser();
+            var userTwo = CreateTestUser();
+
+            context.Users.AddRange(userOne, userTwo);
+            await context.SaveChangesAsync();
+
+            var userOneProduct = new CollectionProduct
+            {
+                UserId = userOne.Id,
+                ProductName = "User One Product",
+                Quantity = 1
+            };
+
+            var userTwoProduct = new CollectionProduct
+            {
+                UserId = userTwo.Id,
+                ProductName = "User Two Product",
+                Quantity = 5
+            };
+
+            context.Products.AddRange(userOneProduct, userTwoProduct);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, userOne.Id);
+
+            // Act
+            var result = await controller.GetCollectionProducts();
+
+            // Assert
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var items = Assert.IsAssignableFrom<IEnumerable<CollectionProductResponse>>(ok.Value);
+
+            Assert.Contains(items, productResponse => productResponse.Id == userOneProduct.Id);
+            Assert.DoesNotContain(items, productResponse => productResponse.Id == userTwoProduct.Id);
+        }
+
+        [Fact]
+        public async Task GetCollectionProductById_WhenExistsForLoggedInUser_ReturnsOk()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = user.Id,
+                ProductName = "ById Product",
+                Quantity = 2
+            };
+
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            var controller = CreateController(context);
+            var controller = CreateController(context, user.Id);
 
+            // Act
             var result = await controller.GetCollectionProductById(product.Id);
 
+            // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
-            var returned = Assert.IsType<CollectionProduct>(ok.Value);
+            var returned = Assert.IsType<CollectionProductResponse>(ok.Value);
+
             Assert.Equal(product.Id, returned.Id);
+            Assert.Equal("ById Product", returned.ProductName);
         }
 
         [Fact]
-        public async Task CreateCollectionProduct_WhenRequestIsValid_CreatesProduct()
+        public async Task GetCollectionProductById_WhenOwnedByDifferentUser_ReturnsNotFound()
         {
-            var context = TestDbContextFactory.Create();
-            var controller = CreateController(context);
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var owner = CreateTestUser();
+            var otherUser = CreateTestUser();
+
+            context.Users.AddRange(owner, otherUser);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = owner.Id,
+                ProductName = "Private Product",
+                Quantity = 1
+            };
+
+            context.Products.Add(product);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, otherUser.Id);
+
+            // Act
+            var result = await controller.GetCollectionProductById(product.Id);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task CreateCollectionProduct_WhenRequestIsValid_CreatesProductForLoggedInUser()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, user.Id);
 
             var request = new CreateCollectionProductRequest
             {
@@ -63,39 +205,73 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 IsSealed = true
             };
 
+            // Act
             var result = await controller.CreateCollectionProduct(request);
 
+            // Assert
             var created = Assert.IsType<CreatedAtActionResult>(result.Result);
-            var createdProduct = Assert.IsType<CollectionProduct>(created.Value);
+            var response = Assert.IsType<CollectionProductResponse>(created.Value);
 
-            Assert.Equal("Trimmed Product", createdProduct.ProductName);
-            Assert.Equal(2, createdProduct.Quantity);
-            Assert.True(createdProduct.IsSealed);
-            Assert.Contains(context.Products, p => p.Id == createdProduct.Id);
+            Assert.Equal("Trimmed Product", response.ProductName);
+            Assert.Equal(2, response.Quantity);
+            Assert.True(response.IsSealed);
+
+            var savedProduct = Assert.Single(context.Products);
+
+            Assert.Equal(user.Id, savedProduct.UserId);
+            Assert.Equal("Trimmed Product", savedProduct.ProductName);
+            Assert.Equal(2, savedProduct.Quantity);
+            Assert.True(savedProduct.IsSealed);
         }
 
         [Fact]
         public async Task CreateCollectionProduct_WhenNameMissing_ReturnsBadRequest()
         {
-            var context = TestDbContextFactory.Create();
-            var controller = CreateController(context);
+            // Arrange
+            using var context = TestDbContextFactory.Create();
 
-            var request = new CreateCollectionProductRequest { ProductName = "   " };
+            var user = CreateTestUser();
 
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, user.Id);
+
+            var request = new CreateCollectionProductRequest
+            {
+                ProductName = "   "
+            };
+
+            // Act
             var result = await controller.CreateCollectionProduct(request);
 
+            // Assert
             Assert.IsType<BadRequestObjectResult>(result.Result);
         }
 
         [Fact]
-        public async Task UpdateCollectionProduct_WhenExists_UpdatesProduct()
+        public async Task UpdateCollectionProduct_WhenExistsForLoggedInUser_UpdatesProduct()
         {
-            var context = TestDbContextFactory.Create();
-            var product = new CollectionProduct { ProductName = "Old Name", Quantity = 1 };
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = user.Id,
+                ProductName = "Old Name",
+                Quantity = 1,
+                IsSealed = true
+            };
+
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            var controller = CreateController(context);
+            var controller = CreateController(context, user.Id);
 
             var request = new UpdateCollectionProductRequest
             {
@@ -104,71 +280,211 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 IsSealed = false
             };
 
+            // Act
             var result = await controller.UpdateCollectionProduct(product.Id, request);
 
+            // Assert
             Assert.IsType<NoContentResult>(result);
 
             var updated = await context.Products.FindAsync(product.Id);
-            Assert.Equal("New Name", updated?.ProductName);
-            Assert.Equal(5, updated?.Quantity);
-            Assert.False(updated?.IsSealed);
+
+            Assert.NotNull(updated);
+            Assert.Equal("New Name", updated!.ProductName);
+            Assert.Equal(5, updated.Quantity);
+            Assert.False(updated.IsSealed);
+        }
+
+        [Fact]
+        public async Task UpdateCollectionProduct_WhenOwnedByDifferentUser_ReturnsNotFound()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var owner = CreateTestUser();
+            var otherUser = CreateTestUser();
+
+            context.Users.AddRange(owner, otherUser);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = owner.Id,
+                ProductName = "Protected Product",
+                Quantity = 1
+            };
+
+            context.Products.Add(product);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, otherUser.Id);
+
+            var request = new UpdateCollectionProductRequest
+            {
+                ProductName = "Hacked Product",
+                Quantity = 99
+            };
+
+            // Act
+            var result = await controller.UpdateCollectionProduct(product.Id, request);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+
+            var unchanged = await context.Products.FindAsync(product.Id);
+
+            Assert.NotNull(unchanged);
+            Assert.Equal("Protected Product", unchanged!.ProductName);
+            Assert.Equal(1, unchanged.Quantity);
         }
 
         [Fact]
         public async Task UpdateCollectionProduct_WhenNotExists_ReturnsNotFound()
         {
-            var context = TestDbContextFactory.Create();
-            var controller = CreateController(context);
+            // Arrange
+            using var context = TestDbContextFactory.Create();
 
-            var request = new UpdateCollectionProductRequest { ProductName = "Name", Quantity = 1 };
+            var user = CreateTestUser();
 
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, user.Id);
+
+            var request = new UpdateCollectionProductRequest
+            {
+                ProductName = "Name",
+                Quantity = 1
+            };
+
+            // Act
             var result = await controller.UpdateCollectionProduct(999, request);
 
+            // Assert
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
         public async Task UpdateCollectionProduct_WhenNameMissing_ReturnsBadRequest()
         {
-            var context = TestDbContextFactory.Create();
-            var product = new CollectionProduct { ProductName = "ToUpdate" };
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = user.Id,
+                ProductName = "ToUpdate",
+                Quantity = 1
+            };
+
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            var controller = CreateController(context);
+            var controller = CreateController(context, user.Id);
 
-            var request = new UpdateCollectionProductRequest { ProductName = "   ", Quantity = 1 };
+            var request = new UpdateCollectionProductRequest
+            {
+                ProductName = "   ",
+                Quantity = 1
+            };
 
+            // Act
             var result = await controller.UpdateCollectionProduct(product.Id, request);
 
+            // Assert
             Assert.IsType<BadRequestObjectResult>(result);
         }
 
         [Fact]
-        public async Task DeleteCollectionProduct_WhenExists_RemovesProduct()
+        public async Task DeleteCollectionProduct_WhenExistsForLoggedInUser_RemovesProduct()
         {
-            var context = TestDbContextFactory.Create();
-            var product = new CollectionProduct { ProductName = "DeleteMe" };
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = user.Id,
+                ProductName = "DeleteMe",
+                Quantity = 1
+            };
+
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            var controller = CreateController(context);
+            var controller = CreateController(context, user.Id);
 
+            // Act
             var result = await controller.DeleteCollectionProduct(product.Id);
 
+            // Assert
             Assert.IsType<NoContentResult>(result);
+
             var deleted = await context.Products.FindAsync(product.Id);
+
             Assert.Null(deleted);
+        }
+
+        [Fact]
+        public async Task DeleteCollectionProduct_WhenOwnedByDifferentUser_ReturnsNotFound()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            var owner = CreateTestUser();
+            var otherUser = CreateTestUser();
+
+            context.Users.AddRange(owner, otherUser);
+            await context.SaveChangesAsync();
+
+            var product = new CollectionProduct
+            {
+                UserId = owner.Id,
+                ProductName = "Protected Delete Product",
+                Quantity = 1
+            };
+
+            context.Products.Add(product);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, otherUser.Id);
+
+            // Act
+            var result = await controller.DeleteCollectionProduct(product.Id);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+
+            var stillExists = await context.Products.FindAsync(product.Id);
+
+            Assert.NotNull(stillExists);
         }
 
         [Fact]
         public async Task DeleteCollectionProduct_WhenNotExists_ReturnsNotFound()
         {
-            var context = TestDbContextFactory.Create();
-            var controller = CreateController(context);
+            // Arrange
+            using var context = TestDbContextFactory.Create();
 
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(context, user.Id);
+
+            // Act
             var result = await controller.DeleteCollectionProduct(999);
 
+            // Assert
             Assert.IsType<NotFoundResult>(result);
         }
     }

@@ -1,0 +1,48 @@
+﻿namespace CyberpunkTcgVault.Api.DTOs
+{
+    public class CollectionProductResponse
+    {
+        public int Id { get; set; }
+
+        public string ProductName { get; set; } = string.Empty;
+
+        public string? ProductType { get; set; }
+
+        public string? Edition { get; set; }
+
+        public int Quantity { get; set; }
+
+        public bool IsSealed { get; set; }
+
+        public bool IsBetaProduct { get; set; }
+
+        public bool IsKickstarterProduct { get; set; }
+
+        public bool IsRetailProduct { get; set; }
+
+        public bool IsPledgeItem { get; set; }
+
+        public decimal? PurchaseCost { get; set; }
+
+        public decimal? ShippingCost { get; set; }
+
+        public decimal? VatCost { get; set; }
+
+        public decimal? EstimatedValue { get; set; }
+
+        public decimal? MinimumSellPrice { get; set; }
+
+        public string? StorageLocation { get; set; }
+
+        public bool IsLongTermHold { get; set; }
+
+        public bool IsOpenToTrade { get; set; }
+
+        public bool MaySellLater { get; set; }
+
+        public string? ImageUrl { get; set; }
+
+        public string? Notes { get; set; }
+    }
+}
+
