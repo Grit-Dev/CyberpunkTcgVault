@@ -1,10 +1,10 @@
-﻿# Cyberpunk Vault
+﻿# Cyberpunk TCG Vault
 
-Cyberpunk Vault is a fan-made Cyberpunk TCG collection-management application built as a C#/.NET portfolio project.
+Cyberpunk TCG Vault is a fan-made trading-card collection-management application built as a C#/.NET and Angular portfolio project.
 
-The current backend allows users to register, log in, browse a shared card catalogue, and securely manage their own card collection, wishlist, and sealed-product collection.
+The application allows users to register, log in, browse a shared card catalogue, and securely manage their own card collection, wishlist, and sealed-product collection.
 
-The project demonstrates practical ASP.NET Core development, Entity Framework Core relationships, SQL Server persistence, JWT authentication, role-based authorization, user-ownership security, DTOs, migrations, Swagger documentation, and automated controller tests.
+The project demonstrates practical ASP.NET Core development, Entity Framework Core relationships, SQL Server persistence, JWT authentication, role-based authorization, user-ownership security, DTOs, migrations, Swagger/OpenAPI documentation, automated tests, Angular routing, and an evolving responsive frontend.
 
 > **Disclaimer:** This is a fan-made collection project and is not affiliated with Cyberpunk TCG, WeirdCo, CD Projekt, Cyberpunk 2077, or any official partners.
 
@@ -12,26 +12,117 @@ The project demonstrates practical ASP.NET Core development, Entity Framework Co
 
 ## Project Status
 
-The backend API has reached a secure MVP stage and is suitable as a backend portfolio project.
+### Backend API
 
-Completed areas include:
+The ASP.NET Core API has reached a secure MVP stage and is suitable as a standalone backend portfolio project.
+
+Completed backend areas include:
 
 - User registration and login
-- Password hashing
+- ASP.NET Core password hashing
 - JWT authentication
 - Claims-based user identification
 - Protected current-user endpoint
-- Role-based Admin access
+- Role-based Admin authorization
 - User-owned private data
-- EF Core relationships and migrations
+- Cross-user access prevention
+- Entity Framework Core relationships
 - SQL Server persistence
+- Database migrations
 - Request and response DTOs
 - Swagger/OpenAPI testing
 - Automated controller and authentication tests
+- 56 passing automated tests at the current project checkpoint
 
-The next planned stage is a small Angular and TypeScript frontend MVP.
+### Angular Frontend
 
-Cyberpunk Vault remains an active project, but future development will continue incrementally alongside focused C# coding challenges and a separate .NET API Gym repository.
+The Angular frontend is currently in its **initial development and visual-prototype stage**.
+
+> **Important:** The current homepage is only an initial visual starting point. It is not the finished application UI.
+>
+> The homepage was introduced early to give the project a polished visual direction while the real Angular application is built incrementally underneath it.
+>
+> Some card names, collection values, statistics, buttons, dashboard information, and navigation controls are currently presentation-only placeholders. These will be replaced with reusable Angular components and real data from the ASP.NET Core API.
+
+Current frontend progress includes:
+
+- Angular and TypeScript project scaffolded
+- Angular Router configured
+- Standalone Home component created
+- Home route connected through `router-outlet`
+- Initial responsive homepage prototype added
+- Initial global styling foundation added
+- Frontend development isolated on a feature branch
+
+The homepage design will change over time as the application gains:
+
+- Shared layout components
+- Reusable header and footer components
+- Registration and login pages
+- Reactive forms
+- Angular services
+- API integration
+- Authentication state
+- Route protection
+- Real collection data
+- Loading and error states
+- Accessibility improvements
+- Automated frontend tests
+
+Cyberpunk TCG Vault remains an active project. Development will continue incrementally alongside focused C# coding challenges and a separate .NET API Gym repository.
+
+---
+
+## Frontend Prototype Status
+
+The current homepage provides a visual target for the application rather than pretending that the complete frontend has already been implemented.
+
+### Currently implemented
+
+- Angular application structure
+- Angular routing
+- Home page component
+- Responsive HTML and SCSS foundation
+- Initial project-wide visual direction
+- Reusable design values beginning to move into global styles
+- A polished starting screen for the portfolio project
+
+### Currently placeholder content
+
+The following homepage elements are currently visual examples:
+
+- Example collection value
+- Example number of cards
+- Example card names
+- Example card rarities
+- Vault completion percentage
+- Dashboard information
+- Login button behaviour
+- Registration button behaviour
+- Collection navigation behaviour
+
+These placeholders are intentionally included to demonstrate the intended user experience.
+
+They are not yet connected to the database or API.
+
+### Planned replacement work
+
+The placeholder content will be replaced incrementally with:
+
+- Real API responses
+- Real authenticated-user information
+- User-specific collection records
+- Reusable Angular components
+- Angular services
+- Reactive forms
+- Route guards
+- Loading indicators
+- Validation messages
+- Error handling
+- Accessible controls
+- Responsive behaviour tested across screen sizes
+
+This approach provides a polished visual direction early while keeping the implementation status transparent and easy to explain.
 
 ---
 
@@ -48,23 +139,41 @@ Cyberpunk Vault remains an active project, but future development will continue 
 - ASP.NET Core Authorization
 - Swagger / OpenAPI
 
+### Frontend — In Progress
+
+- Angular
+- TypeScript
+- Angular Router
+- Standalone Angular components
+- HTML
+- SCSS
+- Responsive layouts
+- Planned Angular services
+- Planned reactive forms
+- Planned JWT-authenticated API requests
+- Possible Progressive Web App support later
+
 ### Testing
 
 - xUnit
 - EF Core InMemory provider
 - ASP.NET Core controller tests
-- Authentication and authorization tests
+- Authentication tests
+- Authorization tests
+- Ownership tests
+- Cross-user access tests
+- Frontend tests to be expanded as Angular features are implemented
 
-### Planned Frontend
+### Development Tools
 
-- Angular
-- TypeScript
-- Angular Router
-- Angular services
-- Reactive forms
-- JWT-authenticated API requests
-- Responsive UI
-- Possible PWA support later
+- Git
+- GitHub
+- Visual Studio
+- Developer PowerShell
+- Angular CLI
+- Swagger
+- SQL Server Management Studio
+- AI-assisted development tools used selectively
 
 ---
 
@@ -82,7 +191,7 @@ After a successful login, the API returns a signed JWT containing claims for:
 - Username
 - Role
 
-The client sends this token with protected API requests.
+The Angular frontend will send this token with protected API requests.
 
 ---
 
@@ -104,12 +213,13 @@ Example response:
 }
 ```
 
-This endpoint can be used by a frontend to:
+The Angular frontend will use this endpoint to:
 
 - Restore login state after a page refresh
 - Display the current username
 - Determine whether Admin controls should be shown
-- Confirm that the current JWT is still accepted by the API
+- Confirm that the current JWT is still valid
+- Keep authentication decisions based on backend data
 
 The backend remains the source of truth for authentication and authorization.
 
@@ -154,7 +264,7 @@ The API contains three areas of private user-owned data:
 
 The frontend does not provide the `UserId` when creating these records.
 
-Instead, the backend reads the logged-in user's ID from the JWT:
+Instead, the backend reads the logged-in user’s ID from the JWT:
 
 ```csharp
 User.FindFirstValue(ClaimTypes.NameIdentifier)
@@ -162,13 +272,13 @@ User.FindFirstValue(ClaimTypes.NameIdentifier)
 
 Database queries are then filtered using that user ID.
 
-This prevents one user from viewing, updating, or deleting another user's private data.
+This prevents one user from viewing, updating, or deleting another user’s private data.
 
 ---
 
 ### Owned Cards
 
-Owned cards represent cards in a user's personal collection.
+Owned cards represent cards in a user’s personal collection.
 
 Each owned-card record links:
 
@@ -238,7 +348,13 @@ Authentication answers:
 
 > Who is making the request?
 
-The API validates the JWT signature, issuer, audience, lifetime, and signing key.
+The API validates the JWT:
+
+- Signature
+- Issuer
+- Audience
+- Lifetime
+- Signing key
 
 Protected endpoints use:
 
@@ -264,7 +380,13 @@ product.Id == id &&
 product.UserId == loggedInUserId
 ```
 
-Requests for another user's private records return `404 Not Found`.
+Requests for another user’s private records return:
+
+```http
+404 Not Found
+```
+
+Using `404 Not Found` avoids confirming whether another user’s private record exists.
 
 ---
 
@@ -300,7 +422,7 @@ PUT    /api/OwnedCards/{id}
 DELETE /api/OwnedCards/{id}
 ```
 
-All Owned Cards endpoints require authentication and operate only on the logged-in user's records.
+All Owned Cards endpoints require authentication and operate only on the logged-in user’s records.
 
 ### Wishlist Items
 
@@ -312,7 +434,7 @@ PUT    /api/WishListItem/{id}
 DELETE /api/WishListItem/{id}
 ```
 
-All Wishlist Item endpoints require authentication and operate only on the logged-in user's records.
+All Wishlist Item endpoints require authentication and operate only on the logged-in user’s records.
 
 ### Collection Products
 
@@ -324,7 +446,7 @@ PUT    /api/CollectionProducts/{id}
 DELETE /api/CollectionProducts/{id}
 ```
 
-All Collection Product endpoints require authentication and operate only on the logged-in user's records.
+All Collection Product endpoints require authentication and operate only on the logged-in user’s records.
 
 ---
 
@@ -346,6 +468,24 @@ CyberpunkTcgVault/
 │   ├── Controllers/
 │   └── TestHelpers/
 │
+├── CyberpunkTcgVault.Web/
+│   ├── public/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── pages/
+│   │   │   │   └── home/
+│   │   │   ├── app.config.ts
+│   │   │   ├── app.html
+│   │   │   ├── app.routes.ts
+│   │   │   └── app.ts
+│   │   ├── index.html
+│   │   ├── main.ts
+│   │   └── styles.scss
+│   ├── angular.json
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── tsconfig.spec.json
+│
 ├── docs/
 │   └── screenshots/
 │
@@ -353,15 +493,20 @@ CyberpunkTcgVault/
 └── CyberpunkTcgVault.sln
 ```
 
-The `docs/screenshots` folder may be added when project screenshots are available.
+The `docs/screenshots` directory contains project evidence and development screenshots.
+
+The images are kept separately from this README so that the main documentation remains focused and easy to read.
 
 ---
 
 ## Prerequisites
 
-To run the project locally, install:
+To run the complete project locally, install:
 
 - .NET 8 SDK
+- Node.js LTS
+- npm
+- Angular CLI
 - SQL Server LocalDB or SQL Server
 - SQL Server Management Studio, optional but recommended
 - Git
@@ -373,10 +518,16 @@ Install the EF Core command-line tool when required:
 dotnet tool install --global dotnet-ef
 ```
 
-If it is already installed, it can be updated with:
+If it is already installed, update it with:
 
 ```bash
 dotnet tool update --global dotnet-ef
+```
+
+Install Angular CLI when required:
+
+```bash
+npm install --global @angular/cli
 ```
 
 ---
@@ -388,7 +539,7 @@ git clone https://github.com/Grit-Dev/CyberpunkTcgVault.git
 cd CyberpunkTcgVault
 ```
 
-Restore NuGet packages:
+Restore the backend packages:
 
 ```bash
 dotnet restore
@@ -400,7 +551,7 @@ Build the solution:
 dotnet build
 ```
 
-Run the tests:
+Run the backend tests:
 
 ```bash
 dotnet test
@@ -512,7 +663,7 @@ From the repository root:
 dotnet run --project CyberpunkTcgVault.Api
 ```
 
-The API should start on the local URL shown in the terminal.
+The API starts on the local URL displayed in the terminal.
 
 When running in the Development environment, Swagger is available at:
 
@@ -524,9 +675,49 @@ Use the actual port displayed when the API starts.
 
 ---
 
+## Run the Angular Frontend
+
+Open a second terminal and move into the Angular project:
+
+```bash
+cd CyberpunkTcgVault.Web
+npm install
+ng serve --open
+```
+
+The Angular development server normally opens at:
+
+```text
+http://localhost:4200
+```
+
+Keep the terminal running while developing.
+
+Angular automatically refreshes the browser when frontend files are saved.
+
+If port `4200` is already in use, another Angular development server may already be running.
+
+Stop the existing server from its original terminal with:
+
+```text
+Ctrl+C
+```
+
+Alternatively, start the application using another port:
+
+```bash
+ng serve --open --port 4201
+```
+
+The current homepage is an initial visual prototype.
+
+Its presentation-only values and controls will be replaced as real routes, services, forms, and API integrations are implemented.
+
+---
+
 ## Using the API Through Swagger
 
-### 1. Register a user
+### 1. Register a User
 
 Open:
 
@@ -549,9 +740,7 @@ A new account is created with the default role:
 User
 ```
 
----
-
-### 2. Log in
+### 2. Log In
 
 Open:
 
@@ -576,8 +765,6 @@ Example response:
 }
 ```
 
----
-
 ### 3. Authorize Swagger
 
 Click the **Authorize** button in Swagger.
@@ -596,9 +783,7 @@ Do not include:
 
 Swagger adds the `Bearer` prefix automatically.
 
----
-
-### 4. Test the current user
+### 4. Test the Current User
 
 Call:
 
@@ -606,17 +791,15 @@ Call:
 GET /api/Auth/me
 ```
 
-A valid token should return the current user's ID, username, and role.
+A valid token should return the current user’s ID, username, and role.
 
 Without a valid token, the API returns:
 
-```text
+```http
 401 Unauthorized
 ```
 
----
-
-### 5. Use protected endpoints
+### 5. Use Protected Endpoints
 
 After authorizing Swagger, users can manage their own:
 
@@ -624,7 +807,7 @@ After authorizing Swagger, users can manage their own:
 - Wishlist items
 - Collection products
 
-The API automatically assigns the records to the authenticated user's ID.
+The API automatically assigns records to the authenticated user’s ID.
 
 ---
 
@@ -661,13 +844,13 @@ Expected behaviour:
 
 ## Running the Tests
 
-Run all tests from the repository root:
+Run all backend tests from the repository root:
 
 ```bash
 dotnet test
 ```
 
-The project includes tests covering:
+The project currently includes 56 passing automated tests covering:
 
 - Card controller behaviour
 - Owned-card ownership
@@ -677,16 +860,20 @@ The project includes tests covering:
 - User registration
 - Duplicate username handling
 - Password hashing
-- Successful and unsuccessful login
+- Successful login
+- Unsuccessful login
 - JWT generation
 - JWT user ID claims
 - JWT username claims
 - JWT role claims
 - Protected `/api/Auth/me` behaviour
+- Role-based Admin access
 
 The controller tests use an EF Core InMemory database.
 
-Authentication claims are added manually to direct controller tests because direct controller tests do not execute the full ASP.NET authentication middleware pipeline.
+Authentication claims are added manually to direct controller tests because direct controller tests do not execute the complete ASP.NET authentication middleware pipeline.
+
+Frontend tests will be expanded as Angular components, forms, services, and authentication behaviour are introduced.
 
 ---
 
@@ -704,35 +891,81 @@ The project demonstrates the following security practices:
 - Request DTOs prevent unwanted fields from being posted
 - Response DTOs control what data is returned
 - Private collection information is not exposed through public endpoints
+- Cross-user record access is prevented
 
-This project is a portfolio and learning application. A larger production system would require additional controls such as refresh-token handling, account recovery, rate limiting, email verification, audit logging, and a more complete role-management process.
+The Angular frontend may display authentication state and Admin controls, but it is not treated as a security boundary.
+
+The API remains responsible for enforcing:
+
+- Authentication
+- Authorization
+- Roles
+- Ownership
+- Data validation
+
+This project is a portfolio and learning application.
+
+A larger production system would require additional controls such as:
+
+- Refresh-token handling
+- Account recovery
+- Rate limiting
+- Email verification
+- Audit logging
+- A complete role-management process
+- Production secrets management
+- Additional monitoring and logging
 
 ---
 
-## Screenshots
+## AI-Assisted Development
 
-Project screenshots will be stored in:
+AI-assisted development tools are used selectively during the project.
 
-```text
-docs/screenshots/
-```
+The initial Angular homepage visual prototype was drafted with AI assistance to establish a polished design direction while the underlying Angular application is built incrementally.
 
-Planned screenshots include:
+AI assistance may be used for:
 
-- Swagger endpoint overview
-- Successful login response
-- Protected `/api/Auth/me` response
-- Passing automated tests
-- Angular cards catalogue
-- Angular collection page
-- Angular wishlist page
-- Angular products page
+- Visual prototyping
+- Implementation suggestions
+- Code review
+- Accessibility suggestions
+- Debugging support
+- Identifying duplicated styles
+- Suggesting component boundaries
+- Repetitive implementation tasks
+- Explaining unfamiliar code
 
-Example README image syntax:
+AI tools are not treated as a replacement for understanding the application.
 
-```md
-![Swagger API Overview](docs/screenshots/swagger-overview.png)
-```
+Architecture decisions, backend security behaviour, testing, validation, Git history, and all final committed code changes are reviewed and owned by the author.
+
+OpenAI Codex may also be introduced selectively for repository review, accessibility checks, testing suggestions, and controlled implementation tasks.
+
+Codex is a development tool rather than an application dependency. Any Codex-generated changes must be reviewed, tested, and understood before being committed.
+
+---
+
+## Design and Asset Policy
+
+The frontend uses an original visual direction built with:
+
+- HTML
+- SCSS
+- CSS gradients
+- Typography
+- Reusable interface patterns
+
+The project will not rely on copyrighted game artwork, logos, music, or other protected media.
+
+Any future visual assets should be:
+
+- Original
+- Properly licensed
+- Royalty-free
+- Clearly attributed when the licence requires attribution
+
+The homepage and wider visual design may change significantly as the application grows.
 
 ---
 
@@ -755,26 +988,37 @@ Example README image syntax:
 - User-owned Collection Products
 - Role-based Admin card management
 - Request and response DTOs
-- Swagger documentation
+- Swagger/OpenAPI documentation
 - Automated controller and authentication tests
+- Cross-user access prevention
 
-### Next Planned Stage
+### Angular Frontend — In Progress
 
-- Angular and TypeScript frontend
-- Register screen
-- Login screen
+- Angular project scaffold
+- Angular routing
+- Initial Home component
+- Initial visual homepage prototype
+- Global styling foundation
+- Shared application layout
+- Reusable header and footer components
+- Register page
+- Login page
 - Current-user `/me` check
-- Cards catalogue page
+- Authentication service
+- HTTP configuration
+- Card catalogue page
 - My Collection page
 - My Wishlist page
 - My Products page
 - Logout flow
-- Admin-only card management controls
-- Responsive page layout
+- Route guards
+- Admin-only card-management controls
+- Responsive and accessible layouts
+- Frontend tests
 
 ### Longer-Term Development
 
-These are planned expansions rather than requirements for the initial portfolio MVP:
+These are possible expansions rather than requirements for the initial portfolio MVP:
 
 - Public user profiles
 - Wishlist visibility settings
@@ -788,20 +1032,52 @@ These are planned expansions rather than requirements for the initial portfolio 
 
 ---
 
+## Development Approach
+
+The project is being developed incrementally.
+
+The current development approach is:
+
+1. Establish a secure backend API.
+2. Add automated tests around security and user ownership.
+3. Create a small Angular application.
+4. Establish an initial visual direction.
+5. Return to Angular fundamentals.
+6. Split the prototype into reusable components.
+7. Implement authentication and API services.
+8. Replace placeholders with real backend data.
+9. Add loading, error, validation, and empty states.
+10. Add frontend tests and accessibility improvements.
+
+The initial homepage is therefore a starting template rather than a finished frontend.
+
+Its purpose is to provide a visual target while the real application is implemented step by step.
+
+---
+
 ## Related Learning Work
 
-Alongside Cyberpunk Vault, I am building smaller projects to reinforce the skills demonstrated here.
+Alongside Cyberpunk TCG Vault, I am building smaller projects to reinforce the skills demonstrated here.
 
 The related learning plan includes:
 
 - C# coding challenges for fundamentals and problem-solving
 - A `.NET API Gym` repository for focused API practice
-- Smaller exercises covering controllers, DTOs, EF Core relationships, authentication, JWTs, roles, ownership checks, and tests
+- Smaller exercises covering controllers
+- DTO exercises
+- EF Core relationship exercises
+- Authentication exercises
+- JWT exercises
+- Role-based authorization exercises
+- Ownership-security exercises
+- Automated testing exercises
 
-Cyberpunk Vault is the main portfolio application, while the smaller repositories are used for repetition and deeper understanding.
+Cyberpunk TCG Vault is the main portfolio application.
+
+The smaller repositories are used for repetition, experimentation, and deeper understanding.
 
 ---
 
 ## Author
 
-Built by **Paul McGinley** as a C#/.NET portfolio project.
+Built by **Paul McGinley** as a C#/.NET and Angular portfolio project.
