@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace CyberpunkTcgVault.Api.Tests.Controllers
 {
     public class CardsControllerTests
-    {
+    { 
         private static CardsController CreateCardsController(AppDbContext context)
         {
             return new CardsController(context, NullLogger<CardsController>.Instance);

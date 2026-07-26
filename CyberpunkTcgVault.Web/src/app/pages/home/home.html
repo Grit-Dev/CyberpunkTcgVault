@@ -1,0 +1,524 @@
+<div class="home-page">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#" aria-label="Cyberpunk TCG Vault homepage">
+        <span class="brand-symbol">
+          <span>CV</span>
+          <small>01</small>
+        </span>
+
+        <span class="brand-name">
+          <strong>Cyberpunk TCG</strong>
+          <small>Collection Vault</small>
+        </span>
+      </a>
+
+      <nav class="site-navigation" aria-label="Primary navigation">
+        <a href="#database">Database</a>
+        <a href="#vault">My Vault</a>
+        <a href="#security">Security</a>
+      </nav>
+
+      <div class="header-actions">
+        <span class="prototype-label">Visual prototype</span>
+
+        <button class="btn btn--text" type="button">
+          Log in
+        </button>
+
+        <button class="btn btn--primary header-register" type="button">
+          Join the vault
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section">
+      <div class="hero-grid"></div>
+      <div class="hero-light hero-light--yellow"></div>
+      <div class="hero-light hero-light--cyan"></div>
+
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <p class="eyebrow">Collection intelligence</p>
+
+          <h1>
+            Collect the city.
+            <span>Own your vault.</span>
+          </h1>
+
+          <p class="hero-description">
+            Search the shared card database, catalogue every pull and keep your
+            private collection, wishlist and sealed products secured behind
+            your own account.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn--primary" href="#database">
+              Explore database
+              <span aria-hidden="true">↗</span>
+            </a>
+
+            <a class="btn btn--secondary" href="#security">
+              How security works
+            </a>
+          </div>
+
+          <dl class="hero-stats">
+            <div>
+              <dt>API tests</dt>
+              <dd>56 passing</dd>
+            </div>
+
+            <div>
+              <dt>Authentication</dt>
+              <dd>JWT secured</dd>
+            </div>
+
+            <div>
+              <dt>Private data</dt>
+              <dd>User owned</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div
+          id="database"
+          class="database-preview"
+          aria-label="Card database visual prototype"
+        >
+          <div class="database-topbar">
+            <div>
+              <span class="console-code">DATABASE // 01</span>
+              <strong>Card catalogue</strong>
+            </div>
+
+            <span class="database-status">
+              <span></span>
+              Prototype data
+            </span>
+          </div>
+
+          <div class="database-search">
+            <label class="sr-only" for="prototype-card-search">
+              Search cards
+            </label>
+
+            <span aria-hidden="true">⌕</span>
+
+            <input
+              id="prototype-card-search"
+              type="search"
+              placeholder="Search card database..."
+            />
+
+            <kbd>CTRL K</kbd>
+          </div>
+
+          <div class="filter-row" aria-label="Example database filters">
+            <button class="filter-chip filter-chip--active" type="button">
+              All cards
+            </button>
+
+            <button class="filter-chip" type="button">
+              Legends
+            </button>
+
+            <button class="filter-chip" type="button">
+              Units
+            </button>
+
+            <button class="filter-chip" type="button">
+              Gear
+            </button>
+
+            <button class="filter-chip" type="button">
+              Program
+            </button>
+          </div>
+
+          <div class="database-heading">
+            <div>
+              <span>Collection preview</span>
+              <strong>Showing 6 prototype records</strong>
+            </div>
+
+            <button type="button">
+              Filter
+              <span aria-hidden="true">＋</span>
+            </button>
+          </div>
+
+          <div class="prototype-card-grid">
+            <article class="prototype-card prototype-card--yellow">
+              <div class="card-header">
+                <span>LEGEND</span>
+                <strong>05</strong>
+              </div>
+
+              <div class="card-visual">
+                <span class="visual-code">NX-01</span>
+                <div class="visual-shape"></div>
+              </div>
+
+              <div class="card-information">
+                <strong>Neon Courier</strong>
+                <span>Prototype character</span>
+              </div>
+
+              <div class="card-statline">
+                <span>PWR 6</span>
+                <span>RAM 2</span>
+              </div>
+            </article>
+
+            <article class="prototype-card prototype-card--cyan">
+              <div class="card-header">
+                <span>UNIT</span>
+                <strong>03</strong>
+              </div>
+
+              <div class="card-visual">
+                <span class="visual-code">NX-02</span>
+                <div class="visual-shape"></div>
+              </div>
+
+              <div class="card-information">
+                <strong>Ghost Signal</strong>
+                <span>Prototype operative</span>
+              </div>
+
+              <div class="card-statline">
+                <span>PWR 4</span>
+                <span>RAM 1</span>
+              </div>
+            </article>
+
+            <article class="prototype-card prototype-card--red">
+              <div class="card-header">
+                <span>GEAR</span>
+                <strong>02</strong>
+              </div>
+
+              <div class="card-visual">
+                <span class="visual-code">NX-03</span>
+                <div class="visual-shape"></div>
+              </div>
+
+              <div class="card-information">
+                <strong>Chrome Relay</strong>
+                <span>Prototype equipment</span>
+              </div>
+
+              <div class="card-statline">
+                <span>PWR +2</span>
+                <span>RAM 1</span>
+              </div>
+            </article>
+
+            <article class="prototype-card prototype-card--purple">
+              <div class="card-header">
+                <span>PROGRAM</span>
+                <strong>04</strong>
+              </div>
+
+              <div class="card-visual">
+                <span class="visual-code">NX-04</span>
+                <div class="visual-shape"></div>
+              </div>
+
+              <div class="card-information">
+                <strong>Blackwall Echo</strong>
+                <span>Prototype program</span>
+              </div>
+
+              <div class="card-statline">
+                <span>COST 4</span>
+                <span>RAM 3</span>
+              </div>
+            </article>
+
+            <article class="prototype-card prototype-card--cyan">
+              <div class="card-header">
+                <span>UNIT</span>
+                <strong>06</strong>
+              </div>
+
+              <div class="card-visual">
+                <span class="visual-code">NX-05</span>
+                <div class="visual-shape"></div>
+              </div>
+
+              <div class="card-information">
+                <strong>Night Runner</strong>
+                <span>Prototype specialist</span>
+              </div>
+
+              <div class="card-statline">
+                <span>PWR 7</span>
+                <span>RAM 2</span>
+              </div>
+            </article>
+
+            <article class="prototype-card prototype-card--yellow">
+              <div class="card-header">
+                <span>LEGEND</span>
+                <strong>08</strong>
+              </div>
+
+              <div class="card-visual">
+                <span class="visual-code">NX-06</span>
+                <div class="visual-shape"></div>
+              </div>
+
+              <div class="card-information">
+                <strong>Static Bloom</strong>
+                <span>Prototype legend</span>
+              </div>
+
+              <div class="card-statline">
+                <span>PWR 8</span>
+                <span>RAM 4</span>
+              </div>
+            </article>
+          </div>
+
+          <div class="database-footer">
+            <span>Visual prototype — not connected to the API yet</span>
+
+            <div>
+              <button type="button" aria-label="Previous prototype page">
+                ←
+              </button>
+
+              <button class="current-page" type="button">01</button>
+              <button type="button">02</button>
+
+              <button type="button" aria-label="Next prototype page">
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="project-strip">
+      <div class="container project-strip-grid">
+        <div>
+          <span>01</span>
+          <strong>Search</strong>
+          <p>Browse the shared master catalogue.</p>
+        </div>
+
+        <div>
+          <span>02</span>
+          <strong>Collect</strong>
+          <p>Track quantities, condition and duplicates.</p>
+        </div>
+
+        <div>
+          <span>03</span>
+          <strong>Secure</strong>
+          <p>Protect private records using JWT ownership.</p>
+        </div>
+
+        <div>
+          <span>04</span>
+          <strong>Manage</strong>
+          <p>Control catalogue changes through Admin roles.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="vault" class="vault-section">
+      <div class="container">
+        <div class="section-introduction">
+          <div>
+            <p class="eyebrow">Your collection system</p>
+
+            <h2>
+              More than a card list.
+              <span>A complete personal vault.</span>
+            </h2>
+          </div>
+
+          <p>
+            The visual prototype establishes the direction. Each area will be
+            replaced with real Angular pages, API requests and authenticated
+            user data as development progresses.
+          </p>
+        </div>
+
+        <div class="vault-feature-grid">
+          <article class="vault-feature">
+            <span class="feature-index">01 / COLLECTION</span>
+            <div class="feature-icon">▦</div>
+            <h3>Owned cards</h3>
+            <p>
+              Record quantity, condition, duplicates, grading candidates,
+              private notes and trading availability.
+            </p>
+            <span class="feature-status">Backend ready</span>
+          </article>
+
+          <article class="vault-feature vault-feature--featured">
+            <span class="feature-index">02 / WISHLIST</span>
+            <div class="feature-icon">◇</div>
+            <h3>Wanted cards</h3>
+            <p>
+              Prioritise cards by quantity, condition, grading preference and
+              the reason each item belongs on your list.
+            </p>
+            <span class="feature-status">Backend ready</span>
+          </article>
+
+          <article class="vault-feature">
+            <span class="feature-index">03 / PRODUCTS</span>
+            <div class="feature-icon">▣</div>
+            <h3>Sealed products</h3>
+            <p>
+              Track boxes, starter decks, pledge items, purchase costs,
+              estimated values and private storage details.
+            </p>
+            <span class="feature-status">Backend ready</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" class="security-section">
+      <div class="container security-layout">
+        <div class="security-copy">
+          <p class="eyebrow">Backend-enforced security</p>
+
+          <h2>
+            The browser displays it.
+            <span>The API protects it.</span>
+          </h2>
+
+          <p>
+            The Angular application will never be trusted to decide which
+            private records a user can access. The API reads the user ID and
+            role from the signed JWT and applies ownership checks on every
+            protected database operation.
+          </p>
+
+          <ul>
+            <li>
+              <span>✓</span>
+              Password hashing
+            </li>
+
+            <li>
+              <span>✓</span>
+              JWT validation
+            </li>
+
+            <li>
+              <span>✓</span>
+              User ownership filtering
+            </li>
+
+            <li>
+              <span>✓</span>
+              Role-based Admin access
+            </li>
+          </ul>
+        </div>
+
+        <div class="security-console">
+          <div class="console-header">
+            <div>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <strong>authenticated-request.log</strong>
+          </div>
+
+          <div class="console-body">
+            <p>
+              <span class="console-method">GET</span>
+              /api/Auth/me
+            </p>
+
+            <p>
+              <span class="console-success">200</span>
+              OK
+            </p>
+
+            <div class="console-json">
+              <span>&#123;</span>
+              <span>&nbsp;&nbsp;"userName": "example-user",</span>
+              <span>&nbsp;&nbsp;"role": "User",</span>
+              <span>&nbsp;&nbsp;"vaultAccess": true</span>
+              <span>&#125;</span>
+            </div>
+
+            <div class="console-divider"></div>
+
+            <p>
+              <span class="console-method">GET</span>
+              /api/OwnedCards
+            </p>
+
+            <p class="console-comment">
+              // Results filtered using the authenticated user ID
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container final-cta-inner">
+        <div>
+          <span class="cta-code">CV // FRONTEND PROTOTYPE</span>
+
+          <h2>The visual direction is set.</h2>
+
+          <p>
+            Next, the prototype becomes a real Angular application connected
+            to the secure ASP.NET Core API.
+          </p>
+        </div>
+
+        <a class="btn btn--primary" href="#database">
+          View database preview
+          <span aria-hidden="true">↑</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-layout">
+      <a class="brand" href="#" aria-label="Cyberpunk TCG Vault homepage">
+        <span class="brand-symbol">
+          <span>CV</span>
+          <small>01</small>
+        </span>
+
+        <span class="brand-name">
+          <strong>Cyberpunk TCG</strong>
+          <small>Collection Vault</small>
+        </span>
+      </a>
+
+      <p>
+        This is a fan-made collection project and is not affiliated with
+        Cyberpunk TCG, WeirdCo, CD Projekt, Cyberpunk 2077, or any official
+        partners.
+      </p>
+
+      <span class="footer-stack">
+        Angular frontend
+        <br />
+        ASP.NET Core API
+      </span>
+    </div>
+  </footer>
+</div>

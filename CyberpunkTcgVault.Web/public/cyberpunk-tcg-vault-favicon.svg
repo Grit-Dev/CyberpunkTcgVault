@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cyberpunk TCG Vault">
+  <path
+    fill="#F2E900"
+    d="M6 6h40l12 12v40H18L6 46V6Z"
+  />
+  <path
+    fill="#07090D"
+    d="M16 17h18v7H24v16h10v7H16V17Z"
+  />
+  <path
+    fill="#07090D"
+    d="M34 17h7l4 18 4-18h7l-7 30h-8l-7-30Z"
+  />
+  <path
+    fill="#22E1D1"
+    d="M46 6v12h12L46 6Z"
+  />
+</svg>
