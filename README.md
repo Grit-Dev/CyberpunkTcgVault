@@ -1,12 +1,8 @@
-﻿# Cyberpunk TCG Vault
+﻿## Live Frontend Preview
 
-Cyberpunk TCG Vault is a fan-made trading-card collection-management application built as a C#/.NET and Angular portfolio project.
+[View the deployed Angular frontend](https://grit-dev.github.io/CyberpunkTcgVault/)
 
-The application allows users to register, log in, browse a shared card catalogue, and securely manage their own card collection, wishlist, and sealed-product collection.
-
-The project demonstrates practical ASP.NET Core development, Entity Framework Core relationships, SQL Server persistence, JWT authentication, role-based authorization, user-ownership security, DTOs, migrations, Swagger/OpenAPI documentation, automated tests, Angular routing, and an evolving responsive frontend.
-
-> **Disclaimer:** This is a fan-made collection project and is not affiliated with Cyberpunk TCG, WeirdCo, CD Projekt, Cyberpunk 2077, or any official partners.
+> The current deployment is a static frontend prototype. API and database-backed features currently run locally and will be connected after the ASP.NET Core API is publicly hosted.
 
 ---
 
