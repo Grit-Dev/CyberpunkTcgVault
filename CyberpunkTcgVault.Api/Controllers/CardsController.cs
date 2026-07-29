@@ -29,16 +29,41 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         // GET is used when the client wants to retrieve/read data.
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Card>>> GetCards()
+        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards()
         {
             _logger.LogInformation("Received request to get all cards.");
 
             var cards = await _context.Cards
                 .AsNoTracking()
                 .OrderBy(card => card.Name)
+                .Select(card => new CardResponse
+                {
+                    Id = card.Id,
+                    Name = card.Name,
+                    SetName = card.SetName,
+                    Rarity = card.Rarity,
+                    Colour = card.Colour,
+                    CardType = card.CardType,
+                    Classification = card.Classification,
+                    Keywords = card.Keywords,
+                    Cost = card.Cost,
+                    Power = card.Power,
+                    RamCost = card.RamCost,
+                    IsLegend = card.IsLegend,
+                    HasBetaSymbol = card.HasBetaSymbol,
+                    IsKickstarterVersion = card.IsKickstarterVersion,
+                    IsRetailVersion = card.IsRetailVersion,
+                    IsFoil = card.IsFoil,
+                    IsAltArt = card.IsAltArt,
+                    IsBoxTopper = card.IsBoxTopper,
+                    IsPromo = card.IsPromo,
+                    IsStarterDeckExclusive = card.IsStarterDeckExclusive,
+                    CardNumber = card.CardNumber
+
+                })
                 .ToListAsync();
 
-            _logger.LogInformation("Retrieved {Count} cards from the database.", cards.Count);
+            _logger.LogInformation("Retrieved {Count} cards from the database", cards.Count);
 
             return Ok(cards);
         }

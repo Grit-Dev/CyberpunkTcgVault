@@ -21,13 +21,29 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             // Arrange
             var context = TestDbContextFactory.Create();
 
-            context.Cards.Add(new Models.Card
+            context.Cards.Add(new Card
             {
                 Name = "Johnny Silverhand",
                 SetName = "Beta",
                 Rarity = "Rare",
                 Colour = "Red",
-                CardType = "Legend"
+                CardType = "Legend",
+                Classification = "a",
+                Keywords = "Keyword",
+                Cost = 444,
+                Power = 1,
+                RamCost = 1,
+                IsLegend = true,
+                HasBetaSymbol = true,
+                IsKickstarterVersion = true,
+                IsRetailVersion = true,
+                IsFoil = true,
+                IsAltArt = true,
+                IsBoxTopper = false,
+                IsPromo = false,
+                IsStarterDeckExclusive = true,
+                CardNumber = null
+                
 
             });
 
@@ -41,7 +57,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
 
-            var cards = Assert.IsAssignableFrom<IEnumerable<Card>>(okResult.Value);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(okResult.Value);
 
             Assert.Contains(cards, card => card.Name == "Johnny Silverhand");
 
