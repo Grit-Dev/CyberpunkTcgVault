@@ -45,6 +45,5 @@
         public string? CardNumber { get; set; }
 
         // TODO: Add ImageUrl after image hosting, licensing, and database support are confirmed.
-        // public string? ImageUrl { get; set; }
     }
 }
