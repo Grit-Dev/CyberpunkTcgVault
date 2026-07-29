@@ -1,4 +1,11 @@
-﻿## Live Frontend Preview
+﻿# Cyberpunk TCG Vault
+
+[![Continuous Integration](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/ci.yml/badge.svg)](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/ci.yml)
+[![GitHub Pages Deployment](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/pages.yml/badge.svg)](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/pages.yml)
+
+Cyberpunk TCG Vault is a fan-made trading-card collection-management application built as a C#/.NET and Angular portfolio project.
+
+## Live Frontend Preview
 
 [View the deployed Angular frontend](https://grit-dev.github.io/CyberpunkTcgVault/)
 
