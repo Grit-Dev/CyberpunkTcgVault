@@ -1,0 +1,90 @@
+<section class="catalogue-page">
+  <div class="catalogue-grid" aria-hidden="true"></div>
+
+  <div class="container catalogue-shell">
+    <header class="catalogue-header">
+      <div>
+        <p class="eyebrow">Vault index // public access</p>
+
+        <h1>
+          Card
+          <span>catalogue.</span>
+        </h1>
+
+        <p class="catalogue-description">
+          Jack into the shared catalogue and scan every card record currently
+          stored in the vault.
+        </p>
+      </div>
+
+      <div class="catalogue-status">
+        <span class="catalogue-status__light"></span>
+        @if (isLoading) {
+          Establishing link
+        } @else if (errorMessage) {
+          Signal interrupted
+        } @else {
+          Catalogue online
+        }
+
+      </div>
+    </header>
+    @if (isLoading) {
+      <div class="catalogue-message" aria-live="polite">
+        <span class="catalogue-message__code">SYNC // 01</span>
+        <strong>Establishing secure link to the catalogue node...</strong>
+      </div>
+    } @else if (errorMessage) {
+      <div
+        class="catalogue-message catalogue-message--error"
+        role="alert"
+      >
+        <span class="catalogue-message__code">ERROR // CONNECTION</span>
+        <strong>{{ errorMessage }}</strong>
+      </div>
+    } @else if (cards.length === 0) {
+      <div class="catalogue-message">
+        <span class="catalogue-message__code">VAULT // EMPTY</span>
+        <strong>
+          The vault is online, but no card records have been uploaded yet.
+        </strong>
+      </div>
+    } @else {
+      <div class="catalogue-results">
+        <div class="catalogue-results__heading">
+          <div>
+            <span>Database scan complete</span>
+            <strong>{{ cards.length }} card records online</strong>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          @for (card of cards; track card.id) {
+            <article class="catalogue-card">
+              <header class="catalogue-card__header">
+                <span>{{ card.cardType ?? 'Unclassified' }}</span>
+                <strong>{{ card.cardNumber ?? 'NO-ID' }}</strong>
+              </header>
+
+              <div class="catalogue-card__visual">
+                <span>{{ card.colour ?? 'NEUTRAL' }}</span>
+                <div aria-hidden="true"></div>
+              </div>
+
+              <div class="catalogue-card__content">
+                <h2>{{ card.name }}</h2>
+                <p>{{ card.setName ?? 'Set data unavailable' }}</p>
+                <span>{{ card.rarity ?? 'Rarity unconfirmed' }}</span>
+              </div>
+
+              <footer class="catalogue-card__stats">
+                <span>PWR {{ card.power ?? '—' }}</span>
+                <span>RAM {{ card.ramCost ?? '—' }}</span>
+              </footer>
+            </article>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>
