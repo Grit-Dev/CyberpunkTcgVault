@@ -53,9 +53,15 @@ export class CardCatalogue implements OnInit {
   * so this component does not need to know where images are hosted.
   */
   getImageUrl(imagePath: string | null): string {
+
+    if (!imagePath) {
+      return this.cardsService.getImageUrl(
+        '/images/cards/placeholder.png'
+      );
+    }
+
     return this.cardsService.getImageUrl(imagePath);
   }
-
   /*
    * Requests the public card catalogue and updates the appropriate
    * loading, success or error state.

@@ -83,11 +83,7 @@
           </dl>
         </div>
 
-        <div
-          id="database"
-          class="database-preview"
-          aria-label="Card database visual prototype"
-        >
+        <div id="database" class="database-preview" aria-label="Live card database preview">
           <div class="database-topbar">
             <div>
               <span class="console-code">DATABASE // 01</span>
@@ -96,7 +92,7 @@
 
             <span class="database-status">
               <span></span>
-              Prototype data
+              Live vault data
             </span>
           </div>
 
@@ -107,11 +103,7 @@
 
             <span aria-hidden="true">⌕</span>
 
-            <input
-              id="prototype-card-search"
-              type="search"
-              placeholder="Search card database..."
-            />
+            <input id="prototype-card-search" type="search" placeholder="Search card database..." />
 
             <kbd>CTRL K</kbd>
           </div>
@@ -141,7 +133,9 @@
           <div class="database-heading">
             <div>
               <span>Collection preview</span>
-              <strong>Showing 6 prototype records</strong>
+              <strong>
+                Featured vault archive // {{ featuredCards.length }} premium records
+              </strong>
             </div>
 
             <button type="button">
@@ -151,141 +145,39 @@
           </div>
 
           <div class="prototype-card-grid">
-            <article class="prototype-card prototype-card--yellow">
+            @for (card of featuredCards; track card.id) {
+            <article class="prototype-card">
               <div class="card-header">
-                <span>LEGEND</span>
-                <strong>05</strong>
+                <span>{{ card.rarity ?? 'UNKNOWN' }}</span>
+                <strong>{{ card.cardNumber ?? 'NO-ID' }}</strong>
               </div>
 
               <div class="card-visual">
-                <span class="visual-code">NX-01</span>
-                <div class="visual-shape"></div>
+                <img [src]="
+                      card.imageUrl
+                        ? getImageUrl(card.imageUrl)
+                        : getImageUrl('/images/cards/placeholder.png')
+                    " [alt]="card.name" (error)="onImageError($event)" />
               </div>
 
               <div class="card-information">
-                <strong>Neon Courier</strong>
-                <span>Prototype character</span>
+                <strong>{{ card.name }}</strong>
+
+                <span>
+                  {{ card.classification ?? card.cardType ?? 'Unknown' }}
+                </span>
               </div>
 
               <div class="card-statline">
-                <span>PWR 6</span>
-                <span>RAM 2</span>
+                <span>PWR {{ card.power ?? '—' }}</span>
+                <span>RAM {{ card.ramCost ?? '—' }}</span>
               </div>
             </article>
-
-            <article class="prototype-card prototype-card--cyan">
-              <div class="card-header">
-                <span>UNIT</span>
-                <strong>03</strong>
-              </div>
-
-              <div class="card-visual">
-                <span class="visual-code">NX-02</span>
-                <div class="visual-shape"></div>
-              </div>
-
-              <div class="card-information">
-                <strong>Ghost Signal</strong>
-                <span>Prototype operative</span>
-              </div>
-
-              <div class="card-statline">
-                <span>PWR 4</span>
-                <span>RAM 1</span>
-              </div>
-            </article>
-
-            <article class="prototype-card prototype-card--red">
-              <div class="card-header">
-                <span>GEAR</span>
-                <strong>02</strong>
-              </div>
-
-              <div class="card-visual">
-                <span class="visual-code">NX-03</span>
-                <div class="visual-shape"></div>
-              </div>
-
-              <div class="card-information">
-                <strong>Chrome Relay</strong>
-                <span>Prototype equipment</span>
-              </div>
-
-              <div class="card-statline">
-                <span>PWR +2</span>
-                <span>RAM 1</span>
-              </div>
-            </article>
-
-            <article class="prototype-card prototype-card--purple">
-              <div class="card-header">
-                <span>PROGRAM</span>
-                <strong>04</strong>
-              </div>
-
-              <div class="card-visual">
-                <span class="visual-code">NX-04</span>
-                <div class="visual-shape"></div>
-              </div>
-
-              <div class="card-information">
-                <strong>Blackwall Echo</strong>
-                <span>Prototype program</span>
-              </div>
-
-              <div class="card-statline">
-                <span>COST 4</span>
-                <span>RAM 3</span>
-              </div>
-            </article>
-
-            <article class="prototype-card prototype-card--cyan">
-              <div class="card-header">
-                <span>UNIT</span>
-                <strong>06</strong>
-              </div>
-
-              <div class="card-visual">
-                <span class="visual-code">NX-05</span>
-                <div class="visual-shape"></div>
-              </div>
-
-              <div class="card-information">
-                <strong>Night Runner</strong>
-                <span>Prototype specialist</span>
-              </div>
-
-              <div class="card-statline">
-                <span>PWR 7</span>
-                <span>RAM 2</span>
-              </div>
-            </article>
-
-            <article class="prototype-card prototype-card--yellow">
-              <div class="card-header">
-                <span>LEGEND</span>
-                <strong>08</strong>
-              </div>
-
-              <div class="card-visual">
-                <span class="visual-code">NX-06</span>
-                <div class="visual-shape"></div>
-              </div>
-
-              <div class="card-information">
-                <strong>Static Bloom</strong>
-                <span>Prototype legend</span>
-              </div>
-
-              <div class="card-statline">
-                <span>PWR 8</span>
-                <span>RAM 4</span>
-              </div>
-            </article>
+            }
           </div>
 
           <div class="database-footer">
-            <span>Visual prototype — not connected to the API yet</span>
+            <span>Live vault feed // catalogue API connected</span>
 
             <div>
               <button type="button" aria-label="Previous prototype page">

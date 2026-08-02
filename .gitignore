@@ -361,3 +361,18 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Card artwork
+# Ignore all card images by default.
+/CyberpunkTcgVault.Api/wwwroot/images/cards/*
+
+# Keep the fallback image.
+!/CyberpunkTcgVault.Api/wwwroot/images/cards/placeholder.png
+
+# Keep the six featured homepage cards.
+!/CyberpunkTcgVault.Api/wwwroot/images/cards/black-clinic-miracle.png
+!/CyberpunkTcgVault.Api/wwwroot/images/cards/kai-blackwire-sato.png
+!/CyberpunkTcgVault.Api/wwwroot/images/cards/malcolm-vereen.png
+!/CyberpunkTcgVault.Api/wwwroot/images/cards/orbital-drop.png
+!/CyberpunkTcgVault.Api/wwwroot/images/cards/the-last-broadcast.png
+!/CyberpunkTcgVault.Api/wwwroot/images/cards/void-geisha.png
