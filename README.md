@@ -974,6 +974,20 @@ The homepage and wider visual design may change significantly as the application
 
 ## Roadmap
 
+## Backend Improvements Planned
+
+As the application grows, some backend areas will be refactored to keep responsibilities separated and maintainable.
+
+Planned improvements include:
+
+- Introduce a CardService layer when catalogue functionality grows further.
+- Move complex catalogue queries and business rules away from controllers.
+- Add additional unit tests around card searching and filtering behaviour.
+- Introduce pagination for larger card catalogues.
+- Improve API response consistency across all endpoints.
+
+The current implementation intentionally keeps the API simple while the feature set is still manageable. Architecture will evolve as complexity increases.
+
 ### Completed Backend MVP
 
 - ASP.NET Core Web API
