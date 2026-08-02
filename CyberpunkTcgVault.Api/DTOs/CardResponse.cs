@@ -43,7 +43,9 @@
         public bool IsStarterDeckExclusive { get; set; }
 
         public string? CardNumber { get; set; }
+        
+        public string? ImageUrl { get; set; }
 
-        // TODO: Add ImageUrl after image hosting, licensing, and database support are confirmed.
+        public string? Notes { get; set; }
     }
 }

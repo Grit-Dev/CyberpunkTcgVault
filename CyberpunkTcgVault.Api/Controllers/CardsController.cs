@@ -58,7 +58,9 @@ namespace CyberpunkTcgVault.Api.Controllers
                     IsBoxTopper = card.IsBoxTopper,
                     IsPromo = card.IsPromo,
                     IsStarterDeckExclusive = card.IsStarterDeckExclusive,
-                    CardNumber = card.CardNumber
+                    CardNumber = card.CardNumber,
+                    ImageUrl = card.ImageUrl,
+                    Notes = card.Notes
 
                 })
                 .ToListAsync();

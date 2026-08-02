@@ -79,6 +79,17 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Creates a service scope so we can access scoped services like AppDbContext during startup.
+using (var scope = app.Services.CreateScope())
+{
+    // Get the database context from the dependency injection container.
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // Seed the database with initial card data if required.
+    DbSeeder.Seed(dbContext);
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -87,6 +98,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enables serving static files (such as card images) from the wwwroot folder.
+// This allows API responses to reference image URLs that can be accessed by the frontend.
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
