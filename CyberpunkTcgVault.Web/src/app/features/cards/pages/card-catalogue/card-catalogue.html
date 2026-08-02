@@ -20,71 +20,88 @@
       <div class="catalogue-status">
         <span class="catalogue-status__light"></span>
         @if (isLoading) {
-          Establishing link
+        Establishing link
         } @else if (errorMessage) {
-          Signal interrupted
+        Signal interrupted
         } @else {
-          Catalogue online
+        Catalogue online
         }
 
       </div>
     </header>
+
+    <div class="catalogue-artwork-note">
+  <span>VAULT // ARTWORK STATUS</span>
+
+  <p>
+    Prototype assets detected. Card dimensions may vary during development.
+    Final scans will use standardised trading card proportions.
+  </p>
+</div>
     @if (isLoading) {
-      <div class="catalogue-message" aria-live="polite">
-        <span class="catalogue-message__code">SYNC // 01</span>
-        <strong>Establishing secure link to the catalogue node...</strong>
-      </div>
+    <div class="catalogue-message" aria-live="polite">
+      <span class="catalogue-message__code">SYNC // 01</span>
+      <strong>Establishing secure link to the catalogue node...</strong>
+    </div>
     } @else if (errorMessage) {
-      <div
-        class="catalogue-message catalogue-message--error"
-        role="alert"
-      >
-        <span class="catalogue-message__code">ERROR // CONNECTION</span>
-        <strong>{{ errorMessage }}</strong>
-      </div>
+    <div class="catalogue-message catalogue-message--error" role="alert">
+      <span class="catalogue-message__code">ERROR // CONNECTION</span>
+      <strong>{{ errorMessage }}</strong>
+    </div>
     } @else if (cards.length === 0) {
-      <div class="catalogue-message">
-        <span class="catalogue-message__code">VAULT // EMPTY</span>
-        <strong>
-          The vault is online, but no card records have been uploaded yet.
-        </strong>
-      </div>
+    <div class="catalogue-message">
+      <span class="catalogue-message__code">VAULT // EMPTY</span>
+      <strong>
+        The vault is online, but no card records have been uploaded yet.
+      </strong>
+    </div>
     } @else {
-      <div class="catalogue-results">
-        <div class="catalogue-results__heading">
-          <div>
-            <span>Database scan complete</span>
-            <strong>{{ cards.length }} card records online</strong>
-          </div>
-        </div>
-
-        <div class="card-grid">
-          @for (card of cards; track card.id) {
-            <article class="catalogue-card">
-              <header class="catalogue-card__header">
-                <span>{{ card.cardType ?? 'Unclassified' }}</span>
-                <strong>{{ card.cardNumber ?? 'NO-ID' }}</strong>
-              </header>
-
-              <div class="catalogue-card__visual">
-                <span>{{ card.colour ?? 'NEUTRAL' }}</span>
-                <div aria-hidden="true"></div>
-              </div>
-
-              <div class="catalogue-card__content">
-                <h2>{{ card.name }}</h2>
-                <p>{{ card.setName ?? 'Set data unavailable' }}</p>
-                <span>{{ card.rarity ?? 'Rarity unconfirmed' }}</span>
-              </div>
-
-              <footer class="catalogue-card__stats">
-                <span>PWR {{ card.power ?? '—' }}</span>
-                <span>RAM {{ card.ramCost ?? '—' }}</span>
-              </footer>
-            </article>
-          }
+    <div class="catalogue-results">
+      <div class="catalogue-results__heading">
+        <div>
+          <span>Database scan complete</span>
+          <strong>{{ cards.length }} card records online</strong>
         </div>
       </div>
+
+      <div class="card-grid">
+        @for (card of cards; track card.id) {
+        <article class="catalogue-card">
+          <header class="catalogue-card__header">
+            <span>{{ card.cardType ?? 'Unclassified' }}</span>
+            <strong>{{ card.cardNumber ?? 'NO-ID' }}</strong>
+          </header>
+
+          <div class="catalogue-card__visual">
+            @if (card.imageUrl !== null) {
+
+            <!--
+              Card artwork is currently displayed only when an image path exists.
+              TODO: Add a Vault placeholder image for cards without artwork
+              so every card has a consistent visual representation.
+            -->
+            <img [src]="getImageUrl(card.imageUrl)" [alt]="card.name" />
+
+            }
+            @else {
+            <span>{{ card.colour ?? 'NEUTRAL' }}</span>
+            }
+          </div>
+
+          <div class="catalogue-card__content">
+            <h2>{{ card.name }}</h2>
+            <p>{{ card.setName ?? 'Set data unavailable' }}</p>
+            <span>{{ card.rarity ?? 'Rarity unconfirmed' }}</span>
+          </div>
+
+          <footer class="catalogue-card__stats">
+            <span>PWR {{ card.power ?? '—' }}</span>
+            <span>RAM {{ card.ramCost ?? '—' }}</span>
+          </footer>
+        </article>
+        }
+      </div>
+    </div>
     }
   </div>
 </section>

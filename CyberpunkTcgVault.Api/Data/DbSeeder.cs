@@ -1,4 +1,12 @@
 ﻿using CyberpunkTcgVault.Api.Models;
+using static System.Net.Mime.MediaTypeNames;
+
+
+// Developer note:
+// ImageUrl must exactly match the filename inside:
+// wwwroot/images/cards
+//
+// If artwork filenames change, update this value too.
 
 namespace CyberpunkTcgVault.Api.Data
 {
@@ -10,7 +18,6 @@ namespace CyberpunkTcgVault.Api.Data
             {
                 return;
             }
-
             var cards = new List<Card>
             {
                 new() {
@@ -91,7 +98,7 @@ namespace CyberpunkTcgVault.Api.Data
                     Power = 4,
                     RamCost = 3,
                     CardNumber = "CVO-005",
-                    ImageUrl = "/images/cards/viktor-the-architect.png",
+                    ImageUrl = "/images/cards/viktor-the-architect-malvek.png",
                     Notes = "A corporate strategist manipulating the future of the city from behind the scenes."
                 },
 
@@ -156,7 +163,6 @@ namespace CyberpunkTcgVault.Api.Data
                     ImageUrl = "/images/cards/titan-forge.png",
                     Notes = "An industrial fortress producing the next generation of cybernetic technology."
                 },
-
                 new() {
                     Name = "Lunar Bazaar",
                     SetName = "Choom Vault Origins",

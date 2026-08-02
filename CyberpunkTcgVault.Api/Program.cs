@@ -41,6 +41,31 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 
+
+/*
+ * Allows the Angular frontend running locally to communicate
+ * with the ASP.NET API during development.
+ *
+ * Angular and the API run on different ports, which means
+ * the browser treats them as separate origins.
+ *
+ * This policy grants the local Angular application permission
+ * to send requests to the Vault API.
+ *
+ * Production origins should be configured separately when deployed.
+ */
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AngularDevelopment",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 // Password Hasher - Store the hash not the Actual Password!
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 
@@ -99,9 +124,23 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+ // Enables CORS rules defined above.
+ // This allows the Angular catalogue interface to access
+ // the ASP.NET API while running locally.
+
+app.UseCors("AngularDevelopment");
+
 // Enables serving static files (such as card images) from the wwwroot folder.
 // This allows API responses to reference image URLs that can be accessed by the frontend.
 app.UseStaticFiles();
+
+// TODO: Remove After
+Console.WriteLine(
+    Directory.Exists(Path.Combine(
+        app.Environment.WebRootPath,
+        "images",
+        "cards"))
+);
 
 app.UseAuthentication();
 app.UseAuthorization();
