@@ -182,6 +182,33 @@ This approach provides a polished visual direction early while keeping the imple
 
 ## Current Features
 
+---
+
+## Development Evidence
+
+The following screenshots capture key implementation milestones during development.
+
+### Angular Card Catalogue API Integration
+
+![Card catalogue API integration](docs/screenshots/card-catalogue-api-integration-success.png)
+
+Demonstrates:
+
+- Angular frontend successfully consuming the ASP.NET Core API
+- Card catalogue data returned from `GET /api/Cards`
+- Database-backed card records rendered dynamically
+- Angular service and component integration
+
+### Card Artwork Static File Hosting
+
+![Card artwork serving](docs/screenshots/static-card-image-serving-success.png)
+
+Demonstrates:
+
+- ASP.NET Core serving static card assets from `wwwroot`
+- Card image paths returned through API data
+- Frontend-ready image hosting flow
+
 ### Authentication
 
 Users can register and log in through the API.

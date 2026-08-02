@@ -34,7 +34,7 @@ export class CardCatalogue implements OnInit {
   constructor(
     private readonly cardsService: CardsService,
     private readonly changeDetectorRef: ChangeDetectorRef
-  ) {}
+  ) { }
 
   /*
    * Loads the catalogue when Angular creates this page.
@@ -43,6 +43,25 @@ export class CardCatalogue implements OnInit {
     this.loadCards();
   }
 
+  /*
+  * Builds the full image URL for card artwork.
+  *
+  * The API returns a relative path:
+  * /images/cards/kai-blackwire-sato.png
+  *
+  * CardsService combines this with the environment API URL
+  * so this component does not need to know where images are hosted.
+  */
+  getImageUrl(imagePath: string | null): string {
+
+    if (!imagePath) {
+      return this.cardsService.getImageUrl(
+        '/images/cards/placeholder.png'
+      );
+    }
+
+    return this.cardsService.getImageUrl(imagePath);
+  }
   /*
    * Requests the public card catalogue and updates the appropriate
    * loading, success or error state.
@@ -53,6 +72,14 @@ export class CardCatalogue implements OnInit {
 
     this.cardsService.getCards().subscribe({
       next: (cards) => {
+
+        /*
+        * TEMP DEBUG:
+        * Confirm the API response reaching Angular contains imageUrl.
+        * Remove after verifying frontend image mapping.
+        */
+        console.log('Cards received from API:', cards);
+
         this.cards = cards;
         this.isLoading = false;
 

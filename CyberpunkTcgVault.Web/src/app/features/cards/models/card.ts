@@ -20,4 +20,6 @@ export interface Card {
   isPromo: boolean;
   isStarterDeckExclusive: boolean;
   cardNumber: string | null;
+  imageUrl: string | null;
+  notes: string | null;
 }
