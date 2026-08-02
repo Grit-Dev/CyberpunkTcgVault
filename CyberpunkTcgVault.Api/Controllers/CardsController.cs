@@ -27,13 +27,44 @@ namespace CyberpunkTcgVault.Api.Controllers
             _logger = logger;
         }
 
-        // GET is used when the client wants to retrieve/read data.
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards()
+        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards(string? name, string? rarity, string? classification, string? cardType)
         {
             _logger.LogInformation("Received request to get all cards.");
 
-            var cards = await _context.Cards
+            // IQueryable allows us to add filters before the query is executed.
+            // EF Core will translate the final query into SQL so filtering happens in the database.
+            var query = _context.Cards.AsNoTracking();
+
+
+            // Search by card name using partial matching.
+            // Contains allows users to search without knowing the full card name.
+            // Example: searching "Kai" will return "Kai Blackwire Sato".
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(card => card.Name == name);
+            }
+
+            // Apply rarity filtering if a value was provided.
+            if (!string.IsNullOrWhiteSpace(rarity))
+            {
+                query = query.Where(card => card.Rarity == rarity);
+            }
+
+            // Apply classification filtering if a value was provided.
+            if (!string.IsNullOrWhiteSpace(classification))
+            {
+                query = query.Where(card => card.Classification == classification);
+            }
+
+            // Apply cardType filtering if a value was provided.
+            if (!string.IsNullOrWhiteSpace(cardType))
+            {
+                query = query.Where(card => card.CardType == cardType);
+            }
+
+            // Execute the query and map database entities into DTOs.
+            var cards = await query
                 .AsNoTracking()
                 .OrderBy(card => card.Name)
                 .Select(card => new CardResponse
