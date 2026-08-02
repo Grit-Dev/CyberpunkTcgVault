@@ -30,7 +30,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards(string? name, string? rarity, string? classification, string? cardType)
         {
-            _logger.LogInformation("Received request to get all cards.");
+            _logger.LogInformation("Received request to get cards.");
 
             // IQueryable allows us to add filters before the query is executed.
             // EF Core will translate the final query into SQL so filtering happens in the database.
@@ -42,7 +42,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             // Example: searching "Kai" will return "Kai Blackwire Sato".
             if (!string.IsNullOrWhiteSpace(name))
             {
-                query = query.Where(card => card.Name == name);
+                query = query.Where(card => card.Name.Contains(name));
             }
 
             // Apply rarity filtering if a value was provided.

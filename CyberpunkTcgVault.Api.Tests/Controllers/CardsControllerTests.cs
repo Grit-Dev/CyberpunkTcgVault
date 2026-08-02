@@ -52,7 +52,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateCardsController(context);
 
             // Act
-            var result = await controller.GetCards();
+            var result = await controller.GetCards(null, null, null, null);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -61,6 +61,82 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
 
             Assert.Contains(cards, card => card.Name == "Johnny Silverhand");
 
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByRarity_ReturnsMatchingCards()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            context.Cards.AddRange(
+                new Card
+                {
+                    Name = "Legendary Card",
+                    Rarity = "Legendary"
+                },
+                new Card
+                {
+                    Name = "Rare Card",
+                    Rarity = "Rare"
+                });
+
+            await context.SaveChangesAsync();
+
+            var controller = CreateCardsController(context);
+
+            // Act
+            var result = await controller.GetCards(
+                null,
+                "Legendary",
+                null,
+                null);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(okResult.Value);
+
+            Assert.Single(cards);
+            Assert.Contains(cards, card => card.Name == "Legendary Card");
+        }
+
+        [Fact]
+        public async Task GetCards_WhenSearchingByName_ReturnsMatchingCards()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+
+            context.Cards.AddRange(
+                new Card
+                {
+                    Name = "Kai Blackwire Sato",
+                    Rarity = "Legendary"
+                },
+                new Card
+                {
+                    Name = "Madam Echo",
+                    Rarity = "Epic"
+                });
+
+            await context.SaveChangesAsync();
+
+            var controller = CreateCardsController(context);
+
+            // Act
+            var result = await controller.GetCards(
+                "Kai",
+                null,
+                null,
+                null);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(okResult.Value);
+
+            Assert.Single(cards);
+            Assert.Contains(cards, card => card.Name == "Kai Blackwire Sato");
         }
 
         [Fact]
