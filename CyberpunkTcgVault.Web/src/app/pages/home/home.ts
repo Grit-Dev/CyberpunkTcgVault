@@ -4,13 +4,14 @@ import {
   OnInit
 } from '@angular/core';
 
+import { CardAnatomyShowcase } from '../../features/cards/components/card-anatomy-showcase/card-anatomy-showcase';
 import { CardsService } from '../../features/cards/services/cards.service';
 import { Card } from '../../features/cards/models/card';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [],
+  imports: [CardAnatomyShowcase],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.card-anatomy-showcase {
+  padding-block: 120px;
+  border-bottom: 1px solid var(--colour-border);
+}
+
+.card-anatomy-showcase__description {
+  max-width: 620px;
+  margin-top: 16px;
+  color: var(--colour-text-muted);
+  line-height: 1.7;
+}
