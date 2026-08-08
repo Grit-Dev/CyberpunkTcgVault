@@ -512,104 +512,95 @@
     0 0 10px var(--colour-cyan);
 }
 
-.database-search {
+.database-preview-notice {
   display: grid;
 
-  min-height: 49px;
-
   grid-template-columns:
-    auto minmax(0, 1fr) auto;
+    auto
+    minmax(0, 1fr)
+    auto;
 
   align-items: center;
 
-  gap: 11px;
+  gap: 13px;
 
-  padding-inline: 15px;
+  min-height: 58px;
 
-  background: rgba(0, 0, 0, 0.28);
+  padding: 12px 14px;
+
+  background: rgba(0, 0, 0, 0.22);
 
   border: 1px solid var(--colour-border);
 }
 
-.database-search>span {
+.database-preview-notice__icon {
+  display: grid;
+
+  width: 32px;
+  height: 32px;
+
+  place-items: center;
+
   color: var(--colour-yellow);
 
-  font-size: 1.25rem;
+  border: 1px solid rgba(242, 233, 0, 0.18);
+
+  font-size: 1rem;
 }
 
-.database-search input {
-  min-width: 0;
-
-  color: var(--colour-text);
-
-  background: transparent;
-
-  border: 0;
-
-  outline: 0;
-
-  font-size: 0.78rem;
-}
-
-.database-search input::placeholder {
-  color: #626c7a;
-}
-
-.database-search kbd {
-  padding: 4px 6px;
-
-  color: #707a88;
-
-  background: rgba(255, 255, 255, 0.04);
-
-  border: 1px solid var(--colour-border);
-
-  font-family: var(--font-display);
-
-  font-size: 0.52rem;
-}
-
-.filter-row {
+.database-preview-notice > div {
   display: flex;
 
-  gap: 6px;
+  min-width: 0;
 
-  overflow-x: auto;
+  flex-direction: column;
 
-  padding: 10px 0 2px;
+  gap: 3px;
 }
 
-.filter-chip {
-  flex: 0 0 auto;
+.database-preview-notice strong {
+  color: var(--colour-text);
 
-  min-height: 31px;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
 
-  padding: 0 11px;
-
+.database-preview-notice > div > span {
   color: var(--colour-text-muted);
 
-  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.61rem;
+  line-height: 1.45;
+}
 
-  border: 1px solid var(--colour-border);
+.database-preview-notice > a {
+  display: inline-flex;
 
-  cursor: pointer;
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--colour-yellow);
 
   font-family: var(--font-display);
-  font-size: 0.61rem;
-  font-weight: 700;
+  font-size: 0.6rem;
+  font-weight: 800;
 
-  letter-spacing: 0.09em;
+  letter-spacing: 0.06em;
 
+  text-decoration: none;
   text-transform: uppercase;
 }
 
-.filter-chip:hover,
-.filter-chip--active {
-  color: var(--colour-background);
+.database-preview-notice > a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 
-  background: var(--colour-yellow);
+.database-preview-notice > a:focus-visible {
+  border-radius: 2px;
 
-  border-color: var(--colour-yellow);
+  outline: 2px solid var(--colour-cyan);
+  outline-offset: 4px;
 }
 
 .database-heading {
@@ -647,26 +638,18 @@
   text-transform: uppercase;
 }
 
-.database-heading button {
-  display: inline-flex;
+.database-heading__label {
+  padding: 5px 7px;
 
-  align-items: center;
+  color: var(--colour-text-muted);
 
-  gap: 8px;
-
-  padding: 0;
-
-  color: var(--colour-yellow);
-
-  background: transparent;
-
-  border: 0;
-
-  cursor: pointer;
+  border: 1px solid var(--colour-border);
 
   font-family: var(--font-display);
-  font-size: 0.62rem;
-  font-weight: 800;
+  font-size: 0.52rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
 
   text-transform: uppercase;
 }
@@ -690,9 +673,15 @@
 .prototype-card {
   position: relative;
 
+  display: block;
+
   min-width: 0;
 
   padding: 8px;
+
+  color: inherit;
+
+  text-decoration: none;
 
   background: #101620;
 
@@ -919,46 +908,39 @@
   padding: 15px 2px 1px;
 }
 
-.database-footer>span {
+.database-footer > span {
   color: var(--colour-text-muted);
 
   font-size: 0.53rem;
 }
 
-.database-footer>div {
-  display: flex;
+.database-footer__link {
+  display: inline-flex;
 
-  gap: 4px;
-}
+  align-items: center;
 
-.database-footer button {
-  display: grid;
+  gap: 7px;
 
-  width: 27px;
-  height: 27px;
-
-  place-items: center;
-
-  color: var(--colour-text-muted);
-
-  background: rgba(255, 255, 255, 0.025);
-
-  border: 1px solid var(--colour-border);
-
-  cursor: pointer;
+  color: var(--colour-yellow);
 
   font-family: var(--font-display);
-
   font-size: 0.58rem;
+  font-weight: 800;
+
+  letter-spacing: 0.05em;
+
+  text-decoration: none;
+  text-transform: uppercase;
 }
 
-.database-footer button:hover,
-.database-footer .current-page {
-  color: var(--colour-background);
+.database-footer__link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 
-  background: var(--colour-yellow);
-
-  border-color: var(--colour-yellow);
+.database-footer__link:focus-visible {
+  outline: 2px solid var(--colour-cyan);
+  outline-offset: 4px;
 }
 
 
@@ -1033,35 +1015,44 @@
 
 /*
  * Personal Vault section.
+ *
+ * This remains the main lower-page feature moment, while the compact
+ * Vault records make the three capabilities feel like real collector tools.
  */
 .vault-section {
-  padding-block: 125px;
+  padding-block: 112px 92px;
 }
 
 .section-introduction {
   display: grid;
 
   grid-template-columns:
-    minmax(0, 1.15fr) minmax(280px, 0.65fr);
+    minmax(0, 1.15fr)
+    minmax(280px, 0.65fr);
 
   align-items: end;
 
   gap: 70px;
 
-  margin-bottom: 52px;
+  margin-bottom: 46px;
 }
 
-.section-introduction h2,
-.security-copy h2 {
+
+/*
+ * Reusable section-heading grammar for future major product surfaces.
+ */
+.section-heading h2 {
   max-width: 760px;
 
   margin: 20px 0 0;
 
   font-family: var(--font-display);
 
-  font-size: clamp(3rem,
-      5.5vw,
-      5.4rem);
+  font-size: clamp(
+    3rem,
+    5.5vw,
+    5.4rem
+  );
 
   font-weight: 900;
   line-height: 0.96;
@@ -1073,14 +1064,21 @@
   text-transform: uppercase;
 }
 
-.section-introduction h2 span,
-.security-copy h2 span {
+.section-heading h2 span {
   display: block;
 
   color: var(--colour-yellow);
 }
 
-.section-introduction>p {
+.section-heading--compact h2 {
+  font-size: clamp(
+    2.45rem,
+    4.2vw,
+    4rem
+  );
+}
+
+.section-introduction > p {
   margin: 0;
 
   color: var(--colour-text-muted);
@@ -1089,164 +1087,320 @@
   line-height: 1.75;
 }
 
-.vault-feature-grid {
+/*
+ * Unified Personal Vault snapshot.
+ *
+ * The outer surface owns the structure so Collection, Wishlist and Sealed
+ * Products feel like one collector system instead of three SaaS feature cards.
+ */
+.vault-snapshot {
   display: grid;
 
   grid-template-columns:
-    repeat(3, 1fr);
+    repeat(3, minmax(0, 1fr));
 
-  gap: 13px;
-}
-
-.vault-feature {
-  position: relative;
-
-  min-height: 350px;
-
-  padding: 30px;
-
-  background: rgba(255, 255, 255, 0.022);
+  background: rgba(255, 255, 255, 0.018);
 
   border: 1px solid var(--colour-border);
 
-  clip-path: polygon(0 0,
-      calc(100% - 16px) 0,
-      100% 16px,
-      100% 100%,
-      16px 100%,
-      0 calc(100% - 16px));
-
-  transition:
-    background 180ms ease,
-    border-color 180ms ease,
-    transform 180ms ease;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% 100%,
+    18px 100%,
+    0 calc(100% - 18px)
+  );
 }
 
-.vault-feature:hover {
-  background: rgba(255, 255, 255, 0.045);
+.vault-snapshot__feature {
+  display: flex;
 
-  border-color: var(--colour-border-strong);
+  min-width: 0;
+  min-height: 310px;
 
-  transform: translateY(-5px);
+  flex-direction: column;
+
+  padding: 30px;
+
+  border-right: 1px solid var(--colour-border);
 }
 
-.vault-feature--featured {
-  background:
-    linear-gradient(145deg,
-      rgba(242, 233, 0, 0.065),
-      transparent 58%),
-    rgba(255, 255, 255, 0.022);
+.vault-snapshot__feature:last-child {
+  border-right: 0;
+}
 
-  border-color: rgba(242, 233, 0, 0.2);
+.vault-snapshot__copy {
+  display: flex;
+
+  min-width: 0;
+
+  flex-direction: column;
 }
 
 .feature-index {
   color: var(--colour-text-muted);
 
   font-family: var(--font-display);
-
   font-size: 0.63rem;
   font-weight: 800;
 
   letter-spacing: 0.13em;
 }
 
-.feature-icon {
-  display: grid;
-
-  width: 55px;
-  height: 55px;
-
-  place-items: center;
-
-  margin-top: 40px;
-
-  color: var(--colour-yellow);
-
-  background: rgba(242, 233, 0, 0.07);
-
-  border: 1px solid rgba(242, 233, 0, 0.16);
-
-  font-size: 1.35rem;
-}
-
-.vault-feature h3 {
-  margin: 27px 0 0;
+.vault-snapshot__feature h3 {
+  margin: 20px 0 0;
 
   font-family: var(--font-display);
-
-  font-size: 1.75rem;
+  font-size: 1.7rem;
 
   letter-spacing: 0.02em;
 
   text-transform: uppercase;
 }
 
-.vault-feature p {
-  margin: 14px 0 0;
+.vault-snapshot__feature p {
+  max-width: 340px;
+
+  margin: 11px 0 0;
 
   color: var(--colour-text-muted);
 
-  font-size: 0.83rem;
-  line-height: 1.72;
+  font-size: 0.81rem;
+  line-height: 1.68;
+}
+
+
+/*
+ * Reusable Vault record visual language.
+ *
+ * Artwork, title, metadata and quantity/state use the same hierarchy across
+ * owned cards, wanted cards and sealed products. This can later be extracted
+ * when future product pages genuinely repeat the behaviour.
+ */
+.vault-record {
+  display: grid;
+
+  min-width: 0;
+
+  grid-template-columns:
+    72px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 14px;
+
+  margin-top: auto;
+  padding-top: 24px;
+
+  border-top: 1px solid var(--colour-border);
+}
+
+.vault-record__thumbnail {
+  display: grid;
+
+  width: 72px;
+  height: 103px;
+
+  overflow: hidden;
+
+  place-items: center;
+
+  color: var(--colour-text-muted);
+
+  background: #090d13;
+
+  border: 1px solid var(--colour-border-strong);
+
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+.vault-record__thumbnail img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.vault-record__thumbnail--product {
+  position: relative;
+
+  color: var(--colour-yellow);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(242, 233, 0, 0.065),
+      transparent 62%
+    ),
+    #090d13;
+
+  border-color: rgba(242, 233, 0, 0.18);
+}
+
+.vault-record__thumbnail--product::after {
+  position: absolute;
+
+  right: 9px;
+  bottom: 10px;
+  left: 9px;
+
+  height: 2px;
+
+  background: var(--colour-yellow);
+
+  content: "";
+}
+
+.vault-record__content {
+  display: flex;
+
+  min-width: 0;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.vault-record__type {
+  color: var(--colour-yellow);
+
+  font-family: var(--font-display);
+  font-size: 0.53rem;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+.vault-record__content strong {
+  overflow: hidden;
+
+  color: var(--colour-text);
+
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+
+  letter-spacing: 0.02em;
+
+  text-overflow: ellipsis;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+.vault-record__content > span:last-child {
+  overflow: hidden;
+
+  color: var(--colour-text-muted);
+
+  font-size: 0.64rem;
+  line-height: 1.45;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.vault-record__value {
+  display: flex;
+
+  min-width: 52px;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 4px;
+}
+
+.vault-record__value span {
+  color: var(--colour-text-muted);
+
+  font-size: 0.52rem;
+
+  text-transform: uppercase;
+}
+
+.vault-record__value strong {
+  color: var(--colour-text);
+
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+}
+
+.vault-record:is(a, button):focus-visible {
+  outline: 2px solid var(--colour-cyan);
+  outline-offset: 3px;
 }
 
 
 /*
  * Privacy and trust section.
+ *
+ * Privacy remains reassuring but intentionally lighter than the feature
+ * section and final CTA. The information surface avoids terminal chrome.
  */
 .security-section {
-  padding-bottom: 125px;
+  padding-bottom: 72px;
 }
 
 .security-layout {
   display: grid;
 
   grid-template-columns:
-    minmax(0, 1fr) minmax(420px, 0.85fr);
+    minmax(0, 1fr)
+    minmax(360px, 0.72fr);
 
   align-items: center;
 
-  gap: 95px;
+  gap: 64px;
 
-  padding: 72px;
+  padding: 48px 52px;
 
-  background:
-    linear-gradient(125deg,
-      rgba(34, 225, 209, 0.045),
-      transparent 46%),
-    var(--colour-background-soft);
+  background: var(--colour-background-soft);
 
   border: 1px solid var(--colour-border);
 
-  clip-path: polygon(0 0,
-      calc(100% - 24px) 0,
-      100% 24px,
-      100% 100%,
-      24px 100%,
-      0 calc(100% - 24px));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% 100%,
+    18px 100%,
+    0 calc(100% - 18px)
+  );
 }
 
-.security-copy>p:not(.eyebrow) {
+.security-copy > p:not(.eyebrow) {
   max-width: 650px;
 
-  margin: 26px 0 0;
+  margin: 22px 0 0;
 
   color: var(--colour-text-muted);
 
-  font-size: 0.91rem;
-  line-height: 1.75;
+  font-size: 0.88rem;
+  line-height: 1.72;
 }
 
 .security-copy ul {
   display: grid;
 
   grid-template-columns:
-    1fr 1fr;
+    1fr
+    1fr;
 
-  gap: 13px;
+  gap: 10px 18px;
 
-  margin: 30px 0 0;
+  margin: 24px 0 0;
 
   padding: 0;
 
@@ -1258,134 +1412,160 @@
 
   align-items: center;
 
-  gap: 10px;
+  gap: 9px;
 
   color: #c5cad3;
 
-  font-size: 0.76rem;
+  font-size: 0.74rem;
 }
 
-.security-copy li span {
+.security-copy li > span {
   display: grid;
 
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+
+  flex: 0 0 20px;
 
   place-items: center;
 
-  color: var(--colour-background);
+  color: var(--colour-yellow);
 
-  background: var(--colour-cyan);
+  border: 1px solid rgba(242, 233, 0, 0.24);
 
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   font-weight: 800;
 }
 
-.security-console {
-  overflow: hidden;
 
-  background: #070a0f;
+/*
+ * Reusable collector-facing trust/information surface.
+ */
+.trust-surface {
+  padding: 18px;
+
+  background: rgba(7, 10, 15, 0.72);
 
   border: 1px solid var(--colour-border-strong);
-
-  box-shadow:
-    0 30px 70px rgba(0, 0, 0, 0.38);
 }
 
-.console-header {
+.trust-surface__header {
   display: flex;
 
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
 
-  padding: 13px 16px;
+  gap: 20px;
 
-  background: rgba(255, 255, 255, 0.035);
+  padding-bottom: 16px;
 
   border-bottom: 1px solid var(--colour-border);
 }
 
-.console-header>div {
-  display: flex;
-
-  gap: 6px;
-}
-
-.console-header>div span {
-  width: 8px;
-  height: 8px;
-
-  background: #3e4652;
-
-  border-radius: 50%;
-}
-
-.console-header>div span:first-child {
-  background: var(--colour-red);
-}
-
-.console-header>div span:nth-child(2) {
-  background: var(--colour-yellow);
-}
-
-.console-header>div span:last-child {
-  background: var(--colour-cyan);
-}
-
-.console-header strong {
-  margin: 0 auto;
-
-  color: #798291;
-
-  font-family: monospace;
-
-  font-size: 0.62rem;
-  font-weight: 400;
-}
-
-.console-body {
-  padding: 28px;
-
-  color: #c2c8d1;
-
-  font-family:
-    "Cascadia Code",
-    Consolas,
-    monospace;
-
-  font-size: 0.75rem;
-  line-height: 1.75;
-}
-
-.console-body p {
-  margin: 0 0 7px;
-}
-
-.console-method {
-  color: var(--colour-yellow);
-}
-
-.console-success {
-  color: var(--colour-cyan);
-}
-
-.console-json {
+.trust-surface__header > div {
   display: flex;
 
   flex-direction: column;
 
-  margin-top: 17px;
+  gap: 4px;
 }
 
-.console-divider {
-  height: 1px;
+.trust-surface__header > div > span {
+  color: var(--colour-text-muted);
 
-  margin: 22px 0;
+  font-size: 0.58rem;
 
-  background: var(--colour-border);
+  text-transform: uppercase;
 }
 
-.console-comment {
-  color: #687281;
+.trust-surface__header strong {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+.trust-surface__status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 5px 7px;
+
+  color: var(--colour-text);
+
+  border: 1px solid var(--colour-border);
+
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.trust-surface__status > span {
+  color: var(--colour-cyan);
+}
+
+.trust-surface__records {
+  display: grid;
+
+  margin-top: 4px;
+}
+
+.trust-record {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  min-height: 42px;
+
+  border-bottom: 1px solid var(--colour-border);
+
+  font-size: 0.7rem;
+}
+
+.trust-record > span {
+  color: var(--colour-text-muted);
+}
+
+.trust-record > strong {
+  color: var(--colour-text);
+
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.trust-surface__note {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  padding-top: 15px;
+}
+
+.trust-surface__note strong {
+  color: var(--colour-yellow);
+
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+
+  letter-spacing: 0.06em;
+
+  text-transform: uppercase;
+}
+
+.trust-surface__note span {
+  color: var(--colour-text-muted);
+
+  font-size: 0.66rem;
+  line-height: 1.55;
 }
 
 
@@ -1393,7 +1573,7 @@
  * Final player-facing call to action.
  */
 .final-cta {
-  padding-bottom: 125px;
+  padding-bottom: 112px;
 }
 
 .final-cta-inner {
@@ -1540,7 +1720,7 @@
   .security-layout {
     grid-template-columns: 1fr;
 
-    gap: 60px;
+    gap: 40px;
   }
 
 }
@@ -1572,6 +1752,18 @@
       repeat(2, minmax(0, 1fr));
   }
 
+  .database-preview-notice {
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+  }
+
+  .database-preview-notice > a {
+    grid-column: 2;
+
+    width: fit-content;
+  }
+
   .project-strip-grid {
     grid-template-columns:
       1fr 1fr;
@@ -1591,16 +1783,23 @@
     gap: 28px;
   }
 
-  .vault-feature-grid {
+  .vault-snapshot {
     grid-template-columns: 1fr;
   }
 
-  .vault-feature {
-    min-height: 315px;
+  .vault-snapshot__feature {
+    min-height: auto;
+
+    border-right: 0;
+    border-bottom: 1px solid var(--colour-border);
+  }
+
+  .vault-snapshot__feature:last-child {
+    border-bottom: 0;
   }
 
   .security-layout {
-    padding: 44px 30px;
+    padding: 40px 30px;
   }
 
   .final-cta-inner {
@@ -1718,6 +1917,37 @@
       1fr 1fr;
   }
 
+  .database-preview-notice {
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+
+    align-items: start;
+  }
+
+  .database-preview-notice__icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .database-preview-notice > a {
+    grid-column: 1 / -1;
+
+    margin-left: 43px;
+  }
+
+  .database-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+  .database-heading__label {
+    align-self: flex-start;
+  }
+
   .card-visual {
     min-height: 110px;
   }
@@ -1742,16 +1972,61 @@
     border-bottom: 0;
   }
 
+  .vault-section {
+    padding-block: 92px 72px;
+  }
+
+  .vault-snapshot__feature {
+    padding: 24px 22px;
+  }
+
+  .vault-snapshot__feature p {
+    max-width: none;
+  }
+
+  .vault-record {
+    grid-template-columns:
+      62px
+      minmax(0, 1fr)
+      auto;
+
+    gap: 12px;
+
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+
+  .vault-record__thumbnail {
+    width: 62px;
+    height: 89px;
+  }
+
+  .security-section {
+    padding-bottom: 56px;
+  }
+
+  .security-layout {
+    gap: 32px;
+
+    padding: 30px 22px;
+  }
+
   .security-copy ul {
     grid-template-columns: 1fr;
   }
 
-  .security-console {
-    overflow-x: auto;
+  .trust-surface {
+    padding: 15px;
   }
 
-  .console-body {
-    min-width: 380px;
+  .trust-surface__header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .final-cta {
+    padding-bottom: 92px;
   }
 
 }
