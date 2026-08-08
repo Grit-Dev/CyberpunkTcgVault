@@ -101,6 +101,52 @@
     object-fit: contain;
 }
 
+/*
+ * Highlights the card field currently being explained.
+ *
+ * The position and size are supplied by the anatomy
+ * configuration so each field does not need its own CSS.
+ */
+.card-anatomy-showcase__highlight {
+    position: absolute;
+    z-index: 4;
+
+    border: 2px solid var(--colour-yellow);
+
+    pointer-events: none;
+
+    transition:
+        top 160ms ease,
+        left 160ms ease,
+        width 160ms ease,
+        height 160ms ease;
+}
+
+
+/*
+ * Shows the Guided step number beside the
+ * currently selected area of the card.
+ */
+.card-anatomy-showcase__marker {
+    position: absolute;
+    top: -13px;
+    right: -13px;
+
+    display: grid;
+    width: 27px;
+    height: 27px;
+    place-items: center;
+
+    color: var(--colour-background);
+    background: var(--colour-yellow);
+    border: 2px solid var(--colour-background);
+
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
 .card-anatomy-showcase__card-label {
     display: flex;
     width: min(100%, 580px);
@@ -238,5 +284,13 @@
 
     .card-anatomy-showcase__card-label strong {
         text-align: left;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .card-anatomy-showcase__highlight {
+            transition: none;
+        }
+
     }
 }

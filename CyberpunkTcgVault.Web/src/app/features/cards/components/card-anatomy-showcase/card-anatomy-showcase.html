@@ -32,18 +32,23 @@
 
         </div>
 
-        <div class="card-anatomy-showcase__card-stage">
+        <div class="card-anatomy-showcase__card">
 
-            <div class="card-anatomy-showcase__card">
+            <img src="/images/showcase/v-streetkid.webp" alt="V StreetKid Legend card" />
 
-                <img src="/images/showcase/the-white-wanderer.png" alt="The White Wanderer showcase trading card" />
+            @if (isOpen) {
+
+            <div class="card-anatomy-showcase__highlight" [style.top.%]="currentField.region.top"
+                [style.left.%]="currentField.region.left" [style.width.%]="currentField.region.width"
+                [style.height.%]="currentField.region.height" aria-hidden="true">
+
+                <span class="card-anatomy-showcase__marker">
+                    {{ currentFieldIndex + 1 }}
+                </span>
 
             </div>
 
-            <div class="card-anatomy-showcase__card-label">
-                <span>CHOOM VAULT // STUDY CARD</span>
-                <strong>The White Wanderer</strong>
-            </div>
+            }
 
         </div>
 

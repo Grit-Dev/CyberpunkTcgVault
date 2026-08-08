@@ -1,9 +1,6 @@
 /*
  * Stable identifiers for the card fields that Card Anatomy
  * can explain to the user.
- *
- * These identifiers stay separate from the text displayed
- * on screen so the wording can change without affecting logic.
  */
 export type CardAnatomyFieldId =
     | 'cost'
@@ -18,6 +15,21 @@ export type CardAnatomyFieldId =
     | 'rarity'
     | 'artistCredit';
 
+
+/*
+ * Stores the position and size of a field on a card.
+ *
+ * Percentages are used instead of pixels so the highlight
+ * stays aligned when the card changes size.
+ */
+export interface CardAnatomyRegion {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+}
+
+
 /*
  * Describes one field that can be explained
  * by the Card Anatomy experience.
@@ -30,6 +42,9 @@ export interface CardAnatomyField {
     // Name displayed to the user.
     title: string;
 
-    // Short player-facing explanation of the field.
+    // Short explanation displayed in the learning panel.
     description: string;
+
+    // Position of the field on the showcase card.
+    region: CardAnatomyRegion;
 }

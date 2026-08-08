@@ -3,11 +3,11 @@ import { CardAnatomyField } from '../../../features/cards/models/card-anatomy';
 /*
  * Fields used by the V StreetKid homepage showcase.
  *
- * The order of this array controls the order used by
- * Guided mode and will later also control marker numbering.
+ * The order of this array controls Guided mode and
+ * will later also control the Show All marker numbering.
  *
  * Region values are percentages of the complete card image.
- * This keeps the highlight aligned when the card resizes.
+ * This keeps each highlight aligned when the card resizes.
  */
 export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
 
@@ -16,7 +16,6 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
         title: 'Cost',
         description:
             'Spend Eddies equal to this value to play the card. Legends can also be spent as 1 Eddie each.',
-        // Cost
         region: {
             top: 3.8,
             left: 4.8,
@@ -36,113 +35,112 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             height: 4.6
         }
     },
-    /*
-     * Program or Gear type layout.
-     *
-     * Type is therefore intentionally omitted from this
-     * homepage showcase rather than displaying incorrect data.
-     */
+    {
+        id: 'type',
+        title: 'Type',
+        description:
+            'Identifies the card as a Legend, Unit, Program or Gear.',
+        region: {
+            top: 3.8,
+            left: 76,
+            width: 17.5,
+            height: 3.6
+        }
+    },
     {
         id: 'ram',
         title: 'RAM',
         description:
             'Your Legends set the RAM limits for your deck. A card can only be included when its colour and RAM value fit within that limit.',
         region: {
-            top: 16.5,
-            left: 83,
-            width: 11,
-            height: 10
+            top: 8.7,
+            left: 82,
+            width: 10.2,
+            height: 5.9
         }
     },
-
     {
         id: 'tags',
         title: 'Tags',
         description:
             'Affiliations and traits that other card effects may reference.',
         region: {
-            top: 62.5,
-            left: 7,
-            width: 32,
-            height: 4
+            top: 64.5,
+            left: 10.7,
+            width: 9.8,
+            height: 2.9
         }
     },
-
     {
         id: 'power',
         title: 'Power',
         description:
             'Used when attacking. Higher power wins fights, and Units steal an additional Gig for every 10 power.',
         region: {
-            top: 74.5,
-            left: 77,
-            width: 17.5,
-            height: 15
+            top: 88.8,
+            left: 82,
+            width: 13,
+            height: 6.5
         }
     },
-
     {
         id: 'rulesText',
         title: 'Rules Text',
         description:
             'Explains the card’s abilities and instructions. Card text takes priority if it conflicts with the general rules.',
         region: {
-  top: 67.4,
-  left: 9.5,
-  width: 70,
-  height: 24.8
+            top: 67.4,
+            left: 9.5,
+            width: 70,
+            height: 24.8
         }
     },
-
     {
         id: 'setCode',
         title: 'Set Code',
         description:
             'Identifies the set or printing this card belongs to.',
         region: {
-  top: 84.1,
-  left: 3.0,
-  width: 4.2,
-  height: 12.1
+            top: 84.1,
+            left: 3.0,
+            width: 4.2,
+            height: 12.1
         }
     },
-
     {
         id: 'cardNumber',
         title: 'Card Number',
         description:
             'The card’s unique number within that set or printing.',
         region: {
-            top: 92,
-            left: 16,
-            width: 17,
+            top: 92.1,
+            left: 6.0,
+            width: 7.4,
             height: 4.5
         }
     },
-
     {
         id: 'rarity',
         title: 'Rarity',
         description:
             'Shows the rarity assigned to this card printing.',
         region: {
-            top: 2,
-            left: 80,
-            width: 15.5,
-            height: 11
+            top: 92.9,
+            left: 47.4,
+            width: 5.9,
+            height: 4.4
         }
     },
-
     {
         id: 'artistCredit',
         title: 'Artist Credit',
         description:
             'Credits the artist who created the card illustration.',
         region: {
-            top: 92,
-            left: 64.5,
-            width: 23,
-            height: 4.5
+            top: 43.8,
+            left: 94.8,
+            width: 2.9,
+            height: 19.6
         }
     }
 

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { CardAnatomyField } from '../../models/card-anatomy';
-import { WHITE_WANDERER_ANATOMY } from '../../../../pages/home/data/white-wanderer-anatomy';
+import { V_STREETKID_ANATOMY } from '../../../../pages/home/data/v-streetkid-anatomy';
 
 @Component({
   selector: 'app-card-anatomy-showcase',
@@ -18,9 +18,9 @@ export class CardAnatomyShowcase {
   // Stores the position of the field currently being explained.
   currentFieldIndex = 0;
 
-  // Fields available for the White Wanderer homepage showcase.
+  // Fields available for the V StreetKid homepage showcase.
   readonly anatomyFields: CardAnatomyField[] =
-    WHITE_WANDERER_ANATOMY;
+    V_STREETKID_ANATOMY;
 
   /**
    * Returns the field currently being explained.
