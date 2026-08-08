@@ -3,62 +3,54 @@
 
   <div class="container catalogue-shell">
 
-    <!-- Catalogue heading -->
+    <!-- Vault Archive introduction -->
     <header class="catalogue-header">
       <div class="catalogue-header__copy">
         <p class="eyebrow">
-          Shared catalogue
+          Cards // Choom Vault
         </p>
 
         <h1>
-          Card
-          <span>catalogue.</span>
+          Vault
+          <span>Archive</span>
         </h1>
 
         <p class="catalogue-description">
-          Browse the full card catalogue. Search by name or narrow the set by
-          rarity, classification and card type.
+          Browse every card currently archived in Choom Vault.
         </p>
-      </div>
-
-      <div class="catalogue-status" aria-live="polite">
-        <span class="catalogue-status__light" aria-hidden="true"></span>
-
-        @if (isLoading) {
-        Loading cards
-        } @else if (errorMessage) {
-        Catalogue unavailable
-        } @else {
-        {{ totalCount }}
-        {{ totalCount === 1 ? 'card' : 'cards' }}
-        available
-        }
       </div>
     </header>
 
+    <!-- Search and filters -->
+    <form class="catalogue-tools" (ngSubmit)="applyFilters()" aria-label="Vault Archive search and filters">
 
-    <!--
-      Search and filtering belong to the full Catalogue page.
-      The homepage remains the curated discovery experience.
-    -->
-    <form class="catalogue-tools" (ngSubmit)="applyFilters()" aria-label="Card catalogue filters">
-      <div class="catalogue-tools__fields">
-
-        <!--
-          Name search is debounced so typing does not send
-          one API request for every individual keystroke.
-        -->
-        <label class="catalogue-field catalogue-field--search">
+      <!-- Primary search -->
+      <div class="catalogue-search">
+        <label class="catalogue-field catalogue-field--search" for="archive-search-input">
           <span>
             Search cards
           </span>
 
-          <input type="search" name="cardName" [ngModel]="filters.name" (ngModelChange)="onSearchChange($event)"
-            placeholder="Search by card name" autocomplete="off" />
+          <div class="catalogue-search__control">
+            <input id="archive-search-input" type="search" name="cardName" [ngModel]="filters.name"
+              (ngModelChange)="onSearchChange($event)" placeholder="Search cards…" autocomplete="off" />
+
+            <button class="catalogue-search__submit" type="submit" [disabled]="isLoading">
+              Search
+            </button>
+          </div>
         </label>
 
+        @if (hasSearchQuery) {
+        <button class="catalogue-search__clear" type="button" (click)="clearSearch()" [disabled]="isLoading">
+          Clear search
+        </button>
+        }
+      </div>
 
-        <!-- Rarity updates immediately. -->
+      <!-- Secondary filters -->
+      <div class="catalogue-filters">
+
         <label class="catalogue-field">
           <span>
             Rarity
@@ -78,8 +70,6 @@
           </select>
         </label>
 
-
-        <!-- Classification updates immediately. -->
         <label class="catalogue-field">
           <span>
             Classification
@@ -102,8 +92,6 @@
           </select>
         </label>
 
-
-        <!-- Card type updates immediately. -->
         <label class="catalogue-field">
           <span>
             Card type
@@ -123,213 +111,261 @@
           </select>
         </label>
 
-      </div>
+        <div class="catalogue-filters__action">
+          <button class="catalogue-action catalogue-action--secondary" type="button" (click)="clearFilters()"
+            [disabled]="!hasActiveFilters || isLoading">
+            Clear filters
+          </button>
+        </div>
 
-
-      <!-- Catalogue actions -->
-      <div class="catalogue-tools__actions">
-        <button class="catalogue-action catalogue-action--primary" type="submit" [disabled]="isLoading">
-          Search catalogue
-        </button>
-
-        <button class="catalogue-action catalogue-action--secondary" type="button" (click)="clearFilters()"
-          [disabled]="!hasActiveFilters || isLoading">
-          Clear
-        </button>
       </div>
     </form>
 
-
-    <!-- Loading state -->
+    <!-- Loading -->
     @if (isLoading) {
     <div class="catalogue-message" aria-live="polite">
       <span class="catalogue-message__code">
-        CATALOGUE // LOADING
+        Loading
       </span>
 
       <strong>
-        Loading card records...
+        Loading cards
       </strong>
+
+      <p>
+        Preparing the Vault Archive.
+      </p>
     </div>
     }
 
-
-    <!-- Error state -->
+    <!-- Error -->
     @else if (errorMessage) {
     <div class="catalogue-message catalogue-message--error" role="alert">
       <span class="catalogue-message__code">
-        CATALOGUE // UNAVAILABLE
+        Vault Archive unavailable
       </span>
 
       <strong>
-        {{ errorMessage }}
+        Couldn't load the cards
       </strong>
+
+      <p>
+        Try again in a moment.
+      </p>
+
+      <button class="
+            catalogue-action
+            catalogue-action--secondary
+            catalogue-message__action
+          " type="button" (click)="retryLoad()">
+        Try again
+      </button>
     </div>
     }
 
-
-    <!-- Empty/filter state -->
-    @else if (cards.length === 0) {
-    <div class="catalogue-message">
+    <!-- No matches -->
+    @else if (
+    cards.length === 0 &&
+    hasActiveFilters
+    ) {
+    <div class="catalogue-message" aria-live="polite">
       <span class="catalogue-message__code">
-        NO MATCHES
+        No matches
       </span>
 
       <strong>
-        No cards match the current filters.
+        No cards found
       </strong>
 
-      @if (hasActiveFilters) {
+      <p>
+        Try another name or remove a filter.
+      </p>
+
       <button class="
-              catalogue-action
-              catalogue-action--secondary
-              catalogue-message__action
-            " type="button" (click)="clearFilters()">
+            catalogue-action
+            catalogue-action--secondary
+            catalogue-message__action
+          " type="button" (click)="clearFilters()">
         Clear filters
       </button>
-      }
     </div>
     }
 
+    <!-- Genuine empty Archive -->
+    @else if (cards.length === 0) {
+    <div class="catalogue-message" aria-live="polite">
+      <span class="catalogue-message__code">
+        Vault Archive
+      </span>
 
-    <!-- Catalogue results -->
+      <strong>
+        No cards are currently available.
+      </strong>
+    </div>
+    }
+
+    <!-- Results -->
     @else {
     <div class="catalogue-results">
 
-      <!-- Results summary -->
-      <div class="catalogue-results__heading" aria-live="polite">
-        <div>
-          <span>
-            {{
-            hasActiveFilters
-            ? 'Filtered catalogue'
-            : 'Full catalogue'
-            }}
-          </span>
-
-          <strong>
-            {{ totalCount }}
-            {{ totalCount === 1 ? 'card' : 'cards' }}
-            found
-          </strong>
-        </div>
+      <!-- Authoritative results rail -->
+      <div class="catalogue-results__rail" aria-live="polite" aria-atomic="true">
+        <strong>
+          {{ totalCount }}
+          {{ totalCount === 1 ? 'card' : 'cards' }}
+        </strong>
 
         @if (totalPages > 1) {
-        <span class="catalogue-results__page">
+        <span>
           Page {{ currentPage }} of {{ totalPages }}
         </span>
         }
       </div>
 
-
-      <!-- Card grid -->
+      <!-- Artwork-first Archive grid -->
       <div class="card-grid">
 
         @for (card of cards; track card.id) {
-
         <!--
-              Catalogue cards are informational for now.
-
-              Once Card Detail exists, the card can become an actual link
-              and use the shared yellow hover / cyan focus interaction.
+              Archive items remain informational until Card Detail exists.
+              No fake link, button or keyboard destination is introduced.
             -->
         <article class="catalogue-card">
 
-          <!-- Card metadata -->
-          <header class="catalogue-card__header">
-            <span>
-              {{ card.rarity ?? 'Unknown rarity' }}
-            </span>
-
-            <strong>
-              {{ card.cardNumber ?? 'NO-ID' }}
-            </strong>
-          </header>
-
-
-          <!--
-                Shared artwork directive handles:
-                - API image URLs
-                - missing artwork paths
-                - failed image requests
-                - Vault placeholder fallback
-              -->
+          <!-- Physical card artwork + GHOST SIGNAL fallback -->
           <div class="catalogue-card__visual">
             <img [appCardArtwork]="card.imageUrl" [alt]="card.name" loading="lazy" decoding="async" />
           </div>
 
+          <!-- Archive Label -->
+          <div class="catalogue-card__archive-label">
 
-          <!-- Card information -->
-          <div class="catalogue-card__content">
+            <!-- Level 1: Card Name -->
             <h2>
               {{ card.name }}
             </h2>
 
-            <p>
-              {{
-              card.classification ??
-              card.cardType ??
-              'Unclassified'
-              }}
-            </p>
+            <!-- Level 2: Collector identity -->
+            @if (
+            hasMeaningfulValue(card.cardType) ||
+            hasMeaningfulValue(card.classification) ||
+            hasMeaningfulValue(card.rarity) ||
+            hasMeaningfulValue(card.cardNumber)
+            ) {
+            <div class="catalogue-card__metadata">
 
-            <span>
-              {{ card.setName ?? 'Set data unavailable' }}
-            </span>
+              @if (
+              hasMeaningfulValue(card.cardType)
+              ) {
+              <span>
+                {{ card.cardType }}
+              </span>
+              } @else if (
+              hasMeaningfulValue(card.classification)
+              ) {
+              <span>
+                {{ card.classification }}
+              </span>
+              }
+
+              @if (
+              hasMeaningfulValue(card.rarity)
+              ) {
+              <span>
+                {{ card.rarity }}
+              </span>
+              }
+
+              @if (
+              hasMeaningfulValue(card.cardNumber)
+              ) {
+              <span class="catalogue-card__number">
+                {{ card.cardNumber }}
+              </span>
+              }
+
+            </div>
+            }
+
+            <!-- Level 3: Set / printing information -->
+            <div class="catalogue-card__printing">
+
+              @if (
+              hasMeaningfulValue(card.setName)
+              ) {
+              <p class="catalogue-card__set">
+                {{ card.setName }}
+              </p>
+              }
+
+              @if (
+              card.hasBetaSymbol ||
+              card.isKickstarterVersion ||
+              card.isRetailVersion ||
+              card.isFoil ||
+              card.isAltArt ||
+              card.isBoxTopper ||
+              card.isPromo ||
+              card.isStarterDeckExclusive
+              ) {
+              <div class="catalogue-card__variants">
+
+                @if (card.isFoil) {
+                <span>Foil</span>
+                }
+
+                @if (card.isAltArt) {
+                <span>Alt Art</span>
+                }
+
+                @if (card.isKickstarterVersion) {
+                <span>Kickstarter</span>
+                }
+
+                @if (card.isPromo) {
+                <span>Promo</span>
+                }
+
+                @if (card.isBoxTopper) {
+                <span>Box Topper</span>
+                }
+
+                @if (card.isStarterDeckExclusive) {
+                <span>
+                  Starter Deck Exclusive
+                </span>
+                }
+
+                @if (card.hasBetaSymbol) {
+                <span>Beta</span>
+                }
+
+                @if (card.isRetailVersion) {
+                <span>Retail</span>
+                }
+
+              </div>
+              }
+
+            </div>
+
           </div>
-
-
-          <!-- Gameplay values -->
-          <footer class="catalogue-card__stats">
-            <span>
-              PWR {{ card.power ?? '—' }}
-            </span>
-
-            <span>
-              RAM {{ card.ramCost ?? '—' }}
-            </span>
-          </footer>
-
         </article>
         }
 
       </div>
 
-
-      <!--
-          Pagination remains deliberately restrained.
-
-          The current frontend implementation pages the matching API result.
-          Later the backend can return only the requested page without
-          requiring a redesign of these controls.
-        -->
+      <!-- Functional pagination -->
       @if (totalPages > 1) {
-      <nav class="catalogue-pagination" aria-label="Card catalogue pages">
-
-        <!-- Pagination summary -->
-        <div class="catalogue-pagination__summary">
-          <span>
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-
-          <strong>
-            {{ totalCount }}
-            {{ totalCount === 1 ? 'card' : 'cards' }}
-          </strong>
-        </div>
-
-
-        <!-- Pagination controls -->
+      <nav class="catalogue-pagination" aria-label="Vault Archive pages">
         <div class="catalogue-pagination__controls">
 
           <button class="catalogue-pagination__direction" type="button" (click)="previousPage()"
-            [disabled]="currentPage === 1" aria-label="Previous catalogue page">
-            ← Previous
+            [disabled]="currentPage === 1" aria-label="Previous Archive page">
+            Previous
           </button>
 
-
-          <!-- Only a small window of page numbers is displayed. -->
-          <div class="catalogue-pagination__pages" aria-label="Catalogue page numbers">
+          <div class="catalogue-pagination__pages">
             @for (
             page of visiblePageNumbers;
             track page
@@ -341,17 +377,16 @@
                         ? 'page'
                         : null
                     " [attr.aria-label]="
-                      'Go to catalogue page ' + page
+                      'Go to Archive page ' + page
                     ">
               {{ page }}
             </button>
             }
           </div>
 
-
           <button class="catalogue-pagination__direction" type="button" (click)="nextPage()"
-            [disabled]="currentPage === totalPages" aria-label="Next catalogue page">
-            Next →
+            [disabled]="currentPage === totalPages" aria-label="Next Archive page">
+            Next
           </button>
 
         </div>
