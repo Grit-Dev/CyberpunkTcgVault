@@ -14,14 +14,12 @@
       </a>
 
       <nav class="site-navigation" aria-label="Primary navigation">
-        <a href="#database">Database</a>
+        <a href="#database">Catalogue</a>
         <a href="#vault">My Vault</a>
-        <a href="#security">Security</a>
+        <a href="#security">Privacy</a>
       </nav>
 
       <div class="header-actions">
-        <span class="prototype-label">Visual prototype</span>
-
         <button class="btn btn--text" type="button">
           Log in
         </button>
@@ -41,7 +39,7 @@
 
       <div class="container hero-layout">
         <div class="hero-copy">
-          <p class="eyebrow">Collection intelligence</p>
+          <p class="eyebrow">Built for collectors</p>
 
           <h1>
             Collect the city.
@@ -49,50 +47,54 @@
           </h1>
 
           <p class="hero-description">
-            Search the shared card database, catalogue every pull and keep your
-            private collection, wishlist and sealed products secured behind
-            your own account.
+            Explore the shared card catalogue, track every pull and keep your
+            collection, wishlist and sealed products together in one personal
+            Vault.
           </p>
 
           <div class="hero-actions">
             <a class="btn btn--primary" href="#database">
-              Explore database
+              Explore cards
               <span aria-hidden="true">↗</span>
             </a>
 
             <a class="btn btn--secondary" href="#security">
-              How security works
+              How privacy works
             </a>
           </div>
 
           <dl class="hero-stats">
             <div>
-              <dt>API tests</dt>
-              <dd>56 passing</dd>
+              <dt>Card catalogue</dt>
+              <dd>Explore the set</dd>
             </div>
 
             <div>
-              <dt>Authentication</dt>
-              <dd>JWT secured</dd>
+              <dt>Personal vault</dt>
+              <dd>Private to your account</dd>
             </div>
 
             <div>
-              <dt>Private data</dt>
-              <dd>User owned</dd>
+              <dt>Your collection</dt>
+              <dd>Track it your way</dd>
             </div>
           </dl>
         </div>
 
-        <div id="database" class="database-preview" aria-label="Live card database preview">
+        <div
+          id="database"
+          class="database-preview"
+          aria-label="Card catalogue preview"
+        >
           <div class="database-topbar">
             <div>
-              <span class="console-code">DATABASE // 01</span>
+              <span class="console-code">CATALOGUE // 01</span>
               <strong>Card catalogue</strong>
             </div>
 
             <span class="database-status">
               <span></span>
-              Live vault data
+              Ready to explore
             </span>
           </div>
 
@@ -103,12 +105,16 @@
 
             <span aria-hidden="true">⌕</span>
 
-            <input id="prototype-card-search" type="search" placeholder="Search card database..." />
+            <input
+              id="prototype-card-search"
+              type="search"
+              placeholder="Search card catalogue..."
+            />
 
             <kbd>CTRL K</kbd>
           </div>
 
-          <div class="filter-row" aria-label="Example database filters">
+          <div class="filter-row" aria-label="Card catalogue filters">
             <button class="filter-chip filter-chip--active" type="button">
               All cards
             </button>
@@ -132,9 +138,10 @@
 
           <div class="database-heading">
             <div>
-              <span>Collection preview</span>
+              <span>Featured cards</span>
+
               <strong>
-                Featured vault archive // {{ featuredCards.length }} premium records
+                Explore {{ featuredCards.length }} cards from the Vault
               </strong>
             </div>
 
@@ -153,11 +160,15 @@
               </div>
 
               <div class="card-visual">
-                <img [src]="
-                      card.imageUrl
-                        ? getImageUrl(card.imageUrl)
-                        : getImageUrl('/images/cards/placeholder.png')
-                    " [alt]="card.name" (error)="onImageError($event)" />
+                <img
+                  [src]="
+                    card.imageUrl
+                      ? getImageUrl(card.imageUrl)
+                      : getImageUrl('/images/cards/placeholder.png')
+                  "
+                  [alt]="card.name"
+                  (error)="onImageError($event)"
+                />
               </div>
 
               <div class="card-information">
@@ -177,17 +188,22 @@
           </div>
 
           <div class="database-footer">
-            <span>Live vault feed // catalogue API connected</span>
+            <span>Shared catalogue // discover your next card</span>
 
             <div>
-              <button type="button" aria-label="Previous prototype page">
+              <button type="button" aria-label="Previous catalogue page">
                 ←
               </button>
 
-              <button class="current-page" type="button">01</button>
-              <button type="button">02</button>
+              <button class="current-page" type="button">
+                01
+              </button>
 
-              <button type="button" aria-label="Next prototype page">
+              <button type="button">
+                02
+              </button>
+
+              <button type="button" aria-label="Next catalogue page">
                 →
               </button>
             </div>
@@ -213,13 +229,13 @@
         <div>
           <span>03</span>
           <strong>Secure</strong>
-          <p>Protect private records using JWT ownership.</p>
+          <p>Keep your personal collection private to your account.</p>
         </div>
 
         <div>
           <span>04</span>
           <strong>Manage</strong>
-          <p>Control catalogue changes through Admin roles.</p>
+          <p>Keep your cards, products and collection details organised.</p>
         </div>
       </div>
     </section>
@@ -240,44 +256,49 @@
           </div>
 
           <p>
-            The visual prototype establishes the direction. Each area will be
-            replaced with real Angular pages, API requests and authenticated
-            user data as development progresses.
+            Keep your owned cards, wanted cards and sealed products together
+            while tracking the details that matter to your collection.
           </p>
         </div>
 
         <div class="vault-feature-grid">
           <article class="vault-feature">
             <span class="feature-index">01 / COLLECTION</span>
+
             <div class="feature-icon">▦</div>
+
             <h3>Owned cards</h3>
+
             <p>
               Record quantity, condition, duplicates, grading candidates,
               private notes and trading availability.
             </p>
-            <span class="feature-status">Backend ready</span>
           </article>
 
           <article class="vault-feature vault-feature--featured">
             <span class="feature-index">02 / WISHLIST</span>
+
             <div class="feature-icon">◇</div>
+
             <h3>Wanted cards</h3>
+
             <p>
               Prioritise cards by quantity, condition, grading preference and
               the reason each item belongs on your list.
             </p>
-            <span class="feature-status">Backend ready</span>
           </article>
 
           <article class="vault-feature">
             <span class="feature-index">03 / PRODUCTS</span>
+
             <div class="feature-icon">▣</div>
+
             <h3>Sealed products</h3>
+
             <p>
               Track boxes, starter decks, pledge items, purchase costs,
               estimated values and private storage details.
             </p>
-            <span class="feature-status">Backend ready</span>
           </article>
         </div>
       </div>
@@ -286,39 +307,38 @@
     <section id="security" class="security-section">
       <div class="container security-layout">
         <div class="security-copy">
-          <p class="eyebrow">Backend-enforced security</p>
+          <p class="eyebrow">Private by design</p>
 
           <h2>
-            The browser displays it.
-            <span>The API protects it.</span>
+            Your collection stays yours.
+            <span>Private to your account.</span>
           </h2>
 
           <p>
-            The Angular application will never be trusted to decide which
-            private records a user can access. The API reads the user ID and
-            role from the signed JWT and applies ownership checks on every
-            protected database operation.
+            Your collection, wishlist, sealed products and private notes belong
+            to your account. Other collectors cannot browse or change your
+            personal Vault records.
           </p>
 
           <ul>
             <li>
               <span>✓</span>
-              Password hashing
+              Personal collection records
             </li>
 
             <li>
               <span>✓</span>
-              JWT validation
+              Account-protected access
             </li>
 
             <li>
               <span>✓</span>
-              User ownership filtering
+              Private collection notes
             </li>
 
             <li>
               <span>✓</span>
-              Role-based Admin access
+              Controlled catalogue management
             </li>
           </ul>
         </div>
@@ -331,37 +351,36 @@
               <span></span>
             </div>
 
-            <strong>authenticated-request.log</strong>
+            <strong>Account privacy</strong>
           </div>
 
           <div class="console-body">
             <p>
-              <span class="console-method">GET</span>
-              /api/Auth/me
+              <span class="console-method">Collection</span>
+              Private
             </p>
 
             <p>
-              <span class="console-success">200</span>
-              OK
+              <span class="console-success">✓</span>
+              Your account
             </p>
 
             <div class="console-json">
-              <span>&#123;</span>
-              <span>&nbsp;&nbsp;"userName": "example-user",</span>
-              <span>&nbsp;&nbsp;"role": "User",</span>
-              <span>&nbsp;&nbsp;"vaultAccess": true</span>
-              <span>&#125;</span>
+              <span>Owned cards — private</span>
+              <span>Wishlist — private</span>
+              <span>Sealed products — private</span>
+              <span>Personal notes — private</span>
             </div>
 
             <div class="console-divider"></div>
 
             <p>
-              <span class="console-method">GET</span>
-              /api/OwnedCards
+              <span class="console-method">Catalogue</span>
+              Shared
             </p>
 
             <p class="console-comment">
-              // Results filtered using the authenticated user ID
+              Changes to shared card data are kept controlled.
             </p>
           </div>
         </div>
@@ -371,18 +390,18 @@
     <section class="final-cta">
       <div class="container final-cta-inner">
         <div>
-          <span class="cta-code">CV // FRONTEND PROTOTYPE</span>
+          <span class="cta-code">BUILD YOUR VAULT</span>
 
-          <h2>The visual direction is set.</h2>
+          <h2>Your collection deserves a home.</h2>
 
           <p>
-            Next, the prototype becomes a real Angular application connected
-            to the secure ASP.NET Core API.
+            Explore the catalogue, keep track of what you own and build a Vault
+            around the collection that matters to you.
           </p>
         </div>
 
         <a class="btn btn--primary" href="#database">
-          View database preview
+          Explore cards
           <span aria-hidden="true">↑</span>
         </a>
       </div>
@@ -410,9 +429,9 @@
       </p>
 
       <span class="footer-stack">
-        Angular frontend
+        Fan-made collection companion
         <br />
-        ASP.NET Core API
+        Built for collectors
       </span>
     </div>
   </footer>
