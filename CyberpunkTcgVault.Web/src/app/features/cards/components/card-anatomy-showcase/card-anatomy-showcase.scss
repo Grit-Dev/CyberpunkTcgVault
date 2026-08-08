@@ -12,11 +12,9 @@
     border-bottom: 1px solid var(--colour-border);
 
     background:
-        radial-gradient(
-            circle at 72% 42%,
+        radial-gradient(circle at 72% 42%,
             rgba(242, 233, 0, 0.035),
-            transparent 32%
-        ),
+            transparent 32%),
         var(--colour-background);
 }
 
@@ -31,8 +29,7 @@
     display: grid;
 
     grid-template-columns:
-        minmax(0, 0.72fr)
-        minmax(480px, 1.28fr);
+        minmax(0, 0.72fr) minmax(480px, 1.28fr);
 
     align-items: center;
 
@@ -48,8 +45,7 @@
  */
 .card-anatomy-showcase--active .card-anatomy-showcase__layout {
     grid-template-columns:
-        minmax(480px, 1.18fr)
-        minmax(320px, 0.82fr);
+        minmax(480px, 1.18fr) minmax(320px, 0.82fr);
 
     align-items: center;
 
@@ -111,7 +107,7 @@
 }
 
 .card-anatomy-showcase__modes button {
-    min-height: 36px;
+    min-height: 44px;
 
     padding: 0 13px;
 
@@ -162,11 +158,9 @@
 
     font-family: var(--font-display);
 
-    font-size: clamp(
-        3rem,
-        4.5vw,
-        4.8rem
-    );
+    font-size: clamp(3rem,
+            4.5vw,
+            4.8rem);
 
     font-weight: 900;
     line-height: 0.95;
@@ -239,10 +233,8 @@
 .card-anatomy-showcase__card {
     position: relative;
 
-    width: min(
-        100%,
-        580px
-    );
+    width: min(100%,
+            580px);
 }
 
 
@@ -259,12 +251,10 @@
 
     inset: 8% -5% -2%;
 
-    background: rgba(
-        242,
-        233,
-        0,
-        0.045
-    );
+    background: rgba(242,
+            233,
+            0,
+            0.045);
 
     filter: blur(55px);
 
@@ -428,10 +418,8 @@
 .card-anatomy-showcase__card-label {
     display: flex;
 
-    width: min(
-        100%,
-        580px
-    );
+    width: min(100%,
+            580px);
 
     align-items: center;
     justify-content: space-between;
@@ -486,13 +474,11 @@
 
     border: 1px solid var(--colour-border-strong);
 
-    clip-path: polygon(
-        0 0,
-        calc(100% - 18px) 0,
-        100% 18px,
-        100% 100%,
-        0 100%
-    );
+    clip-path: polygon(0 0,
+            calc(100% - 18px) 0,
+            100% 18px,
+            100% 100%,
+            0 100%);
 }
 
 .card-anatomy-showcase__progress {
@@ -512,11 +498,9 @@
 
     font-family: var(--font-display);
 
-    font-size: clamp(
-        2rem,
-        3vw,
-        3rem
-    );
+    font-size: clamp(2rem,
+            3vw,
+            3rem);
 
     font-weight: 900;
 
@@ -525,7 +509,7 @@
     text-transform: uppercase;
 }
 
-.card-anatomy-showcase__docket > p {
+.card-anatomy-showcase__docket>p {
     margin: 20px 0 0;
 
     color: var(--colour-text-muted);
@@ -558,32 +542,26 @@
 
     .card-anatomy-showcase__layout {
         grid-template-columns:
-            minmax(0, 0.8fr)
-            minmax(360px, 1fr);
+            minmax(0, 0.8fr) minmax(360px, 1fr);
 
         gap: 55px;
     }
 
     .card-anatomy-showcase--active .card-anatomy-showcase__layout {
         grid-template-columns:
-            minmax(400px, 1.1fr)
-            minmax(300px, 0.9fr);
+            minmax(400px, 1.1fr) minmax(300px, 0.9fr);
 
         gap: 45px;
     }
 
     .card-anatomy-showcase__card {
-        width: min(
-            100%,
-            500px
-        );
+        width: min(100%,
+                500px);
     }
 
     .card-anatomy-showcase__card-label {
-        width: min(
-            100%,
-            500px
-        );
+        width: min(100%,
+                500px);
     }
 
     .card-anatomy-showcase__docket {
@@ -625,17 +603,13 @@
     }
 
     .card-anatomy-showcase__card {
-        width: min(
-            100%,
-            470px
-        );
+        width: min(100%,
+                470px);
     }
 
     .card-anatomy-showcase__card-label {
-        width: min(
-            100%,
-            470px
-        );
+        width: min(100%,
+                470px);
     }
 
     .card-anatomy-showcase__docket {
@@ -645,11 +619,9 @@
     }
 
     .card-anatomy-showcase__docket h3 {
-        font-size: clamp(
-            2rem,
-            8vw,
-            2.7rem
-        );
+        font-size: clamp(2rem,
+                8vw,
+                2.7rem);
     }
 }
 
@@ -658,14 +630,11 @@
  * Landscape mobile uses a compact split layout
  * instead of the portrait learning tray arrangement.
  */
-@media (max-width: 900px)
-and (orientation: landscape)
-and (max-height: 600px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 600px) {
 
     .card-anatomy-showcase--active .card-anatomy-showcase__layout {
         grid-template-columns:
-            minmax(260px, 1fr)
-            minmax(280px, 0.85fr);
+            minmax(260px, 1fr) minmax(280px, 0.85fr);
 
         align-items: center;
 
@@ -673,17 +642,13 @@ and (max-height: 600px) {
     }
 
     .card-anatomy-showcase__card {
-        width: min(
-            100%,
-            360px
-        );
+        width: min(100%,
+                360px);
     }
 
     .card-anatomy-showcase__card-label {
-        width: min(
-            100%,
-            360px
-        );
+        width: min(100%,
+                360px);
     }
 
     .card-anatomy-showcase__docket {
@@ -702,11 +667,9 @@ and (max-height: 600px) {
     }
 
     .card-anatomy-showcase__copy h2 {
-        font-size: clamp(
-            2.7rem,
-            13vw,
-            4rem
-        );
+        font-size: clamp(2.7rem,
+                13vw,
+                4rem);
     }
 
     .card-anatomy-showcase__actions {
@@ -741,17 +704,13 @@ and (max-height: 600px) {
     }
 
     .card-anatomy-showcase__card {
-        width: min(
-            100%,
-            390px
-        );
+        width: min(100%,
+                390px);
     }
 
     .card-anatomy-showcase__card-label {
-        width: min(
-            100%,
-            390px
-        );
+        width: min(100%,
+                390px);
 
         align-items: flex-start;
 
