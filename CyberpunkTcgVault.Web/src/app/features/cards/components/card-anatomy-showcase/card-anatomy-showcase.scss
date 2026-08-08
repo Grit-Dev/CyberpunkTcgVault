@@ -215,6 +215,34 @@
     line-height: 1.65;
 }
 
+/*
+ * Links users from the quick Vault Lens explanation
+ * to the complete official Cyberpunk TCG rules.
+ */
+.card-anatomy-showcase__note a {
+    color: var(--colour-yellow);
+
+    font-weight: 700;
+
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+
+    transition:
+        color 140ms ease,
+        text-decoration-color 140ms ease;
+}
+
+.card-anatomy-showcase__note a:hover {
+    color: var(--colour-text);
+}
+
+.card-anatomy-showcase__note a:focus-visible {
+    outline: 2px solid var(--colour-cyan);
+
+    outline-offset: 3px;
+}
+
 
 /*
  * Holds the complete card image and anatomy overlay.
