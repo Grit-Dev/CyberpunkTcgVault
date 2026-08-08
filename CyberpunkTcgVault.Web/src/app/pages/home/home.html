@@ -81,11 +81,7 @@
           </dl>
         </div>
 
-        <div
-          id="database"
-          class="database-preview"
-          aria-label="Card catalogue preview"
-        >
+        <div id="database" class="database-preview" aria-label="Card catalogue preview">
           <div class="database-topbar">
             <div>
               <span class="console-code">CATALOGUE // 01</span>
@@ -105,11 +101,7 @@
 
             <span aria-hidden="true">⌕</span>
 
-            <input
-              id="prototype-card-search"
-              type="search"
-              placeholder="Search card catalogue..."
-            />
+            <input id="prototype-card-search" type="search" placeholder="Search card catalogue..." />
 
             <kbd>CTRL K</kbd>
           </div>
@@ -153,22 +145,18 @@
 
           <div class="prototype-card-grid">
             @for (card of featuredCards; track card.id) {
-            <article class="prototype-card">
+            <article class="prototype-card" tabindex="0" [attr.aria-label]="card.name + ' card preview'">
               <div class="card-header">
                 <span>{{ card.rarity ?? 'UNKNOWN' }}</span>
                 <strong>{{ card.cardNumber ?? 'NO-ID' }}</strong>
               </div>
 
               <div class="card-visual">
-                <img
-                  [src]="
+                <img [src]="
                     card.imageUrl
                       ? getImageUrl(card.imageUrl)
                       : getImageUrl('/images/cards/placeholder.png')
-                  "
-                  [alt]="card.name"
-                  (error)="onImageError($event)"
-                />
+                  " [alt]="card.name" (error)="onImageError($event)" />
               </div>
 
               <div class="card-information">
