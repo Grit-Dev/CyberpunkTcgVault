@@ -1,21 +1,19 @@
 :host {
-    display: block;
+  display: block;
 }
 
 .card-anatomy-showcase {
-    position: relative;
-
-    padding-block: 120px;
-
-    color: var(--colour-text);
-
-    border-bottom: 1px solid var(--colour-border);
-
-    background:
-        radial-gradient(circle at 72% 42%,
-            rgba(242, 233, 0, 0.035),
-            transparent 32%),
-        var(--colour-background);
+  position: relative;
+  padding-block: 120px;
+  color: var(--colour-text);
+  border-bottom: 1px solid var(--colour-border);
+  background:
+    radial-gradient(
+      circle at 72% 42%,
+      rgba(242, 233, 0, 0.035),
+      transparent 32%
+    ),
+    var(--colour-background);
 }
 
 
@@ -26,14 +24,11 @@
  * Card Anatomy is closed.
  */
 .card-anatomy-showcase__layout {
-    display: grid;
-
-    grid-template-columns:
-        minmax(0, 0.72fr) minmax(480px, 1.28fr);
-
-    align-items: center;
-
-    gap: 80px;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 0.72fr) minmax(480px, 1.28fr);
+  align-items: center;
+  gap: 80px;
 }
 
 
@@ -44,12 +39,10 @@
  * explanation docket stays in a stable position beside it.
  */
 .card-anatomy-showcase--active .card-anatomy-showcase__layout {
-    grid-template-columns:
-        minmax(480px, 1.18fr) minmax(320px, 0.82fr);
-
-    align-items: center;
-
-    gap: 64px;
+  grid-template-columns:
+    minmax(480px, 1.18fr) minmax(320px, 0.82fr);
+  align-items: center;
+  gap: 64px;
 }
 
 
@@ -58,17 +51,13 @@
  * experience is active.
  */
 .card-anatomy-showcase__command-rail {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 30px;
-
-    margin-bottom: 34px;
-    padding-bottom: 18px;
-
-    border-bottom: 1px solid var(--colour-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 34px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--colour-border);
 }
 
 
@@ -76,21 +65,17 @@
  * Holds the Vault Lens title and mode controls.
  */
 .card-anatomy-showcase__command-main {
-    display: flex;
-
-    align-items: center;
-
-    gap: 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
 .card-anatomy-showcase__command-code {
-    color: var(--colour-yellow);
-
-    font-family: var(--font-display);
-    font-size: 0.67rem;
-    font-weight: 800;
-
-    letter-spacing: 0.13em;
+  color: var(--colour-yellow);
+  font-family: var(--font-display);
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
 }
 
 
@@ -99,50 +84,37 @@
  * and Show All mode.
  */
 .card-anatomy-showcase__modes {
-    display: flex;
-
-    align-items: center;
-
-    gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .card-anatomy-showcase__modes button {
-    min-height: 44px;
-
-    padding: 0 13px;
-
-    color: var(--colour-text-muted);
-
-    background: transparent;
-
-    border: 1px solid transparent;
-
-    cursor: pointer;
-
-    font-family: var(--font-display);
-    font-size: 0.64rem;
-    font-weight: 800;
-
-    letter-spacing: 0.09em;
-
-    text-transform: uppercase;
-
-    transition:
-        color 140ms ease,
-        background 140ms ease,
-        border-color 140ms ease;
+  min-height: 44px;
+  padding: 0 13px;
+  color: var(--colour-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease;
 }
 
 .card-anatomy-showcase__modes button:hover {
-    color: var(--colour-text);
+  color: var(--colour-text);
 }
 
 .card-anatomy-showcase__modes button.is-active {
-    color: var(--colour-background);
-
-    background: var(--colour-yellow);
-
-    border-color: var(--colour-yellow);
+  color: var(--colour-background);
+  background: var(--colour-yellow);
+  border-color: var(--colour-yellow);
 }
 
 
@@ -150,97 +122,74 @@
  * Normal homepage introduction.
  */
 .card-anatomy-showcase__copy {
-    max-width: 650px;
+  max-width: 650px;
 }
 
 .card-anatomy-showcase__copy h2 {
-    margin: 20px 0 0;
-
-    font-family: var(--font-display);
-
-    font-size: clamp(3rem,
-            4.5vw,
-            4.8rem);
-
-    font-weight: 900;
-    line-height: 0.95;
-
-    letter-spacing: -0.02em;
-
-    text-transform: uppercase;
+  margin: 20px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 4.5vw, 4.8rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 .card-anatomy-showcase__copy h2 span {
-    display: block;
-
-    margin-top: 10px;
-
-    color: var(--colour-yellow);
+  display: block;
+  margin-top: 10px;
+  color: var(--colour-yellow);
 }
 
 .card-anatomy-showcase__description {
-    max-width: 590px;
-
-    margin: 28px 0 0;
-
-    color: var(--colour-text-muted);
-
-    font-size: 0.95rem;
-    line-height: 1.75;
+  max-width: 590px;
+  margin: 28px 0 0;
+  color: var(--colour-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.75;
 }
 
 .card-anatomy-showcase__actions {
-    display: flex;
-
-    flex-wrap: wrap;
-
-    align-items: center;
-
-    gap: 18px;
-
-    margin-top: 34px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  margin-top: 34px;
 }
 
 .card-anatomy-showcase__note {
-    max-width: 560px;
-
-    margin: 26px 0 0;
-    padding-top: 22px;
-
-    color: var(--colour-text-muted);
-
-    border-top: 1px solid var(--colour-border);
-
-    font-size: 0.76rem;
-    line-height: 1.65;
+  max-width: 560px;
+  margin: 26px 0 0;
+  padding-top: 22px;
+  color: var(--colour-text-muted);
+  border-top: 1px solid var(--colour-border);
+  font-size: 0.76rem;
+  line-height: 1.65;
 }
+
 
 /*
  * Links users from the quick Vault Lens explanation
  * to the complete official Cyberpunk TCG rules.
  */
 .card-anatomy-showcase__note a {
-    color: var(--colour-yellow);
-
-    font-weight: 700;
-
-    text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-
-    transition:
-        color 140ms ease,
-        text-decoration-color 140ms ease;
+  color: var(--colour-yellow);
+  font-weight: 700;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition:
+    color 140ms ease,
+    text-decoration-color 140ms ease;
 }
 
 .card-anatomy-showcase__note a:hover {
-    color: var(--colour-text);
+  color: var(--colour-text);
 }
 
 .card-anatomy-showcase__note a:focus-visible {
-    outline: 2px solid var(--colour-cyan);
-
-    outline-offset: 3px;
+  outline: 2px solid var(--colour-cyan);
+  outline-offset: 3px;
 }
 
 
@@ -248,49 +197,47 @@
  * Holds the complete card image and anatomy overlay.
  */
 .card-anatomy-showcase__card-stage {
-    position: relative;
-
-    display: flex;
-
-    min-width: 0;
-
-    flex-direction: column;
-    align-items: center;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
 }
 
 .card-anatomy-showcase__card {
-    --card-rotate-x: 0deg;
-    --card-rotate-y: 0deg;
+  --card-rotate-x: 0deg;
+  --card-rotate-y: 0deg;
 
-    position: relative;
-
-    width: min(100%,
-            580px);
-
-    transform:
-        perspective(1100px) translateY(0) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale(1);
-
-    transform-style: preserve-3d;
-
-    transition:
-        transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
-        filter 180ms ease;
+  position: relative;
+  width: min(100%, 580px);
+  transform:
+    perspective(1100px)
+    translateY(0)
+    rotateX(var(--card-rotate-x))
+    rotateY(var(--card-rotate-y))
+    scale(1);
+  transform-style: preserve-3d;
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 180ms ease;
 }
+
 
 /*
  * Gives the closed homepage card a restrained physical
  * response on devices that have a real hover pointer.
  */
 @media (hover: hover) and (pointer: fine) {
-
-    .card-anatomy-showcase:not(.card-anatomy-showcase--active) .card-anatomy-showcase__card:hover {
-        transform:
-            perspective(1100px) translateY(-4px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale(1.01);
-
-        filter:
-            drop-shadow(0 20px 28px rgba(0, 0, 0, 0.32));
-    }
-
+  .card-anatomy-showcase:not(.card-anatomy-showcase--active)
+    .card-anatomy-showcase__card:hover {
+    transform:
+      perspective(1100px)
+      translateY(-4px)
+      rotateX(var(--card-rotate-x))
+      rotateY(var(--card-rotate-y))
+      scale(1.01);
+    filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.32));
+  }
 }
 
 
@@ -301,9 +248,8 @@
  * is reading and selecting anatomy fields.
  */
 .card-anatomy-showcase--active .card-anatomy-showcase__card {
-    transform: none;
-
-    filter: none;
+  transform: none;
+  filter: none;
 }
 
 
@@ -314,31 +260,20 @@
  * the currently selected anatomy field.
  */
 .card-anatomy-showcase__card::before {
-    position: absolute;
-
-    z-index: -1;
-
-    inset: 8% -5% -2%;
-
-    background: rgba(242,
-            233,
-            0,
-            0.045);
-
-    filter: blur(55px);
-
-    content: "";
-
-    pointer-events: none;
+  position: absolute;
+  z-index: -1;
+  inset: 8% -5% -2%;
+  background: rgba(242, 233, 0, 0.045);
+  filter: blur(55px);
+  content: "";
+  pointer-events: none;
 }
 
 .card-anatomy-showcase__card img {
-    display: block;
-
-    width: 100%;
-    height: auto;
-
-    object-fit: contain;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 
@@ -349,19 +284,15 @@
  * so individual fields do not require their own CSS.
  */
 .card-anatomy-showcase__highlight {
-    position: absolute;
-
-    z-index: 4;
-
-    border: 2px solid var(--colour-yellow);
-
-    pointer-events: none;
-
-    transition:
-        top 160ms ease,
-        left 160ms ease,
-        width 160ms ease,
-        height 160ms ease;
+  position: absolute;
+  z-index: 4;
+  border: 2px solid var(--colour-yellow);
+  pointer-events: none;
+  transition:
+    top 160ms ease,
+    left 160ms ease,
+    width 160ms ease,
+    height 160ms ease;
 }
 
 
@@ -370,28 +301,20 @@
  * currently selected card region.
  */
 .card-anatomy-showcase__marker {
-    position: absolute;
-
-    top: -13px;
-    right: -13px;
-
-    display: grid;
-
-    width: 27px;
-    height: 27px;
-
-    place-items: center;
-
-    color: var(--colour-background);
-
-    background: var(--colour-yellow);
-
-    border: 2px solid var(--colour-background);
-
-    font-family: var(--font-display);
-    font-size: 0.68rem;
-    font-weight: 900;
-    line-height: 1;
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  color: var(--colour-background);
+  background: var(--colour-yellow);
+  border: 2px solid var(--colour-background);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 
@@ -402,13 +325,10 @@
  * the card. Only the marker buttons receive input.
  */
 .card-anatomy-showcase__all-markers {
-    position: absolute;
-
-    z-index: 6;
-
-    inset: 0;
-
-    pointer-events: none;
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  pointer-events: none;
 }
 
 
@@ -417,55 +337,38 @@
  * the visible perimeter marker compact.
  */
 .card-anatomy-showcase__all-marker {
-    position: absolute;
-
-    display: grid;
-
-    width: 44px;
-    height: 44px;
-
-    padding: 0;
-
-    place-items: center;
-
-    background: transparent;
-
-    border: 0;
-
-    cursor: pointer;
-
-    transform: translate(-50%, -50%);
-
-    pointer-events: auto;
+  position: absolute;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
 }
 
 .card-anatomy-showcase__all-marker span {
-    display: grid;
-
-    width: 27px;
-    height: 27px;
-
-    place-items: center;
-
-    color: var(--colour-background);
-
-    background: var(--colour-yellow);
-
-    border: 2px solid var(--colour-background);
-
-    font-family: var(--font-display);
-    font-size: 0.68rem;
-    font-weight: 900;
-
-    line-height: 1;
-
-    transition:
-        transform 160ms ease,
-        outline-offset 160ms ease;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  color: var(--colour-background);
+  background: var(--colour-yellow);
+  border: 2px solid var(--colour-background);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+  transition:
+    transform 160ms ease,
+    outline-offset 160ms ease;
 }
 
 .card-anatomy-showcase__all-marker:hover span {
-    transform: scale(1.08);
+  transform: scale(1.08);
 }
 
 
@@ -474,9 +377,8 @@
  * visually distinct from the other available fields.
  */
 .card-anatomy-showcase__all-marker.is-selected span {
-    outline: 2px solid var(--colour-yellow);
-
-    outline-offset: 3px;
+  outline: 2px solid var(--colour-yellow);
+  outline-offset: 3px;
 }
 
 
@@ -485,43 +387,32 @@
  * the complete study card.
  */
 .card-anatomy-showcase__card-label {
-    display: flex;
-
-    width: min(100%,
-            580px);
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 18px;
-
-    margin-top: 18px;
-    padding-top: 14px;
-
-    border-top: 1px solid var(--colour-border);
+  display: flex;
+  width: min(100%, 580px);
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--colour-border);
 }
 
 .card-anatomy-showcase__card-label span {
-    color: var(--colour-yellow);
-
-    font-family: var(--font-display);
-    font-size: 0.58rem;
-    font-weight: 800;
-
-    letter-spacing: 0.12em;
+  color: var(--colour-yellow);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
 }
 
 .card-anatomy-showcase__card-label strong {
-    color: var(--colour-text-muted);
-
-    font-family: var(--font-display);
-    font-size: 0.68rem;
-    font-weight: 700;
-
-    letter-spacing: 0.08em;
-
-    text-align: right;
-    text-transform: uppercase;
+  color: var(--colour-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
 }
 
 
@@ -533,74 +424,73 @@
  * so the card remains the primary visual focus.
  */
 .card-anatomy-showcase__docket {
-    align-self: center;
-
-    width: 100%;
-
-    padding: 34px;
-
-    background: var(--colour-surface);
-
-    border: 1px solid var(--colour-border-strong);
-
-    clip-path: polygon(0 0,
-            calc(100% - 18px) 0,
-            100% 18px,
-            100% 100%,
-            0 100%);
+  align-self: center;
+  width: 100%;
+  padding: 34px;
+  background: var(--colour-surface);
+  border: 1px solid var(--colour-border-strong);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% 100%,
+    0 100%
+  );
 }
 
 .card-anatomy-showcase__progress {
-    display: inline-block;
-
-    color: var(--colour-yellow);
-
-    font-family: var(--font-display);
-    font-size: 0.7rem;
-    font-weight: 800;
-
-    letter-spacing: 0.12em;
+  display: inline-block;
+  color: var(--colour-yellow);
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
 }
 
 .card-anatomy-showcase__docket h3 {
-    margin: 18px 0 0;
-
-    font-family: var(--font-display);
-
-    font-size: clamp(2rem,
-            3vw,
-            3rem);
-
-    font-weight: 900;
-
-    line-height: 1;
-
-    text-transform: uppercase;
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-.card-anatomy-showcase__docket>p {
-    margin: 20px 0 0;
-
-    color: var(--colour-text-muted);
-
-    font-size: 0.92rem;
-    line-height: 1.75;
+.card-anatomy-showcase__docket > p {
+  margin: 20px 0 0;
+  color: var(--colour-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.75;
 }
 
 .card-anatomy-showcase__navigation {
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap: 10px;
-
-    margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 32px;
 }
 
 .card-anatomy-showcase__navigation .btn:disabled {
-    cursor: not-allowed;
+  cursor: not-allowed;
+  opacity: 0.45;
+}
 
-    opacity: 0.45;
+
+/*
+ * Standard desktop screens.
+ *
+ * Slightly reduces the study card so it does not dominate
+ * a normal desktop viewport while preserving the larger
+ * presentation on very wide screens.
+ */
+@media (min-width: 1121px) and (max-width: 2000px) {
+  .card-anatomy-showcase__card {
+    width: min(100%, 520px);
+  }
+
+  .card-anatomy-showcase__card-label {
+    width: min(100%, 520px);
+  }
 }
 
 
@@ -608,34 +498,29 @@
  * Medium desktop and smaller laptop screens.
  */
 @media (max-width: 1120px) {
+  .card-anatomy-showcase__layout {
+    grid-template-columns:
+      minmax(0, 0.8fr) minmax(360px, 1fr);
+    gap: 55px;
+  }
 
-    .card-anatomy-showcase__layout {
-        grid-template-columns:
-            minmax(0, 0.8fr) minmax(360px, 1fr);
+  .card-anatomy-showcase--active .card-anatomy-showcase__layout {
+    grid-template-columns:
+      minmax(400px, 1.1fr) minmax(300px, 0.9fr);
+    gap: 45px;
+  }
 
-        gap: 55px;
-    }
+  .card-anatomy-showcase__card {
+    width: min(100%, 500px);
+  }
 
-    .card-anatomy-showcase--active .card-anatomy-showcase__layout {
-        grid-template-columns:
-            minmax(400px, 1.1fr) minmax(300px, 0.9fr);
+  .card-anatomy-showcase__card-label {
+    width: min(100%, 500px);
+  }
 
-        gap: 45px;
-    }
-
-    .card-anatomy-showcase__card {
-        width: min(100%,
-                500px);
-    }
-
-    .card-anatomy-showcase__card-label {
-        width: min(100%,
-                500px);
-    }
-
-    .card-anatomy-showcase__docket {
-        padding: 28px;
-    }
+  .card-anatomy-showcase__docket {
+    padding: 28px;
+  }
 }
 
 
@@ -646,52 +531,44 @@
  * the learning docket is placed directly below the card.
  */
 @media (max-width: 820px) {
+  .card-anatomy-showcase {
+    padding-block: 90px;
+  }
 
-    .card-anatomy-showcase {
-        padding-block: 90px;
-    }
+  .card-anatomy-showcase__layout {
+    grid-template-columns: 1fr;
+    gap: 55px;
+  }
 
-    .card-anatomy-showcase__layout {
-        grid-template-columns: 1fr;
+  .card-anatomy-showcase--active .card-anatomy-showcase__layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
 
-        gap: 55px;
-    }
+  .card-anatomy-showcase__command-rail {
+    margin-bottom: 30px;
+  }
 
-    .card-anatomy-showcase--active .card-anatomy-showcase__layout {
-        grid-template-columns: 1fr;
+  .card-anatomy-showcase__copy {
+    max-width: 700px;
+  }
 
-        gap: 30px;
-    }
+  .card-anatomy-showcase__card {
+    width: min(100%, 470px);
+  }
 
-    .card-anatomy-showcase__command-rail {
-        margin-bottom: 30px;
-    }
+  .card-anatomy-showcase__card-label {
+    width: min(100%, 470px);
+  }
 
-    .card-anatomy-showcase__copy {
-        max-width: 700px;
-    }
+  .card-anatomy-showcase__docket {
+    width: 100%;
+    padding: 28px;
+  }
 
-    .card-anatomy-showcase__card {
-        width: min(100%,
-                470px);
-    }
-
-    .card-anatomy-showcase__card-label {
-        width: min(100%,
-                470px);
-    }
-
-    .card-anatomy-showcase__docket {
-        width: 100%;
-
-        padding: 28px;
-    }
-
-    .card-anatomy-showcase__docket h3 {
-        font-size: clamp(2rem,
-                8vw,
-                2.7rem);
-    }
+  .card-anatomy-showcase__docket h3 {
+    font-size: clamp(2rem, 8vw, 2.7rem);
+  }
 }
 
 
@@ -700,29 +577,24 @@
  * instead of the portrait learning tray arrangement.
  */
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 600px) {
+  .card-anatomy-showcase--active .card-anatomy-showcase__layout {
+    grid-template-columns:
+      minmax(260px, 1fr) minmax(280px, 0.85fr);
+    align-items: center;
+    gap: 32px;
+  }
 
-    .card-anatomy-showcase--active .card-anatomy-showcase__layout {
-        grid-template-columns:
-            minmax(260px, 1fr) minmax(280px, 0.85fr);
+  .card-anatomy-showcase__card {
+    width: min(100%, 360px);
+  }
 
-        align-items: center;
+  .card-anatomy-showcase__card-label {
+    width: min(100%, 360px);
+  }
 
-        gap: 32px;
-    }
-
-    .card-anatomy-showcase__card {
-        width: min(100%,
-                360px);
-    }
-
-    .card-anatomy-showcase__card-label {
-        width: min(100%,
-                360px);
-    }
-
-    .card-anatomy-showcase__docket {
-        padding: 24px;
-    }
+  .card-anatomy-showcase__docket {
+    padding: 24px;
+  }
 }
 
 
@@ -730,81 +602,68 @@
  * Small mobile layout.
  */
 @media (max-width: 560px) {
+  .card-anatomy-showcase {
+    padding-block: 70px;
+  }
 
-    .card-anatomy-showcase {
-        padding-block: 70px;
-    }
+  .card-anatomy-showcase__copy h2 {
+    font-size: clamp(2.7rem, 13vw, 4rem);
+  }
 
-    .card-anatomy-showcase__copy h2 {
-        font-size: clamp(2.7rem,
-                13vw,
-                4rem);
-    }
+  .card-anatomy-showcase__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
 
-    .card-anatomy-showcase__actions {
-        align-items: stretch;
+  .card-anatomy-showcase__actions .btn {
+    width: 100%;
+  }
 
-        flex-direction: column;
-    }
+  /*
+   * Stacks the command title above the mode switcher
+   * when horizontal space becomes limited.
+   */
+  .card-anatomy-showcase__command-main {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-    .card-anatomy-showcase__actions .btn {
-        width: 100%;
-    }
+  .card-anatomy-showcase__command-rail {
+    align-items: flex-start;
+  }
 
+  .card-anatomy-showcase__modes {
+    flex-wrap: wrap;
+  }
 
-    /*
-     * Stacks the command title above the mode switcher
-     * when horizontal space becomes limited.
-     */
-    .card-anatomy-showcase__command-main {
-        align-items: flex-start;
+  .card-anatomy-showcase__card {
+    width: min(100%, 390px);
+  }
 
-        flex-direction: column;
+  .card-anatomy-showcase__card-label {
+    width: min(100%, 390px);
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
 
-        gap: 10px;
-    }
+  .card-anatomy-showcase__card-label strong {
+    text-align: left;
+  }
 
-    .card-anatomy-showcase__command-rail {
-        align-items: flex-start;
-    }
+  .card-anatomy-showcase__docket {
+    padding: 24px 22px;
+  }
 
-    .card-anatomy-showcase__modes {
-        flex-wrap: wrap;
-    }
+  .card-anatomy-showcase__navigation {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 
-    .card-anatomy-showcase__card {
-        width: min(100%,
-                390px);
-    }
-
-    .card-anatomy-showcase__card-label {
-        width: min(100%,
-                390px);
-
-        align-items: flex-start;
-
-        flex-direction: column;
-
-        gap: 7px;
-    }
-
-    .card-anatomy-showcase__card-label strong {
-        text-align: left;
-    }
-
-    .card-anatomy-showcase__docket {
-        padding: 24px 22px;
-    }
-
-    .card-anatomy-showcase__navigation {
-        display: grid;
-
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .card-anatomy-showcase__navigation .btn {
-        width: 100%;
-    }
+  .card-anatomy-showcase__navigation .btn {
+    width: 100%;
+  }
 }
 
 
@@ -814,18 +673,15 @@
  * The Card Anatomy feature remains fully functional.
  */
 @media (prefers-reduced-motion: reduce) {
+  .card-anatomy-showcase__card {
+    transform: none !important;
+    transition: none;
+  }
 
-    .card-anatomy-showcase__card {
-        transform: none !important;
-
-        transition: none;
-    }
-
-    .card-anatomy-showcase__highlight,
-    .card-anatomy-showcase__all-marker span,
-    .card-anatomy-showcase__modes button,
-    .card-anatomy-showcase__note a {
-        transition: none;
-    }
-
+  .card-anatomy-showcase__highlight,
+  .card-anatomy-showcase__all-marker span,
+  .card-anatomy-showcase__modes button,
+  .card-anatomy-showcase__note a {
+    transition: none;
+  }
 }
