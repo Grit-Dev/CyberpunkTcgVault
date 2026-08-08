@@ -1,17 +1,24 @@
-import { Component } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    HostListener,
+    ViewChild
+} from '@angular/core';
 
 import { CardAnatomyField } from '../../models/card-anatomy';
 import { V_STREETKID_ANATOMY } from '../../../../pages/home/data/v-streetkid-anatomy';
+
 
 /*
  * Card Anatomy currently supports two viewing modes.
  *
  * Guided explains one field at a time.
- * Show All displays all available numbered markers.
+ * Show All exposes every available marker at once.
  */
 type CardAnatomyMode =
     | 'guided'
     | 'showAll';
+
 
 @Component({
     selector: 'app-card-anatomy-showcase',
@@ -21,6 +28,15 @@ type CardAnatomyMode =
     styleUrl: './card-anatomy-showcase.scss',
 })
 export class CardAnatomyShowcase {
+
+    // Reference used to restore focus after Card Anatomy closes.
+    @ViewChild('explainCardButton')
+    private explainCardButton?: ElementRef<HTMLButtonElement>;
+
+    // First control focused when the learning experience opens.
+    @ViewChild('guidedModeButton')
+    private guidedModeButton?: ElementRef<HTMLButtonElement>;
+
 
     // Stores whether the Card Anatomy experience is currently open.
     isOpen = false;
@@ -34,6 +50,11 @@ export class CardAnatomyShowcase {
     // Fields available for the V StreetKid homepage showcase.
     readonly anatomyFields: CardAnatomyField[] =
         V_STREETKID_ANATOMY;
+
+
+    constructor(
+        private readonly elementRef: ElementRef<HTMLElement>
+    ) { }
 
 
     /**
@@ -81,6 +102,16 @@ export class CardAnatomyShowcase {
         this.mode = 'guided';
         this.isOpen = true;
 
+        // Wait for Angular to render the active controls
+        // before moving keyboard focus into the experience.
+        setTimeout(() => {
+
+            this.guidedModeButton
+                ?.nativeElement
+                .focus();
+
+        });
+
     }
 
 
@@ -91,6 +122,16 @@ export class CardAnatomyShowcase {
     closeCardAnatomy(): void {
 
         this.isOpen = false;
+
+        // Explain Card is recreated when the closed state renders,
+        // so focus is restored after Angular updates the template.
+        setTimeout(() => {
+
+            this.explainCardButton
+                ?.nativeElement
+                .focus();
+
+        });
 
     }
 
@@ -149,6 +190,166 @@ export class CardAnatomyShowcase {
         }
 
         this.currentFieldIndex--;
+
+    }
+
+
+    /**
+     * Handles keyboard navigation while Card Anatomy
+     * is active.
+     */
+    @HostListener(
+        'document:keydown',
+        ['$event']
+    )
+    handleKeyboardNavigation(
+        event: KeyboardEvent
+    ): void {
+
+        if (!this.isOpen) {
+            return;
+        }
+
+        // Escape is available from either mode.
+        if (event.key === 'Escape') {
+
+            event.preventDefault();
+
+            this.closeCardAnatomy();
+
+            return;
+
+        }
+
+        // Keep keyboard focus inside the active
+        // Card Anatomy experience.
+        if (event.key === 'Tab') {
+
+            this.trapFocus(event);
+
+            return;
+
+        }
+
+
+        // Arrow and Home/End navigation only apply
+        // to the sequential Guided experience.
+        if (this.mode !== 'guided') {
+            return;
+        }
+
+        switch (event.key) {
+
+            case 'ArrowRight':
+
+                event.preventDefault();
+
+                this.nextField();
+
+                break;
+
+            case 'ArrowLeft':
+
+                event.preventDefault();
+
+                this.previousField();
+
+                break;
+
+            case 'Home':
+
+                event.preventDefault();
+
+                this.currentFieldIndex = 0;
+
+                break;
+
+            case 'End':
+
+                event.preventDefault();
+
+                this.currentFieldIndex =
+                    this.anatomyFields.length - 1;
+
+                break;
+
+        }
+
+    }
+
+
+    /**
+     * Keeps Tab navigation inside Card Anatomy
+     * while the learning experience is open.
+     */
+    private trapFocus(
+        event: KeyboardEvent
+    ): void {
+
+        const focusableElements =
+            this.getFocusableElements();
+
+        if (focusableElements.length === 0) {
+            return;
+        }
+
+        const firstElement =
+            focusableElements[0];
+
+        const lastElement =
+            focusableElements[
+            focusableElements.length - 1
+            ];
+
+        const activeElement =
+            document.activeElement;
+
+
+        if (
+            event.shiftKey &&
+            activeElement === firstElement
+        ) {
+
+            event.preventDefault();
+
+            lastElement.focus();
+
+            return;
+
+        }
+
+        if (
+            !event.shiftKey &&
+            activeElement === lastElement
+        ) {
+
+            event.preventDefault();
+
+            firstElement.focus();
+
+        }
+
+    }
+
+    /**
+     * Returns the controls that can currently receive
+     * keyboard focus inside Card Anatomy.
+     */
+    private getFocusableElements(): HTMLElement[] {
+
+        const selector = [
+            'button:not([disabled])',
+            'a[href]',
+            '[tabindex]:not([tabindex="-1"])'
+        ].join(',');
+
+        return Array.from(
+            this.elementRef.nativeElement
+                .querySelectorAll<HTMLElement>(selector)
+        ).filter(
+            element =>
+                element.offsetParent !== null
+        );
 
     }
 

@@ -62,7 +62,7 @@
 
                 <div class="card-anatomy-showcase__actions">
 
-                    <button class="btn btn--primary" type="button" aria-label="Explain this card"
+                    <button #explainCardButton class="btn btn--primary" type="button" aria-label="Explain this card"
                         (click)="openCardAnatomy()">
                         Explain Card
                     </button>
@@ -159,13 +159,20 @@
 
             </div>
 
-
             @if (isOpen) {
 
+            <!-- Announces the selected Card Anatomy field to screen readers. -->
+            <div class="sr-only" aria-live="polite" aria-atomic="true">
+                Field {{ currentFieldIndex + 1 }}
+                of {{ anatomyFields.length }}.
+                {{ currentField.title }}.
+                {{ currentField.description }}
+            </div>
+
             <!--
-          A single stable learning docket is reused by both modes.
-          Selecting a different field changes only its content.
-        -->
+      A single stable learning docket is reused by both modes.
+      Selecting a different field changes only its content.
+    -->
             <aside class="card-anatomy-showcase__docket" aria-labelledby="card-anatomy-field-title">
 
                 <span class="card-anatomy-showcase__progress">
@@ -179,7 +186,6 @@
                 <p>
                     {{ currentField.description }}
                 </p>
-
 
                 @if (mode === 'guided') {
 
@@ -199,10 +205,8 @@
                 }
 
             </aside>
-
             }
-
+            
         </div>
-
     </div>
 </section>
