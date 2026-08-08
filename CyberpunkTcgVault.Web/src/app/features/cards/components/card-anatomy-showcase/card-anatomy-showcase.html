@@ -1,0 +1,220 @@
+<section class="card-anatomy-showcase" [class.card-anatomy-showcase--active]="isOpen"
+    aria-labelledby="card-anatomy-title">
+    <div class="container">
+
+        @if (isOpen) {
+
+        <!-- Controls the active Card Anatomy study experience. -->
+        <div class="card-anatomy-showcase__command-rail">
+
+            <div class="card-anatomy-showcase__command-main">
+
+                <span class="card-anatomy-showcase__command-code">
+                    VAULT LENS // CARD ANATOMY
+                </span>
+
+                <div class="card-anatomy-showcase__modes" role="group" aria-label="Card Anatomy view">
+
+                    <button type="button" [class.is-active]="mode === 'guided'" [attr.aria-pressed]="mode === 'guided'"
+                        (click)="setMode('guided')">
+                        Guided
+                    </button>
+
+                    <button type="button" [class.is-active]="mode === 'showAll'"
+                        [attr.aria-pressed]="mode === 'showAll'" (click)="setMode('showAll')">
+                        Show All
+                    </button>
+
+                </div>
+
+            </div>
+
+            <button class="btn btn--text" type="button" aria-label="Close Card Anatomy" (click)="closeCardAnatomy()">
+                Close
+            </button>
+
+        </div>
+
+        }
+
+
+        <div class="card-anatomy-showcase__layout">
+
+            @if (!isOpen) {
+
+            <!-- Homepage introduction shown before the learning mode is opened. -->
+            <div class="card-anatomy-showcase__copy">
+
+                <p class="eyebrow">
+                    Learn the cards
+                </p>
+
+                <h2 id="card-anatomy-title">
+                    VAULT LENS
+                    <span>// CARD ANATOMY</span>
+                </h2>
+
+                <p class="card-anatomy-showcase__description">
+                    New to the game or need a refresher? Explore the key parts of a
+                    card and learn what each field means before heading into the full
+                    rules.
+                </p>
+
+                <div class="card-anatomy-showcase__actions">
+
+                    <button #explainCardButton class="btn btn--primary" type="button" aria-label="Explain this card"
+                        (click)="openCardAnatomy()">
+                        Explain Card
+                    </button>
+
+                </div>
+
+                <p class="card-anatomy-showcase__note">
+                    Vault Lens provides a quick visual guide. For the latest complete
+                    rules and rulings, visit the
+
+                    <a href="https://cyberpunktcg.com/gameplay-guide" target="_blank" rel="noopener noreferrer">
+                        Official Gameplay Guide
+                        <span class="sr-only">
+                            (opens in a new tab)
+                        </span>
+                    </a>.
+                </p>
+
+            </div>
+
+            }
+
+
+            <!--
+        The same card is reused by both Guided and Show All mode.
+        Only the anatomy controls placed over it change.
+      -->
+            <div class="card-anatomy-showcase__card-stage">
+
+                <div #studyCard class="card-anatomy-showcase__card" (pointermove)="onCardPointerMove($event)"
+                    (pointerleave)="resetCardMotion()">
+
+                    <img src="/images/showcase/v-streetkid.webp" alt="V StreetKid Legend card" />
+
+
+                    @if (isOpen) {
+
+                    <!--
+              Only the currently selected field receives a yellow highlight,
+              regardless of which Card Anatomy mode is active.
+            -->
+                    <div class="card-anatomy-showcase__highlight" [style.top.%]="currentField.region.top"
+                        [style.left.%]="currentField.region.left" [style.width.%]="currentField.region.width"
+                        [style.height.%]="currentField.region.height" aria-hidden="true">
+
+                        @if (mode === 'guided') {
+
+                        <span class="card-anatomy-showcase__marker">
+                            {{ currentFieldIndex + 1 }}
+                        </span>
+
+                        }
+
+                    </div>
+
+                    }
+
+
+                    @if (isOpen && mode === 'showAll') {
+
+                    <!--
+              Show All exposes every available card field as a compact
+              numbered control around the perimeter of the card.
+            -->
+                    <div class="card-anatomy-showcase__all-markers">
+
+                        @for (
+                        field of anatomyFields;
+                        track field.id;
+                        let index = $index
+                        ) {
+
+                        <button class="card-anatomy-showcase__all-marker" type="button"
+                            [class.is-selected]="index === currentFieldIndex" [style.top.%]="field.marker.top"
+                            [style.left.%]="field.marker.left" [attr.aria-label]="'Explain ' + field.title"
+                            [attr.aria-pressed]="index === currentFieldIndex" (click)="selectField(index)">
+                            <span>
+                                {{ index + 1 }}
+                            </span>
+                        </button>
+
+                        }
+
+                    </div>
+
+                    }
+
+                </div>
+
+
+                <div class="card-anatomy-showcase__card-label">
+
+                    <span>
+                        VAULT LENS // STUDY CARD
+                    </span>
+
+                    <strong>
+                        V // StreetKid
+                    </strong>
+
+                </div>
+
+            </div>
+
+            @if (isOpen) {
+
+            <!-- Announces the selected Card Anatomy field to screen readers. -->
+            <div class="sr-only" aria-live="polite" aria-atomic="true">
+                Field {{ currentFieldIndex + 1 }}
+                of {{ anatomyFields.length }}.
+                {{ currentField.title }}.
+                {{ currentField.description }}
+            </div>
+
+            <!--
+      A single stable learning docket is reused by both modes.
+      Selecting a different field changes only its content.
+    -->
+            <aside class="card-anatomy-showcase__docket" aria-labelledby="card-anatomy-field-title">
+
+                <span class="card-anatomy-showcase__progress">
+                    {{ currentFieldIndex + 1 }} / {{ anatomyFields.length }}
+                </span>
+
+                <h3 id="card-anatomy-field-title">
+                    {{ currentField.title }}
+                </h3>
+
+                <p>
+                    {{ currentField.description }}
+                </p>
+
+                @if (mode === 'guided') {
+
+                <div class="card-anatomy-showcase__navigation">
+
+                    <button class="btn btn--secondary" type="button" [disabled]="isFirstField"
+                        (click)="previousField()">
+                        Previous
+                    </button>
+
+                    <button class="btn btn--primary" type="button" (click)="nextField()">
+                        {{ isLastField ? 'Finish' : 'Next' }}
+                    </button>
+
+                </div>
+
+                }
+
+            </aside>
+            }
+
+        </div>
+    </div>
+</section>
