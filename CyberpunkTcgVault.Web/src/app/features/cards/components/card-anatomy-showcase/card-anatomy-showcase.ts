@@ -1,18 +1,101 @@
 import { Component } from '@angular/core';
 
+import { CardAnatomyField } from '../../models/card-anatomy';
+import { WHITE_WANDERER_ANATOMY } from '../../../../pages/home/data/white-wanderer-anatomy';
+
 @Component({
-    selector: 'app-card-anatomy-showcase',
-    standalone: true,
-    imports: [],
-    templateUrl: './card-anatomy-showcase.html',
-    styleUrl: './card-anatomy-showcase.scss',
+  selector: 'app-card-anatomy-showcase',
+  standalone: true,
+  imports: [],
+  templateUrl: './card-anatomy-showcase.html',
+  styleUrl: './card-anatomy-showcase.scss',
 })
 export class CardAnatomyShowcase {
 
-    /*
-     * This component will control the Card Anatomy homepage showcase.
-     *
-     * The interaction logic for Guided mode, Show All mode,
-     * navigation and the selected card field will be added here.
-     */
+  // Stores whether the Card Anatomy experience is currently open.
+  isOpen = false;
+
+  // Stores the position of the field currently being explained.
+  currentFieldIndex = 0;
+
+  // Fields available for the White Wanderer homepage showcase.
+  readonly anatomyFields: CardAnatomyField[] =
+    WHITE_WANDERER_ANATOMY;
+
+  /**
+   * Returns the field currently being explained.
+   */
+  get currentField(): CardAnatomyField {
+    return this.anatomyFields[this.currentFieldIndex];
+  }
+
+  /**
+   * Returns true when the user is viewing
+   * the first field in Guided mode.
+   */
+  get isFirstField(): boolean {
+    return this.currentFieldIndex === 0;
+  }
+
+  /**
+   * Returns true when the user is viewing
+   * the final field in Guided mode.
+   */
+  get isLastField(): boolean {
+    return this.currentFieldIndex ===
+      this.anatomyFields.length - 1;
+  }
+
+  /**
+   * Opens Card Anatomy and starts Guided mode
+   * from the first available card field.
+   */
+  openCardAnatomy(): void {
+
+    this.currentFieldIndex = 0;
+    this.isOpen = true;
+
+  }
+
+  /**
+   * Closes Card Anatomy and returns the showcase
+   * to its normal homepage state.
+   */
+  closeCardAnatomy(): void {
+
+    this.isOpen = false;
+
+  }
+
+  /**
+   * Moves Guided mode to the next card field.
+   *
+   * When the user reaches the final field,
+   * the same action finishes and closes the guide.
+   */
+  nextField(): void {
+
+    if (this.isLastField) {
+
+      this.closeCardAnatomy();
+      return;
+
+    }
+
+    this.currentFieldIndex++;
+
+  }
+
+  /**
+   * Moves Guided mode back to the previous field.
+   */
+  previousField(): void {
+
+    if (this.isFirstField) {
+      return;
+    }
+
+    this.currentFieldIndex--;
+
+  }
 }

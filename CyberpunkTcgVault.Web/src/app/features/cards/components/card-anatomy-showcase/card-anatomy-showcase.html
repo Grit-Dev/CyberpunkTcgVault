@@ -19,7 +19,8 @@
 
             <div class="card-anatomy-showcase__actions">
 
-                <button class="btn btn--primary" type="button" disabled aria-label="Explain this card">
+                <button class="btn btn--primary" type="button" aria-label="Explain this card"
+                    (click)="openCardAnatomy()">
                     Explain Card
                 </button>
             </div>
@@ -47,4 +48,62 @@
         </div>
 
     </div>
+
+    @if (isOpen) {
+
+    <div class="card-anatomy-showcase__study-state" aria-labelledby="card-anatomy-field-title">
+
+        <div class="card-anatomy-showcase__study-header">
+
+            <div>
+
+                <span class="card-anatomy-showcase__study-code">
+                    VAULT LENS // CARD ANATOMY
+                </span>
+
+                <strong>
+                    Guided
+                </strong>
+
+            </div>
+
+            <button class="btn btn--text" type="button" aria-label="Close Card Anatomy" (click)="closeCardAnatomy()">
+                Close
+            </button>
+
+        </div>
+
+        <div class="card-anatomy-showcase__docket">
+
+            <span class="card-anatomy-showcase__progress">
+                {{ currentFieldIndex + 1 }}
+                /
+                {{ anatomyFields.length }}
+            </span>
+
+            <h3 id="card-anatomy-field-title">
+                {{ currentField.title }}
+            </h3>
+
+            <p>
+                {{ currentField.description }}
+            </p>
+
+            <div class="card-anatomy-showcase__navigation">
+
+                <button class="btn btn--secondary" type="button" [disabled]="isFirstField" (click)="previousField()">
+                    Previous
+                </button>
+
+                <button class="btn btn--primary" type="button" (click)="nextField()">
+                    {{ isLastField ? 'Finish' : 'Next' }}
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    }
 </section>
