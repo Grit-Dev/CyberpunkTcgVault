@@ -1,18 +1,42 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed
+} from '@angular/core/testing';
+
+import { of } from 'rxjs';
 
 import { CardCatalogue } from './card-catalogue';
+import { CardsService } from '../../services/cards.service';
 
 describe('CardCatalogue', () => {
   let component: CardCatalogue;
   let fixture: ComponentFixture<CardCatalogue>;
 
+  const cardsServiceMock = {
+    getCards: () => of([])
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CardCatalogue],
+      imports: [
+        CardCatalogue
+      ],
+      providers: [
+        {
+          provide: CardsService,
+          useValue: cardsServiceMock
+        }
+      ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CardCatalogue);
-    component = fixture.componentInstance;
+    fixture =
+      TestBed.createComponent(CardCatalogue);
+
+    component =
+      fixture.componentInstance;
+
+    fixture.detectChanges();
+
     await fixture.whenStable();
   });
 
