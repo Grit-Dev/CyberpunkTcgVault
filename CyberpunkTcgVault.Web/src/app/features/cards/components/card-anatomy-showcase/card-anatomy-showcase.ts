@@ -37,6 +37,10 @@ export class CardAnatomyShowcase {
     @ViewChild('guidedModeButton')
     private guidedModeButton?: ElementRef<HTMLButtonElement>;
 
+    // Reference used to control the subtle homepage card motion.
+    @ViewChild('studyCard')
+    private studyCard?: ElementRef<HTMLElement>;
+
 
     // Stores whether the Card Anatomy experience is currently open.
     isOpen = false;
@@ -96,7 +100,15 @@ export class CardAnatomyShowcase {
      * Opens Card Anatomy and starts Guided mode
      * from the first available card field.
      */
+    /**
+     * Opens Card Anatomy and starts Guided mode
+     * from the first available card field.
+     */
     openCardAnatomy(): void {
+
+        // Return the card to its resting position
+        // before the study experience opens.
+        this.resetCardMotion();
 
         this.currentFieldIndex = 0;
         this.mode = 'guided';
@@ -132,6 +144,84 @@ export class CardAnatomyShowcase {
                 .focus();
 
         });
+
+    }
+
+    /**
+ * Applies a restrained physical tilt while the user
+ * moves the mouse across the homepage study card.
+ */
+    onCardPointerMove(
+        event: PointerEvent
+    ): void {
+
+        // Card motion is only used before Vault Lens opens
+        // and only when a mouse is being used.
+        if (
+            this.isOpen ||
+            event.pointerType !== 'mouse'
+        ) {
+            return;
+        }
+
+        const card =
+            event.currentTarget as HTMLElement;
+
+        const bounds =
+            card.getBoundingClientRect();
+
+        // Convert the cursor position into values
+        // between 0 and 1 across the card.
+        const x =
+            (event.clientX - bounds.left) /
+            bounds.width;
+
+        const y =
+            (event.clientY - bounds.top) /
+            bounds.height;
+
+        // Keep the rotation deliberately restrained
+        // so the card still feels like a physical collectible.
+        const rotateX =
+            (0.5 - y) * 3;
+
+        const rotateY =
+            (x - 0.5) * 3.6;
+
+        card.style.setProperty(
+            '--card-rotate-x',
+            `${rotateX}deg`
+        );
+
+        card.style.setProperty(
+            '--card-rotate-y',
+            `${rotateY}deg`
+        );
+
+    }
+
+
+    /**
+     * Returns the showcase card to its resting position.
+     */
+    resetCardMotion(): void {
+
+        const card =
+            this.studyCard?.nativeElement;
+
+        if (!card) {
+            return;
+        }
+
+        card.style.setProperty(
+            '--card-rotate-x',
+            '0deg'
+        );
+
+        card.style.setProperty(
+            '--card-rotate-y',
+            '0deg'
+        );
 
     }
 

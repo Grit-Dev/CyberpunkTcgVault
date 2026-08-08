@@ -259,10 +259,51 @@
 }
 
 .card-anatomy-showcase__card {
+    --card-rotate-x: 0deg;
+    --card-rotate-y: 0deg;
+
     position: relative;
 
     width: min(100%,
             580px);
+
+    transform:
+        perspective(1100px) translateY(0) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale(1);
+
+    transform-style: preserve-3d;
+
+    transition:
+        transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        filter 180ms ease;
+}
+
+/*
+ * Gives the closed homepage card a restrained physical
+ * response on devices that have a real hover pointer.
+ */
+@media (hover: hover) and (pointer: fine) {
+
+    .card-anatomy-showcase:not(.card-anatomy-showcase--active) .card-anatomy-showcase__card:hover {
+        transform:
+            perspective(1100px) translateY(-4px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale(1.01);
+
+        filter:
+            drop-shadow(0 20px 28px rgba(0, 0, 0, 0.32));
+    }
+
+}
+
+
+/*
+ * Card motion is disabled while Card Anatomy is active.
+ *
+ * The card should remain completely stable while the user
+ * is reading and selecting anatomy fields.
+ */
+.card-anatomy-showcase--active .card-anatomy-showcase__card {
+    transform: none;
+
+    filter: none;
 }
 
 
@@ -774,9 +815,16 @@
  */
 @media (prefers-reduced-motion: reduce) {
 
+    .card-anatomy-showcase__card {
+        transform: none !important;
+
+        transition: none;
+    }
+
     .card-anatomy-showcase__highlight,
     .card-anatomy-showcase__all-marker span,
-    .card-anatomy-showcase__modes button {
+    .card-anatomy-showcase__modes button,
+    .card-anatomy-showcase__note a {
         transition: none;
     }
 
