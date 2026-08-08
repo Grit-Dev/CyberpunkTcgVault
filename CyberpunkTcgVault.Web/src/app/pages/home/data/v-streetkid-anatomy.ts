@@ -4,13 +4,13 @@ import { CardAnatomyField } from '../../../features/cards/models/card-anatomy';
  * Fields used by the V StreetKid homepage showcase.
  *
  * The order of this array controls Guided mode and
- * will later also control the Show All marker numbering.
+ * also controls the Show All marker numbering.
  *
  * Region values are percentages of the complete card image.
- * This keeps each highlight aligned when the card resizes.
+ * Marker values control where the numbered Show All
+ * buttons sit around the perimeter of the card.
  */
 export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
-
     {
         id: 'cost',
         title: 'Cost',
@@ -21,6 +21,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 4.8,
             width: 14.2,
             height: 10
+        },
+        marker: {
+            top: 5,
+            left: -2
         }
     },
     {
@@ -33,6 +37,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 8,
             width: 10.2,
             height: 4.6
+        },
+        marker: {
+            top: 17,
+            left: -2
         }
     },
     {
@@ -45,6 +53,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 76,
             width: 17.5,
             height: 3.6
+        },
+        marker: {
+            top: 4,
+            left: 102
         }
     },
     {
@@ -57,6 +69,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 82,
             width: 10.2,
             height: 5.9
+        },
+        marker: {
+            top: 11,
+            left: 102
         }
     },
     {
@@ -69,6 +85,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 10.7,
             width: 9.8,
             height: 2.9
+        },
+        marker: {
+            top: 64,
+            left: -2
         }
     },
     {
@@ -81,6 +101,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 82,
             width: 13,
             height: 6.5
+        },
+        marker: {
+            top: 89,
+            left: 102
         }
     },
     {
@@ -93,6 +117,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 9.5,
             width: 70,
             height: 24.8
+        },
+        marker: {
+            top: 75,
+            left: -2
         }
     },
     {
@@ -102,9 +130,13 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             'Identifies the set or printing this card belongs to.',
         region: {
             top: 84.1,
-            left: 3.0,
+            left: 3,
             width: 4.2,
             height: 12.1
+        },
+        marker: {
+            top: 86,
+            left: -2
         }
     },
     {
@@ -114,9 +146,13 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             'The card’s unique number within that set or printing.',
         region: {
             top: 92.1,
-            left: 6.0,
+            left: 6,
             width: 7.4,
             height: 4.5
+        },
+        marker: {
+            top: 98,
+            left: 15
         }
     },
     {
@@ -129,6 +165,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 47.4,
             width: 5.9,
             height: 4.4
+        },
+        marker: {
+            top: 98,
+            left: 49
         }
     },
     {
@@ -141,6 +181,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
             left: 94.8,
             width: 2.9,
             height: 19.6
+        },
+        marker: {
+            top: 53,
+            left: 102
         }
     }
 

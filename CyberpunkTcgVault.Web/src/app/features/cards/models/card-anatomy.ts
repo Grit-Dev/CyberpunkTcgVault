@@ -15,20 +15,38 @@ export type CardAnatomyFieldId =
     | 'rarity'
     | 'artistCredit';
 
-
 /*
- * Stores the position and size of a field on a card.
+ * Stores the position and size of a field on the card.
  *
- * Percentages are used instead of pixels so the highlight
- * stays aligned when the card changes size.
+ * Percentage values are used instead of pixels so the
+ * highlight stays aligned when the card changes size.
  */
 export interface CardAnatomyRegion {
+
     top: number;
+
     left: number;
+
     width: number;
+
     height: number;
+
 }
 
+/*
+ * Stores the position of a numbered marker around
+ * the card during Show All mode.
+ *
+ * This is separate from the highlighted region because
+ * the marker and selected field have different positions.
+ */
+export interface CardAnatomyMarkerPosition {
+
+    top: number;
+
+    left: number;
+
+}
 
 /*
  * Describes one field that can be explained
@@ -42,9 +60,13 @@ export interface CardAnatomyField {
     // Name displayed to the user.
     title: string;
 
-    // Short explanation displayed in the learning panel.
+    // Short explanation displayed in the learning docket.
     description: string;
 
-    // Position of the field on the showcase card.
+    // Position and size of the selected area on the card.
     region: CardAnatomyRegion;
+
+    // Position of the numbered button used by Show All mode.
+    marker: CardAnatomyMarkerPosition;
+
 }
