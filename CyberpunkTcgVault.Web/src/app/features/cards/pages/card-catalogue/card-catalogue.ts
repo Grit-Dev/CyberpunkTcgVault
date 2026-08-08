@@ -12,10 +12,10 @@ import { Card } from '../../models/card';
 import { CardsService } from '../../services/cards.service';
 
 /**
- * Functional public card catalogue.
+ * Public Vault Archive for browsing Choom Vault cards.
  *
  * The homepage remains the curated discovery surface while this page owns
- * the searchable, filterable and paginated catalogue experience.
+ * the searchable, filterable and paginated card-browsing experience.
  */
 @Component({
   selector: 'app-card-catalogue',
@@ -28,18 +28,17 @@ import { CardsService } from '../../services/cards.service';
   styleUrl: './card-catalogue.scss'
 })
 export class CardCatalogue implements OnInit, OnDestroy {
-
-  // Cards displayed on the current catalogue page.
+  // Cards displayed on the current Archive page.
   cards: Card[] = [];
 
-  // All cards returned for the current API filters.
-  // This will be removed once pagination moves fully to the backend.
+  // Complete result returned for the current API filters.
+  // This can be removed when pagination moves fully to the backend.
   private matchingCards: Card[] = [];
 
-  // Values currently entered or selected by the user.
+  // Current search and filter state.
   filters: CardFilters = this.createEmptyFilters();
 
-  // Filter options captured from the initial full catalogue response.
+  // Stable filter options captured from the initial full Archive response.
   rarityOptions: string[] = [];
   classificationOptions: string[] = [];
   cardTypeOptions: string[] = [];
@@ -50,10 +49,11 @@ export class CardCatalogue implements OnInit, OnDestroy {
   totalCount = 0;
   totalPages = 0;
 
+  // Request state.
   isLoading = true;
   errorMessage = '';
 
-  // Prevents an API request being made for every individual keystroke.
+  // Prevents an API request for every individual search keystroke.
   private searchDebounceTimer:
     ReturnType<typeof setTimeout> | null = null;
 
@@ -73,8 +73,8 @@ export class CardCatalogue implements OnInit, OnDestroy {
   /**
    * Returns a small window of page numbers around the current page.
    *
-   * This prevents the Catalogue from eventually rendering hundreds
-   * of pagination buttons when the card database becomes much larger.
+   * This prevents hundreds of pagination controls being rendered
+   * if the Archive eventually contains a much larger card library.
    */
   get visiblePageNumbers(): number[] {
     const maximumVisiblePages = 5;
@@ -91,7 +91,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
       this.currentPage - 2
     );
 
-    let endPage = Math.min(
+    const endPage = Math.min(
       this.totalPages,
       startPage + maximumVisiblePages - 1
     );
@@ -107,13 +107,24 @@ export class CardCatalogue implements OnInit, OnDestroy {
     }
 
     return Array.from(
-      { length: endPage - startPage + 1 },
+      {
+        length: endPage - startPage + 1
+      },
       (_, index) => startPage + index
     );
   }
 
   /**
-   * Indicates whether any catalogue filter is currently active.
+   * Indicates whether the card-name search contains a value.
+   */
+  get hasSearchQuery(): boolean {
+    return Boolean(
+      this.filters.name?.trim()
+    );
+  }
+
+  /**
+   * Indicates whether any Archive search or filter is active.
    */
   get hasActiveFilters(): boolean {
     return Boolean(
@@ -125,9 +136,38 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   /**
+   * Returns true when metadata contains a useful collector-facing value.
+   *
+   * Placeholder values stored in seed data are deliberately hidden.
+   */
+  hasMeaningfulValue(
+    value: string | null | undefined
+  ): boolean {
+    if (!value?.trim()) {
+      return false;
+    }
+
+    const normalisedValue =
+      value.trim().toLowerCase();
+
+    const placeholderValues = [
+      'unknown',
+      'n/a',
+      'null',
+      'none',
+      '-',
+      '—'
+    ];
+
+    return !placeholderValues.includes(
+      normalisedValue
+    );
+  }
+
+  /**
    * Runs when the user types into the card-name search.
    *
-   * The API request waits briefly until the user has stopped typing.
+   * The API request waits briefly until the user stops typing.
    */
   onSearchChange(value: string): void {
     this.filters = {
@@ -141,6 +181,8 @@ export class CardCatalogue implements OnInit, OnDestroy {
 
     this.searchDebounceTimer = setTimeout(
       () => {
+        this.searchDebounceTimer = null;
+
         this.loadCards();
       },
       300
@@ -167,8 +209,8 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   /**
-   * Allows Enter or the Search Catalogue button
-   * to run the current search immediately.
+   * Allows Enter or the Search button to run
+   * the current search immediately.
    */
   applyFilters(): void {
     this.clearSearchDebounce();
@@ -179,19 +221,60 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   /**
-   * Clears all filters and restores the first page.
+   * Clears only the card-name search.
+   *
+   * Secondary filters remain active.
    */
-  clearFilters(): void {
+  clearSearch(): void {
+    if (!this.hasSearchQuery) {
+      return;
+    }
+
     this.clearSearchDebounce();
 
-    this.filters = this.createEmptyFilters();
+    this.filters = {
+      ...this.filters,
+      name: ''
+    };
+
     this.currentPage = 1;
 
     this.loadCards();
   }
 
   /**
-   * Moves directly to a catalogue page.
+   * Clears every search/filter value and restores page one.
+   */
+  clearFilters(): void {
+    this.clearSearchDebounce();
+
+    this.filters =
+      this.createEmptyFilters();
+
+    this.currentPage = 1;
+
+    this.loadCards();
+  }
+
+/**
+ * Retries the current Archive request after an error.
+ *
+ * If the initial request failed, filter options are captured
+ * when the retry succeeds.
+ */
+retryLoad(): void {
+  const shouldCaptureFilterOptions =
+    this.rarityOptions.length === 0 &&
+    this.classificationOptions.length === 0 &&
+    this.cardTypeOptions.length === 0;
+
+  this.loadCards(
+    shouldCaptureFilterOptions
+  );
+}
+
+  /**
+   * Moves directly to an Archive page.
    */
   goToPage(page: number): void {
     if (
@@ -208,7 +291,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   /**
-   * Moves backwards one catalogue page.
+   * Moves backwards one Archive page.
    */
   previousPage(): void {
     this.goToPage(
@@ -217,7 +300,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   /**
-   * Moves forwards one catalogue page.
+   * Moves forwards one Archive page.
    */
   nextPage(): void {
     this.goToPage(
@@ -228,11 +311,11 @@ export class CardCatalogue implements OnInit, OnDestroy {
   /**
    * Requests cards from the API using the current filters.
    *
-   * For now the API returns the complete matching result.
-   * Angular then displays only the current 24-card page.
+   * The API currently returns the complete matching result.
+   * Angular displays the current 24-card page from that result.
    *
-   * When server-side pagination is introduced, this method will
-   * consume the paged API response instead of slicing locally.
+   * When server-side pagination is introduced, this method can consume
+   * the paged response without redesigning the Archive UI.
    */
   private loadCards(
     captureFilterOptions = false
@@ -251,26 +334,32 @@ export class CardCatalogue implements OnInit, OnDestroy {
 
           this.totalPages =
             Math.ceil(
-              this.totalCount / this.pageSize
+              this.totalCount /
+              this.pageSize
             );
 
           if (this.totalPages === 0) {
             this.currentPage = 1;
           } else if (
-            this.currentPage > this.totalPages
+            this.currentPage >
+            this.totalPages
           ) {
-            this.currentPage = this.totalPages;
+            this.currentPage =
+              this.totalPages;
           }
 
           if (captureFilterOptions) {
-            this.captureFilterOptions(cards);
+            this.captureFilterOptions(
+              cards
+            );
           }
 
           this.applyCurrentPage();
 
           this.isLoading = false;
 
-          this.changeDetectorRef.markForCheck();
+          this.changeDetectorRef
+            .markForCheck();
         },
 
         error: () => {
@@ -282,11 +371,12 @@ export class CardCatalogue implements OnInit, OnDestroy {
           this.currentPage = 1;
 
           this.errorMessage =
-            'The card catalogue could not be loaded. Try again in a moment.';
+            'The Vault Archive could not be loaded.';
 
           this.isLoading = false;
 
-          this.changeDetectorRef.markForCheck();
+          this.changeDetectorRef
+            .markForCheck();
         }
       });
   }
@@ -294,8 +384,8 @@ export class CardCatalogue implements OnInit, OnDestroy {
   /**
    * Selects only the cards belonging to the current page.
    *
-   * This is intentionally isolated so it can be removed easily
-   * when the backend becomes responsible for Skip/Take paging.
+   * This stays isolated so it can be removed when the API
+   * becomes responsible for Skip/Take pagination.
    */
   private applyCurrentPage(): void {
     const startIndex =
@@ -303,7 +393,8 @@ export class CardCatalogue implements OnInit, OnDestroy {
       this.pageSize;
 
     const endIndex =
-      startIndex + this.pageSize;
+      startIndex +
+      this.pageSize;
 
     this.cards =
       this.matchingCards.slice(
@@ -311,52 +402,61 @@ export class CardCatalogue implements OnInit, OnDestroy {
         endIndex
       );
 
-    this.changeDetectorRef.markForCheck();
+    this.changeDetectorRef
+      .markForCheck();
   }
 
   /**
-   * Builds stable filter options from the complete initial catalogue.
+   * Builds stable filters from the complete initial Archive response.
    */
   private captureFilterOptions(
     cards: Card[]
   ): void {
     this.rarityOptions =
       this.uniqueValues(
-        cards.map(card => card.rarity)
+        cards.map(
+          card => card.rarity
+        )
       );
 
     this.classificationOptions =
       this.uniqueValues(
-        cards.map(card => card.classification)
+        cards.map(
+          card => card.classification
+        )
       );
 
     this.cardTypeOptions =
       this.uniqueValues(
-        cards.map(card => card.cardType)
+        cards.map(
+          card => card.cardType
+        )
       );
   }
 
   /**
-   * Removes empty and Unknown values, removes duplicates,
-   * and sorts the remaining values alphabetically.
+   * Removes placeholder values and duplicates before
+   * sorting filter options alphabetically.
    */
   private uniqueValues(
     values: Array<string | null | undefined>
   ): string[] {
-    const meaningfulValues = values
-      .map(value => value?.trim())
-      .filter(
-        (value): value is string =>
-          value !== undefined &&
-          value.length > 0 &&
-          value.toLowerCase() !== 'unknown'
-      );
+    const meaningfulValues =
+      values
+        .map(
+          value => value?.trim()
+        )
+        .filter(
+          (value): value is string =>
+            this.hasMeaningfulValue(value)
+        );
 
-    return [...new Set(meaningfulValues)]
-      .sort(
-        (left, right) =>
-          left.localeCompare(right)
-      );
+    return [
+      ...new Set(meaningfulValues)
+    ].sort(
+      (left, right) =>
+        left.localeCompare(right)
+    );
   }
 
   /**
@@ -377,7 +477,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   /**
-   * Creates the default empty catalogue filter state.
+   * Creates the default empty Archive filter state.
    */
   private createEmptyFilters(): CardFilters {
     return {
