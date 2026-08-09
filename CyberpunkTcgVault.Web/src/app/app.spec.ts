@@ -1,27 +1,71 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App]
+      imports: [
+        App
+      ],
+      providers: [
+        /*
+         * The App shell contains Angular Router functionality.
+         * The isolated test environment therefore needs Router providers.
+         */
+        provideRouter([])
+      ]
     }).compileComponents();
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
+    const fixture =
+      TestBed.createComponent(App);
 
-    expect(app).toBeTruthy();
+    expect(
+      fixture.componentInstance
+    ).toBeTruthy();
   });
 
-  it('should render the router outlet', async () => {
-    const fixture = TestBed.createComponent(App);
+  it('should render the shared site header', () => {
+    const fixture =
+      TestBed.createComponent(App);
 
-    await fixture.whenStable();
+    fixture.detectChanges();
 
-    const compiled = fixture.nativeElement as HTMLElement;
+    const header =
+      fixture.nativeElement.querySelector(
+        'app-site-header'
+      );
 
-    expect(compiled.querySelector('router-outlet')).not.toBeNull();
+    expect(header).toBeTruthy();
+  });
+
+  it('should render the router outlet', () => {
+    const fixture =
+      TestBed.createComponent(App);
+
+    fixture.detectChanges();
+
+    const outlet =
+      fixture.nativeElement.querySelector(
+        'router-outlet'
+      );
+
+    expect(outlet).toBeTruthy();
+  });
+
+  it('should render the shared site footer', () => {
+    const fixture =
+      TestBed.createComponent(App);
+
+    fixture.detectChanges();
+
+    const footer =
+      fixture.nativeElement.querySelector(
+        'app-site-footer'
+      );
+
+    expect(footer).toBeTruthy();
   });
 });

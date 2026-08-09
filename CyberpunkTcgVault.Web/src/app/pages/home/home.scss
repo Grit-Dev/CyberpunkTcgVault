@@ -3,7 +3,6 @@
 }
 
 .home-page {
-  min-height: 100vh;
   overflow: hidden;
   color: var(--colour-text);
   background:
@@ -15,177 +14,6 @@
       transparent 30%),
     var(--colour-background);
 }
-
-.site-header {
-  position: relative;
-  z-index: 20;
-
-  border-bottom: 1px solid var(--colour-border);
-
-  background: rgba(6, 8, 13, 0.86);
-
-  backdrop-filter: blur(18px);
-}
-
-.header-inner {
-  display: grid;
-
-  min-height: 88px;
-
-  grid-template-columns:
-    1fr auto 1fr;
-
-  align-items: center;
-
-  gap: 30px;
-}
-
-.brand {
-  display: inline-flex;
-
-  width: fit-content;
-
-  align-items: center;
-
-  gap: 13px;
-
-  text-decoration: none;
-}
-
-.brand-symbol {
-  position: relative;
-
-  display: grid;
-
-  width: 48px;
-  height: 48px;
-
-  place-items: center;
-
-  color: var(--colour-background);
-
-  background: var(--colour-yellow);
-
-  clip-path: polygon(0 0,
-      78% 0,
-      100% 22%,
-      100% 100%,
-      22% 100%,
-      0 78%);
-
-  font-family: var(--font-display);
-  font-weight: 900;
-  line-height: 1;
-}
-
-.brand-symbol>span {
-  font-size: 1.15rem;
-
-  letter-spacing: -0.05em;
-}
-
-.brand-symbol small {
-  position: absolute;
-
-  right: 4px;
-  bottom: 3px;
-
-  font-size: 0.48rem;
-}
-
-.brand-name {
-  display: flex;
-
-  flex-direction: column;
-
-  font-family: var(--font-display);
-
-  line-height: 1;
-
-  text-transform: uppercase;
-}
-
-.brand-name strong {
-  font-size: 0.98rem;
-
-  letter-spacing: 0.08em;
-}
-
-.brand-name small {
-  margin-top: 6px;
-
-  color: var(--colour-yellow);
-
-  font-size: 0.66rem;
-  font-weight: 700;
-
-  letter-spacing: 0.22em;
-}
-
-.site-navigation {
-  display: flex;
-
-  align-items: center;
-
-  gap: 38px;
-}
-
-.site-navigation a {
-  position: relative;
-
-  padding: 34px 0;
-
-  color: var(--colour-text-muted);
-
-  font-family: var(--font-display);
-  font-size: 0.86rem;
-  font-weight: 700;
-
-  letter-spacing: 0.09em;
-
-  text-decoration: none;
-  text-transform: uppercase;
-
-  transition: color 160ms ease;
-}
-
-.site-navigation a::after {
-  position: absolute;
-
-  right: 0;
-  bottom: 24px;
-  left: 0;
-
-  height: 3px;
-
-  background: var(--colour-yellow);
-
-  content: "";
-
-  transform: scaleX(0);
-  transform-origin: right;
-
-  transition: transform 160ms ease;
-}
-
-.site-navigation a:hover {
-  color: var(--colour-text);
-}
-
-.site-navigation a:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
-.header-actions {
-  display: flex;
-
-  align-items: center;
-  justify-content: flex-end;
-
-  gap: 6px;
-}
-
 
 /*
  * Homepage hero.
@@ -827,20 +655,6 @@
   pointer-events: none;
 }
 
-.visual-code {
-  position: absolute;
-
-  z-index: 3;
-
-  top: 7px;
-  left: 7px;
-
-  color: var(--colour-yellow);
-
-  font-family: monospace;
-
-  font-size: 0.48rem;
-}
 
 .card-information {
   display: flex;
@@ -1624,66 +1438,10 @@
 
 
 /*
- * Footer.
- */
-.site-footer {
-  border-top: 1px solid var(--colour-border);
-}
-
-.footer-layout {
-  display: grid;
-
-  min-height: 175px;
-
-  grid-template-columns:
-    1fr 1.4fr 1fr;
-
-  align-items: center;
-
-  gap: 40px;
-}
-
-.footer-layout p {
-  margin: 0;
-
-  color: var(--colour-text-muted);
-
-  font-size: 0.68rem;
-  line-height: 1.7;
-
-  text-align: center;
-}
-
-.footer-stack {
-  color: var(--colour-text-muted);
-
-  font-family: var(--font-display);
-
-  font-size: 0.69rem;
-  font-weight: 700;
-
-  line-height: 1.6;
-
-  letter-spacing: 0.09em;
-
-  text-align: right;
-  text-transform: uppercase;
-}
-
-
-/*
  * Smaller desktop and tablet.
  */
 @media (max-width: 1120px) {
 
-  .header-inner {
-    grid-template-columns:
-      1fr auto;
-  }
-
-  .site-navigation {
-    display: none;
-  }
 
   .hero-layout {
     grid-template-columns: 1fr;
@@ -1711,9 +1469,6 @@
  */
 @media (max-width: 820px) {
 
-  .header-register {
-    display: none;
-  }
 
   .hero-layout {
     min-height: auto;
@@ -1789,22 +1544,6 @@
     padding: 40px 30px;
   }
 
-  .footer-layout {
-    grid-template-columns: 1fr;
-
-    gap: 24px;
-
-    padding-block: 45px;
-  }
-
-  .footer-layout .brand {
-    margin-inline: auto;
-  }
-
-  .footer-layout p,
-  .footer-stack {
-    text-align: center;
-  }
 
 }
 
@@ -1814,13 +1553,6 @@
  */
 @media (max-width: 560px) {
 
-  .header-inner {
-    min-height: 74px;
-  }
-
-  .brand-name {
-    display: none;
-  }
 
   .hero-copy h1 {
     font-size: clamp(3.8rem,

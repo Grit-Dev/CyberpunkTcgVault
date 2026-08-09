@@ -5,7 +5,6 @@ import {
   OnInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardFilters } from '../../models/card-filters';
 import { Card } from '../../models/card';
@@ -256,22 +255,22 @@ export class CardCatalogue implements OnInit, OnDestroy {
     this.loadCards();
   }
 
-/**
- * Retries the current Archive request after an error.
- *
- * If the initial request failed, filter options are captured
- * when the retry succeeds.
- */
-retryLoad(): void {
-  const shouldCaptureFilterOptions =
-    this.rarityOptions.length === 0 &&
-    this.classificationOptions.length === 0 &&
-    this.cardTypeOptions.length === 0;
+  /**
+   * Retries the current Archive request after an error.
+   *
+   * If the initial request failed, filter options are captured
+   * when the retry succeeds.
+   */
+  retryLoad(): void {
+    const shouldCaptureFilterOptions =
+      this.rarityOptions.length === 0 &&
+      this.classificationOptions.length === 0 &&
+      this.cardTypeOptions.length === 0;
 
-  this.loadCards(
-    shouldCaptureFilterOptions
-  );
-}
+    this.loadCards(
+      shouldCaptureFilterOptions
+    );
+  }
 
   /**
    * Moves directly to an Archive page.

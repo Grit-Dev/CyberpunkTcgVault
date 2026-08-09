@@ -7,7 +7,6 @@
   --colour-background: #06080d;
   --colour-background-soft: #0b0f16;
   --colour-surface: #111720;
-  --colour-surface-raised: #161e29;
 
   --colour-text: #f4f5f7;
   --colour-text-muted: #929baa;
@@ -16,7 +15,6 @@
   --colour-yellow-light: #fff66a;
   --colour-cyan: #22e1d1;
   --colour-red: #ff3e55;
-  --colour-purple: #9b7cff;
 
   --colour-border: rgba(255, 255, 255, 0.1);
   --colour-border-strong: rgba(255, 255, 255, 0.2);
@@ -113,14 +111,12 @@ svg {
   gap: 12px;
   padding: 0 23px;
   border: 1px solid transparent;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 10px) 0,
-    100% 10px,
-    100% 100%,
-    10px 100%,
-    0 calc(100% - 10px)
-  );
+  clip-path: polygon(0 0,
+      calc(100% - 10px) 0,
+      100% 10px,
+      100% 100%,
+      10px 100%,
+      0 calc(100% - 10px));
   cursor: pointer;
   font-family: var(--font-display);
   font-size: 0.92rem;
@@ -194,5 +190,231 @@ svg {
   .btn {
     min-height: 46px;
     padding-inline: 18px;
+  }
+}
+
+/*
+ * Shared Choom Vault brand identity.
+ *
+ * Used by application-level layout such as the public header and footer.
+ */
+.brand {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+}
+
+.brand-symbol {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  color: var(--colour-background);
+  background: var(--colour-yellow);
+  clip-path: polygon(0 0,
+      78% 0,
+      100% 22%,
+      100% 100%,
+      22% 100%,
+      0 78%);
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.brand-symbol>span {
+  font-size: 1.15rem;
+  letter-spacing: -0.05em;
+}
+
+.brand-symbol small {
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  font-size: 0.48rem;
+}
+
+.brand-name {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-display);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.brand-name strong {
+  font-size: 0.98rem;
+  letter-spacing: 0.08em;
+}
+
+.brand-name small {
+  margin-top: 6px;
+  color: var(--colour-yellow);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+@media (max-width: 560px) {
+  .brand-name {
+    display: none;
+  }
+}
+
+/*
+ * Public supporting-page foundations.
+ *
+ * Shared by editorial/supporting surfaces such as About, Privacy and Contact.
+ * Individual pages still own their specific compositions and visual character.
+ */
+.support-page {
+  display: flex;
+  flex-direction: column;
+  color: var(--colour-text);
+  background: var(--colour-background);
+}
+
+.support-page>main {
+  flex: 1;
+}
+
+/*
+ * Shared opening rhythm.
+ *
+ * Vertical spacing responds to viewport height so wide laptop and split-screen
+ * layouts do not become unnecessarily tall.
+ */
+.support-page-hero {
+  padding-block: clamp(72px, 8vh, 104px);
+  border-bottom: 1px solid var(--colour-border);
+}
+
+.support-page-hero__intro {
+  max-width: 680px;
+  margin: 30px 0 0;
+  color: var(--colour-text-muted);
+  font-size: clamp(1rem, 1.15vw, 1.1rem);
+  line-height: 1.8;
+}
+
+/*
+ * Shared supporting-page display title.
+ *
+ * About, Privacy and Contact use the same display typography grammar.
+ * Individual pages can opt into the larger editorial variant where needed.
+ */
+.support-page-title {
+  max-width: 800px;
+  margin: 20px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 7vw, 7rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.support-page-title--large {
+  max-width: 900px;
+  font-size: clamp(4.6rem, 9vw, 8.5rem);
+  line-height: 0.88;
+  letter-spacing: -0.018em;
+}
+
+.support-page-title__accent {
+  display: block;
+  color: var(--colour-yellow);
+  letter-spacing: -0.012em;
+}
+
+/*
+ * Shared editorial section marker.
+ *
+ * Used where supporting pages pair a numbered datum with a short section
+ * description. Width and surrounding layout remain page-specific.
+ */
+.support-section-label {
+  align-self: start;
+  padding-top: 4px;
+  border-top: 1px solid var(--colour-border-strong);
+}
+
+.support-section-label>span {
+  display: block;
+  margin-top: 14px;
+  color: var(--colour-yellow);
+  font-family: var(--font-display);
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.support-section-label>p {
+  margin: 8px 0 0;
+  color: var(--colour-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/*
+ * Shared editorial section spacing.
+ */
+.support-page-section {
+  padding-block: clamp(68px, 7vw, 104px);
+  border-bottom: 1px solid var(--colour-border);
+}
+
+/*
+ * Short desktop / laptop-height viewports.
+ */
+@media (min-width: 901px) and (max-height: 760px) {
+  .support-page-hero {
+    padding-block: 56px 64px;
+  }
+
+  .support-page-section {
+    padding-block: 72px;
+  }
+}
+
+@media (max-width: 700px) {
+  .support-page-title {
+    font-size: clamp(3.7rem, 14vw, 5.25rem);
+  }
+
+  .support-page-title--large {
+    font-size: clamp(4rem, 15vw, 6rem);
+  }
+
+  .support-page-hero {
+    padding-block: 64px 74px;
+  }
+
+  .support-page-section {
+    padding-block: 68px;
+  }
+}
+
+@media (max-width: 390px) {
+  .support-page-title {
+    font-size: clamp(3.2rem, 16vw, 4.2rem);
+  }
+
+  .support-page-title--large {
+    font-size: clamp(3.5rem, 17vw, 4.6rem);
+  }
+
+  .support-page-hero {
+    padding-block: 54px 64px;
+  }
+
+  .support-page-section {
+    padding-block: 58px;
   }
 }

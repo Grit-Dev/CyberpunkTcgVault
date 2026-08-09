@@ -1,0 +1,142 @@
+:host {
+    display: block;
+}
+
+.site-footer {
+    border-top: 1px solid var(--colour-border);
+}
+
+.footer-inner {
+    display: grid;
+    min-height: 190px;
+    grid-template-columns:
+        minmax(210px, 0.95fr) minmax(0, 1.5fr) minmax(190px, 0.9fr);
+    align-items: center;
+    gap: clamp(36px, 5vw, 70px);
+}
+
+.footer-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 17px;
+}
+
+.footer-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+}
+
+.footer-navigation a {
+    color: var(--colour-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.69rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 160ms ease;
+}
+
+.footer-navigation a:hover {
+    color: var(--colour-text);
+}
+
+
+.footer-navigation a.is-active {
+    color: var(--colour-yellow);
+}
+
+.footer-legal {
+    max-width: 620px;
+    margin: 0 auto;
+    color: var(--colour-text-muted);
+    font-size: 0.68rem;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.footer-stack {
+    color: var(--colour-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.69rem;
+    font-weight: 700;
+    line-height: 1.6;
+    letter-spacing: 0.09em;
+    text-align: right;
+    text-transform: uppercase;
+}
+
+/*
+ * Tablet / smaller desktop.
+ *
+ * The three-part footer becomes a deliberate vertical document rather than
+ * preserving narrow desktop columns.
+ */
+@media (max-width: 900px) {
+    .footer-inner {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding-block: 46px;
+    }
+
+    .footer-identity {
+        align-items: center;
+    }
+
+    .footer-navigation {
+        justify-content: center;
+    }
+
+    .footer-legal {
+        max-width: 680px;
+    }
+
+    .footer-stack {
+        text-align: center;
+    }
+}
+
+/*
+ * Mobile.
+ *
+ * Order remains:
+ * identity → supporting links → legal → collector statement.
+ */
+@media (max-width: 560px) {
+    .footer-inner {
+        gap: 26px;
+        padding-block: 40px;
+    }
+
+    .footer-navigation {
+        width: 100%;
+        justify-content: center;
+        gap: 10px 16px;
+    }
+
+    .footer-navigation a {
+        font-size: 0.67rem;
+    }
+
+    .footer-legal {
+        font-size: 0.67rem;
+        line-height: 1.75;
+    }
+
+    .footer-stack {
+        font-size: 0.67rem;
+    }
+}
+
+@media (max-width: 390px) {
+    .footer-navigation {
+        gap: 10px 14px;
+    }
+
+    .footer-legal {
+        font-size: 0.67rem;
+    }
+}

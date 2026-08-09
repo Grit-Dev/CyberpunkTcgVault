@@ -2,9 +2,36 @@
   display: block;
 }
 
+/*
+ * Global Catalogue page shell.
+ *
+ * Header, Archive and footer remain in normal document flow.
+ * The main area grows when there are few or zero results so the footer
+ * remains naturally positioned at the bottom of the viewport.
+ */
+.catalogue-page-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  color: var(--colour-text);
+  background: var(--colour-background);
+}
+
+.catalogue-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+/*
+ * Vault Archive surface.
+ *
+ * The shared page shell now owns viewport height, so this section no longer
+ * needs its own min-height: 100vh.
+ */
 .catalogue-page {
   position: relative;
-  min-height: 100vh;
+  flex: 1;
   overflow: hidden;
   padding-block: 58px 110px;
   color: var(--colour-text);
@@ -209,7 +236,8 @@
  */
 .catalogue-filters {
   display: grid;
-  grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
+  grid-template-columns:
+    repeat(3, minmax(150px, 1fr)) auto;
   align-items: end;
   gap: 12px;
   margin-top: 14px;
@@ -546,6 +574,9 @@
 
 /*
  * Pagination remains subordinate to the result rail and physical cards.
+ *
+ * Because the shared footer sits outside catalogue-page, pagination stays
+ * naturally separated from the global footer by the Archive's bottom padding.
  */
 .catalogue-pagination {
   display: flex;

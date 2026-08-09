@@ -1,0 +1,27 @@
+:host {
+    display: block;
+}
+
+/*
+ * Global Choom Vault application shell.
+ *
+ * The root owns shared navigation and keeps the footer at the bottom of short
+ * pages without making individual routes repeat the same shell structure.
+ */
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    color: var(--colour-text);
+    background: var(--colour-background);
+}
+
+/*
+ * The active route occupies the space between the shared header and footer.
+ * Individual route components continue to own their page-specific layout.
+ */
+.app-route {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
