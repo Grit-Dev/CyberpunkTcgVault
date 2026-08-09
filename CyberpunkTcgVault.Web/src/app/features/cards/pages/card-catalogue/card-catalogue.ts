@@ -9,8 +9,6 @@ import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardFilters } from '../../models/card-filters';
 import { Card } from '../../models/card';
 import { CardsService } from '../../services/cards.service';
-import { SiteFooter } from '../../../../shared/layout/site-footer/site-footer';
-import { SiteHeader } from '../../../../shared/layout/site-header/site-header';
 
 /**
  * Public Vault Archive for browsing Choom Vault cards.
@@ -23,9 +21,7 @@ import { SiteHeader } from '../../../../shared/layout/site-header/site-header';
   standalone: true,
   imports: [
     FormsModule,
-    CardArtworkDirective,
-    SiteHeader,
-    SiteFooter
+    CardArtworkDirective
   ],
   templateUrl: './card-catalogue.html',
   styleUrl: './card-catalogue.scss'

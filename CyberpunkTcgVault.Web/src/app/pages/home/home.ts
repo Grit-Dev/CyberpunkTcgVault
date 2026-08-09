@@ -5,8 +5,6 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { SiteFooter } from '../../shared/layout/site-footer/site-footer';
-import { SiteHeader } from '../../shared/layout/site-header/site-header';
 import { CardAnatomyShowcase } from '../../features/cards/components/card-anatomy-showcase/card-anatomy-showcase';
 import { CardArtworkDirective } from '../../features/cards/directives/card-artwork.directive';
 import { Card } from '../../features/cards/models/card';
@@ -15,7 +13,7 @@ import { CardsService } from '../../features/cards/services/cards.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, SiteHeader, SiteFooter, CardAnatomyShowcase, CardArtworkDirective],
+  imports: [RouterLink, CardAnatomyShowcase, CardArtworkDirective],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

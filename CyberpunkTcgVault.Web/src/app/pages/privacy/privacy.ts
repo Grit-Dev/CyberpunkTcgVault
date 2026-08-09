@@ -1,19 +1,17 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { SiteFooter } from '../../shared/layout/site-footer/site-footer';
-import { SiteHeader } from '../../shared/layout/site-header/site-header';
-
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-privacy',
   standalone: true,
   imports: [
-    SiteHeader,
-    SiteFooter
+    RouterLink,
   ],
   templateUrl: './privacy.html',
   styleUrl: './privacy.scss'
 })
+
 export class Privacy {
   private readonly document = inject(DOCUMENT);
 
@@ -24,7 +22,8 @@ export class Privacy {
   scrollToSection(event: Event, sectionId: string): void {
     event.preventDefault();
 
-    const section = this.document.getElementById(sectionId);
+    const section =
+      this.document.getElementById(sectionId);
 
     if (!section) {
       return;
