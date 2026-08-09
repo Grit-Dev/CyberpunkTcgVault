@@ -1,0 +1,302 @@
+<div class="support-page privacy-page">
+    <app-site-header />
+
+    <main>
+        <!--
+      Privacy intentionally remains quieter than About.
+      Typography, spacing and document structure carry the page.
+    -->
+        <section class="support-page-hero privacy-hero">
+            <div class="container privacy-hero__inner">
+                <p class="eyebrow">
+                    PRIVACY
+                </p>
+
+                <h1>
+                    Your vault is yours.
+                </h1>
+
+                <p class="support-page-hero__intro">
+                    This page explains what Choom Vault stores, what remains private and
+                    how collection information is handled as the product develops.
+                </p>
+            </div>
+        </section>
+
+        <section class="support-page-section privacy-document-section">
+            <div class="container privacy-document">
+
+                <!--
+          Genuine document navigation.
+          These links stay on the Privacy page and move to real sections.
+        -->
+                <nav class="privacy-index" aria-label="Privacy page sections">
+                    <p>On this page</p>
+
+                    <a href="#information" (click)="scrollToSection($event, 'information')">
+                        <span>01</span>
+                        Information
+                    </a>
+
+                    <a href="#collection-data" (click)="scrollToSection($event, 'collection-data')">
+                        <span>02</span>
+                        Collection data
+                    </a>
+
+                    <a href="#visibility" (click)="scrollToSection($event, 'visibility')">
+                        <span>03</span>
+                        Visibility
+                    </a>
+
+                    <a href="#third-parties" (click)="scrollToSection($event, 'third-parties')">
+                        <span>04</span>
+                        Third parties
+                    </a>
+
+                    <a href="#your-controls" (click)="scrollToSection($event, 'your-controls')">
+                        <span>05</span>
+                        Your controls
+                    </a>
+
+                    <a href="#privacy-contact" (click)="scrollToSection($event, 'privacy-contact')">
+                        <span>06</span>
+                        Contact
+                    </a>
+                </nav>
+
+                <div class="privacy-content">
+                    <!--
+            Editorial context rather than a development/status warning.
+          -->
+                    <aside class="privacy-status">
+                        <strong>About this notice</strong>
+
+                        <p>
+                            Choom Vault is being developed in stages. This notice
+                            distinguishes current behaviour from privacy principles
+                            described for features that are not yet publicly available.
+                        </p>
+                    </aside>
+
+                    <!-- 01 / INFORMATION -->
+                    <section id="information" class="privacy-section">
+                        <div class="privacy-section__heading">
+                            <span>01 / INFORMATION</span>
+
+                            <h2>
+                                Account and access information.
+                            </h2>
+                        </div>
+
+                        <div class="privacy-section__body">
+                            <p>
+                                The public Vault Archive can be browsed without signing in to
+                                a Choom Vault account.
+                            </p>
+
+                            <p>
+                                When account features are used, Choom Vault stores the account
+                                information needed to recognise you and provide access to your
+                                personal Vault.
+                            </p>
+
+                            <p>
+                                Passwords are not stored as readable text. They are protected
+                                using established password-hashing techniques.
+                            </p>
+
+                            <p>
+                                When you sign in, Choom Vault uses secure authentication to
+                                recognise your account and protect access to your private
+                                collection data.
+                            </p>
+
+                            <p>
+                                Public account features are still being prepared for release.
+                                This notice will be updated when the information collected or
+                                the way it is used changes.
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- 02 / COLLECTION DATA -->
+                    <section id="collection-data" class="privacy-section">
+                        <div class="privacy-section__heading">
+                            <span>02 / COLLECTION DATA</span>
+
+                            <h2>
+                                Your collection records are linked to your account.
+                            </h2>
+                        </div>
+
+                        <div class="privacy-section__body">
+                            <p>
+                                Owned cards, wishlist items and sealed-product records are
+                                linked to the signed-in account. Choom Vault protects those
+                                personal records so another collector cannot read or change
+                                them through their account.
+                            </p>
+
+                            <p>
+                                The shared card catalogue is separate from your personal
+                                Vault. A card can be publicly discoverable without revealing
+                                whether you own it, want it or have recorded personal
+                                information about it.
+                            </p>
+
+                            <p>
+                                Deeper collector information such as condition, physical
+                                storage, movement history and collection auditing forms part
+                                of the future product direction where it is not already
+                                available.
+                            </p>
+
+                            <!--
+                The one distinctive physical/archive object on Privacy.
+              -->
+                            <div class="privacy-example">
+                                <span>Private by default</span>
+
+                                <strong>
+                                    Binder A · Page 12 · Slot 4
+                                </strong>
+
+                                <p>
+                                    Exact physical storage information is treated as private
+                                    information. It must never become publicly visible simply
+                                    because another part of a collection is shared.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 03 / VISIBILITY -->
+                    <section id="visibility" class="privacy-section">
+                        <div class="privacy-section__heading">
+                            <span>03 / VISIBILITY</span>
+
+                            <h2>
+                                Private unless you choose otherwise.
+                            </h2>
+                        </div>
+
+                        <div class="privacy-section__body">
+                            <p>
+                                Personal collection information is private by default.
+                                Sharing should always be a deliberate choice.
+                            </p>
+
+                            <p>
+                                If public Safehouse functionality is introduced later, you
+                                will choose what is presented there. Exact physical storage
+                                locations, private notes and sensitive collection history
+                                must never become public automatically.
+                            </p>
+
+                            <p>
+                                Visibility controls will be introduced only when the
+                                corresponding sharing features actually exist.
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- 04 / THIRD PARTIES -->
+                    <section id="third-parties" class="privacy-section">
+                        <div class="privacy-section__heading">
+                            <span>04 / THIRD PARTIES</span>
+
+                            <h2>
+                                External services should be clear when they are used.
+                            </h2>
+                        </div>
+
+                        <!-- 04 / THIRD PARTIES -->
+                        <section id="third-parties" class="privacy-section">
+                            <div class="privacy-section__heading">
+                                <span>04 / THIRD PARTIES</span>
+
+                                <h2>
+                                    External services should be clear when they are used.
+                                </h2>
+                            </div>
+
+                            <div class="privacy-section__body">
+                                <p>
+                                    Choom Vault will clearly identify external services that process
+                                    user information when those services are genuinely part of the
+                                    public product.
+                                </p>
+
+                                <p>
+                                    This notice will be updated as external services are introduced,
+                                    including an explanation of why they are used and how they relate
+                                    to information handled by Choom Vault.
+                                </p>
+
+                                <p>
+                                    Unfinished or planned integrations are not presented here as active
+                                    parts of the service.
+                                </p>
+                            </div>
+                        </section>
+                    </section>
+
+                    <!-- 05 / YOUR CONTROLS -->
+                    <section id="your-controls" class="privacy-section">
+                        <div class="privacy-section__heading">
+                            <span>05 / YOUR CONTROLS</span>
+
+                            <h2>
+                                Your data should remain manageable.
+                            </h2>
+                        </div>
+
+                        <div class="privacy-section__body">
+                            <p>
+                                Collection, wishlist and sealed-product records can be
+                                changed or removed through the functionality available to
+                                the account.
+                            </p>
+
+                            <p>
+                                A complete self-service account deletion flow is not yet
+                                live. It is a requirement before Choom Vault treats public
+                                user accounts as a complete product experience.
+                            </p>
+
+                            <p>
+                                As additional sharing controls are introduced, they should
+                                remain understandable and private by default.
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- 06 / CONTACT -->
+                    <section id="privacy-contact" class="privacy-section privacy-section--last">
+                        <div class="privacy-section__heading">
+                            <span>06 / CONTACT</span>
+
+                            <h2>
+                                Questions and data requests.
+                            </h2>
+                        </div>
+
+                        <div class="privacy-section__body">
+                            <p>
+                                A dedicated Contact / Rights page is being added for privacy
+                                questions, data requests and rights-related enquiries.
+                            </p>
+
+                            <p>
+                                A contact address will only be published once the destination
+                                is genuinely configured.
+                            </p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <app-site-footer />
+</div>
