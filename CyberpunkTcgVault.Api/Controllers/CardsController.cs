@@ -102,13 +102,24 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Card>> GetCardById(int id)
+        public async Task<ActionResult<CardResponse>> GetCardById(int id)
         {
             _logger.LogInformation("Received request to get card with ID {Id}.", id);
 
             var card = await _context.Cards
                 .AsNoTracking()
-                .FirstOrDefaultAsync(card => card.Id == id);
+                .Where(card => card.Id == id)
+                .Select(card => new CardResponse
+                {
+                    Id = card.Id,
+                    Name = card.Name,
+                    SetName = card.SetName,
+                    Rarity = card.Rarity,
+                    Colour = card.Colour,
+                    CardType = card.CardType,
+                    Classification = card.Classification
+                })
+                .FirstOrDefaultAsync();
 
             if (card == null)
             {
@@ -124,8 +135,9 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Card>> CreateCard(CreateCardRequest request)
+        public async Task<ActionResult<CardResponse>> CreateCard(CreateCardRequest request)
         {
+
             _logger.LogInformation("Received request to create a new card with name {Name}.", request.Name);
 
             var card = new Card
@@ -154,20 +166,41 @@ namespace CyberpunkTcgVault.Api.Controllers
                 Notes = request.Notes?.Trim()
             };
 
-            if (string.IsNullOrWhiteSpace(card.Name))
-            {
-                _logger.LogWarning("Card creation failed: Card name is required.");
-
-                return BadRequest("Card name is required.");
-            }
-
             _context.Cards.Add(card);
 
             await _context.SaveChangesAsync();
 
+            var cardResponse = new CardResponse
+            {
+                Id = card.Id,
+                Name = card.Name,
+                SetName = card.SetName,
+                Rarity = card.Rarity,
+                Colour = card.Colour,
+                CardType = card.CardType,
+                Classification = card.Classification,
+                Keywords = card.Keywords,
+                Cost = card.Cost,
+                Power = card.Power,
+                RamCost = card.RamCost,
+                IsLegend = card.IsLegend,
+                HasBetaSymbol = card.HasBetaSymbol,
+                IsKickstarterVersion = card.IsKickstarterVersion,
+                IsRetailVersion = card.IsRetailVersion,
+                IsFoil = card.IsFoil,
+                IsAltArt = card.IsAltArt,
+                IsBoxTopper = card.IsBoxTopper,
+                IsPromo = card.IsPromo,
+                IsStarterDeckExclusive = card.IsStarterDeckExclusive,
+                CardNumber = card.CardNumber,
+                ImageUrl = card.ImageUrl,
+                Notes = card.Notes
+            };
+
+
             _logger.LogInformation("Card with ID {Id} created successfully.", card.Id);
 
-            return CreatedAtAction(nameof(GetCardById), new { id = card.Id }, card);
+            return CreatedAtAction(nameof(GetCardById), new { id = cardResponse.Id }, cardResponse);
 
         }
 
