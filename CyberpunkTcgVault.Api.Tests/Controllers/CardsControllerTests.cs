@@ -166,7 +166,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
 
-            var returnedCard = Assert.IsType<Card>(okResult.Value);
+            var returnedCard = Assert.IsType<CardResponse>(okResult.Value);
 
             Assert.Equal(card.Name, returnedCard.Name);
             Assert.Equal(card.Id, returnedCard.Id);

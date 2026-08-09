@@ -102,13 +102,24 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Card>> GetCardById(int id)
+        public async Task<ActionResult<CardResponse>> GetCardById(int id)
         {
             _logger.LogInformation("Received request to get card with ID {Id}.", id);
 
             var card = await _context.Cards
                 .AsNoTracking()
-                .FirstOrDefaultAsync(card => card.Id == id);
+                .Where(card => card.Id == id)
+                .Select(card => new CardResponse
+                {
+                    Id = card.Id,
+                    Name = card.Name,
+                    SetName = card.SetName,
+                    Rarity = card.Rarity,
+                    Colour = card.Colour,
+                    CardType = card.CardType,
+                    Classification = card.Classification
+                })
+                .FirstOrDefaultAsync();
 
             if (card == null)
             {
