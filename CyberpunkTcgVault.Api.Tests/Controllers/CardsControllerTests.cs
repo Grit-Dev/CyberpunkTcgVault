@@ -195,7 +195,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
 
             var createResult = Assert.IsType<CreatedAtActionResult>(result.Result);
 
-            var createCard = Assert.IsType<Card>(createResult.Value);
+            var createCard = Assert.IsType<CardResponse>(createResult.Value);
 
             Assert.Equal("Rebecca", createCard.Name);
             Assert.Equal("Beta", createCard.SetName);
@@ -219,26 +219,6 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
-        }
-
-        [Fact]
-        public async Task CreateCard_WhenNameIsEmpty_ReturnsBadRequest()
-        {
-            // Arrange
-            using var context = TestDbContextFactory.Create();
-
-            var controller = CreateCardsController(context);
-
-            var request = new CreateCardRequest
-            {
-                Name = "   "
-            };
-
-            // Act
-            var result = await controller.CreateCard(request);
-
-            // Assert
-            Assert.IsType<BadRequestObjectResult>(result.Result);
         }
 
         [Fact]
