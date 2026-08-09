@@ -1,0 +1,289 @@
+:host {
+    display: block;
+}
+
+.contact-hero__inner {
+    max-width: 900px;
+}
+
+.contact-hero h1 {
+    max-width: 800px;
+    margin: 20px 0 0 38px;
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 7vw, 7rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.contact-hero .support-page-hero__intro {
+    margin-left: 38px;
+}
+
+.contact-document {
+    max-width: 980px;
+}
+
+.contact-section {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) minmax(0, 620px);
+    justify-content: space-between;
+    gap: clamp(54px, 8vw, 110px);
+}
+
+.contact-section+.contact-section {
+    margin-top: 84px;
+    padding-top: 84px;
+    border-top: 1px solid var(--colour-border);
+}
+
+.contact-section__label {
+    align-self: start;
+    padding-top: 4px;
+    border-top: 1px solid var(--colour-border-strong);
+}
+
+.contact-section__label>span {
+    display: block;
+    margin-top: 14px;
+    color: var(--colour-yellow);
+    font-family: var(--font-display);
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.contact-section__label>p {
+    margin: 8px 0 0;
+    color: var(--colour-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.45;
+    text-transform: uppercase;
+}
+
+.contact-section__content h2 {
+    max-width: 600px;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.3rem, 3.8vw, 3.55rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+}
+
+.contact-section__content>p {
+    max-width: 600px;
+    margin: 28px 0 0;
+    color: var(--colour-text-muted);
+    font-size: 0.96rem;
+    line-height: 1.85;
+}
+
+.contact-section__content>p+p {
+    margin-top: 18px;
+}
+
+.contact-destination {
+    margin-top: 36px;
+    padding-top: 22px;
+    border-top: 1px solid var(--colour-border-strong);
+}
+
+.contact-destination>span {
+    display: block;
+    color: var(--colour-yellow);
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.contact-address {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 12px;
+    color: var(--colour-text);
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    text-decoration: none;
+}
+
+.contact-address:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--colour-yellow);
+    text-underline-offset: 4px;
+}
+
+.contact-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 18px;
+    color: var(--colour-yellow);
+    font-family: var(--font-display);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 160ms ease;
+}
+
+.contact-action:hover {
+    color: var(--colour-yellow-light);
+}
+
+.contact-note {
+    max-width: 620px;
+    margin: 72px 0 0 auto;
+    padding-top: 24px;
+    border-top: 1px solid var(--colour-border);
+}
+
+.contact-note>span {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.contact-note>p {
+    margin: 10px 0 0;
+    color: var(--colour-text-muted);
+    font-size: 0.86rem;
+    line-height: 1.7;
+}
+
+.independent-note {
+    display: grid;
+    max-width: 620px;
+    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+    gap: 36px;
+    margin: 44px 0 0 auto;
+    padding-top: 24px;
+    border-top: 1px solid var(--colour-border);
+}
+
+.independent-note>span {
+    color: var(--colour-yellow);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.independent-note>p {
+    margin: 0;
+    color: var(--colour-text-muted);
+    font-size: 0.84rem;
+    line-height: 1.7;
+}
+
+/*
+ * Tablet / smaller desktop.
+ *
+ * The editorial two-column structure collapses naturally rather than
+ * preserving desktop alignment at the expense of readability.
+ */
+@media (max-width: 900px) {
+    .contact-document {
+        max-width: 680px;
+    }
+
+    .contact-section {
+        grid-template-columns: 1fr;
+        gap: 38px;
+    }
+
+    .contact-section__label {
+        max-width: 220px;
+    }
+
+    .contact-section+.contact-section {
+        margin-top: 70px;
+        padding-top: 70px;
+    }
+
+    .contact-note,
+    .independent-note {
+        margin-left: 0;
+    }
+}
+
+/*
+ * Mobile.
+ *
+ * Hero indentation is removed so the layout does not sacrifice valuable
+ * horizontal space on smaller screens.
+ */
+@media (max-width: 700px) {
+    .contact-hero h1 {
+        margin-left: 0;
+        font-size: clamp(3.7rem, 14vw, 5.25rem);
+    }
+
+    .contact-hero .support-page-hero__intro {
+        margin-left: 0;
+    }
+
+    .contact-section+.contact-section {
+        margin-top: 58px;
+        padding-top: 58px;
+    }
+
+    .contact-destination {
+        margin-top: 30px;
+    }
+
+    .contact-note {
+        margin-top: 56px;
+    }
+
+    .independent-note {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 34px;
+    }
+}
+
+@media (max-width: 390px) {
+    .contact-hero h1 {
+        font-size: clamp(3.2rem, 16vw, 4.2rem);
+    }
+
+    .contact-section {
+        gap: 32px;
+    }
+
+    .contact-section+.contact-section {
+        margin-top: 50px;
+        padding-top: 50px;
+    }
+
+    .contact-section__content h2 {
+        font-size: clamp(2rem, 10vw, 2.65rem);
+    }
+
+    .contact-section__content>p {
+        font-size: 0.92rem;
+    }
+
+    .contact-address {
+        font-size: 1.25rem;
+    }
+}

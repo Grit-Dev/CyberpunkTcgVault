@@ -4,6 +4,7 @@ import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalo
 import { NotFound } from './pages/not-found/not-found';
 import { About } from './pages/about/about';
 import { Privacy } from './pages/privacy/privacy';
+import { Contact } from './pages/contact/contact';
 
 export const routes: Routes = [
     {
@@ -26,6 +27,11 @@ export const routes: Routes = [
         path: 'privacy',
         title: 'Privacy | Choom Vault',
         component: Privacy
+    },
+    {
+        path: 'contact',
+        title: 'Contact | Choom Vault',
+        component: Contact
     },
     {
         path: '**',
