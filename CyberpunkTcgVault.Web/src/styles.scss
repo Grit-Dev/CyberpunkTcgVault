@@ -7,7 +7,6 @@
   --colour-background: #06080d;
   --colour-background-soft: #0b0f16;
   --colour-surface: #111720;
-  --colour-surface-raised: #161e29;
 
   --colour-text: #f4f5f7;
   --colour-text-muted: #929baa;
@@ -16,7 +15,6 @@
   --colour-yellow-light: #fff66a;
   --colour-cyan: #22e1d1;
   --colour-red: #ff3e55;
-  --colour-purple: #9b7cff;
 
   --colour-border: rgba(255, 255, 255, 0.1);
   --colour-border-strong: rgba(255, 255, 255, 0.2);
@@ -274,7 +272,6 @@ svg {
  */
 .support-page {
   display: flex;
-  min-height: 100vh;
   flex-direction: column;
   color: var(--colour-text);
   background: var(--colour-background);
@@ -304,6 +301,68 @@ svg {
 }
 
 /*
+ * Shared supporting-page display title.
+ *
+ * About, Privacy and Contact use the same display typography grammar.
+ * Individual pages can opt into the larger editorial variant where needed.
+ */
+.support-page-title {
+  max-width: 800px;
+  margin: 20px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 7vw, 7rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.support-page-title--large {
+  max-width: 900px;
+  font-size: clamp(4.6rem, 9vw, 8.5rem);
+  line-height: 0.88;
+  letter-spacing: -0.018em;
+}
+
+.support-page-title__accent {
+  display: block;
+  color: var(--colour-yellow);
+  letter-spacing: -0.012em;
+}
+
+/*
+ * Shared editorial section marker.
+ *
+ * Used where supporting pages pair a numbered datum with a short section
+ * description. Width and surrounding layout remain page-specific.
+ */
+.support-section-label {
+  align-self: start;
+  padding-top: 4px;
+  border-top: 1px solid var(--colour-border-strong);
+}
+
+.support-section-label>span {
+  display: block;
+  margin-top: 14px;
+  color: var(--colour-yellow);
+  font-family: var(--font-display);
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.support-section-label>p {
+  margin: 8px 0 0;
+  color: var(--colour-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/*
  * Shared editorial section spacing.
  */
 .support-page-section {
@@ -325,6 +384,14 @@ svg {
 }
 
 @media (max-width: 700px) {
+  .support-page-title {
+    font-size: clamp(3.7rem, 14vw, 5.25rem);
+  }
+
+  .support-page-title--large {
+    font-size: clamp(4rem, 15vw, 6rem);
+  }
+
   .support-page-hero {
     padding-block: 64px 74px;
   }
@@ -335,6 +402,14 @@ svg {
 }
 
 @media (max-width: 390px) {
+  .support-page-title {
+    font-size: clamp(3.2rem, 16vw, 4.2rem);
+  }
+
+  .support-page-title--large {
+    font-size: clamp(3.5rem, 17vw, 4.6rem);
+  }
+
   .support-page-hero {
     padding-block: 54px 64px;
   }

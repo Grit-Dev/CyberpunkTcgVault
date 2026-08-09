@@ -1,65 +1,36 @@
 <header class="site-header">
-  <div class="container header-inner">
+    <div class="container header-inner">
 
-    <!-- Brand / Home -->
-    <a
-      class="brand"
-      routerLink="/"
-      aria-label="Choom Vault — Home"
-    >
-      <span class="brand-symbol">
-        <span>CV</span>
-        <small>01</small>
-      </span>
+        <!-- Brand / Home -->
+        <a class="brand" routerLink="/" aria-label="Choom Vault — Home">
+            <span class="brand-symbol">
+                <span>CV</span>
+                <small>01</small>
+            </span>
 
-      <span class="brand-name">
-        <strong>Choom Vault</strong>
-        <small>Collection Vault</small>
-      </span>
-    </a>
+            <span class="brand-name">
+                <strong>Choom Vault</strong>
+                <small>Collection Vault</small>
+            </span>
+        </a>
 
-    <!-- Primary product navigation -->
-    <nav
-      class="site-navigation"
-      aria-label="Primary navigation"
-    >
-      <a
-        routerLink="/cards"
-        routerLinkActive="is-active"
-        ariaCurrentWhenActive="page"
-      >
-        Catalogue
-      </a>
-    </nav>
+        <!-- Primary product navigation -->
+        <nav class="site-navigation" aria-label="Primary navigation">
+            <a routerLink="/cards" routerLinkActive="is-active" ariaCurrentWhenActive="page">
+                Catalogue
+            </a>
+        </nav>
 
-    <!--
-      Authentication UI preview.
+        <div class="header-actions" aria-label="Account actions">
+            <button class="btn btn--text header-login" type="button" disabled aria-label="Log in — not available yet">
+                Log in
+            </button>
 
-      These controls remain disabled until genuine /login and /register
-      frontend routes exist. They should become real links at that point.
-    -->
-    <div
-      class="header-actions"
-      aria-label="Account actions"
-    >
-      <button
-        class="btn btn--text header-login"
-        type="button"
-        disabled
-        aria-label="Log in — not available yet"
-      >
-        Log in
-      </button>
+            <button class="btn btn--primary header-register" type="button" disabled
+                aria-label="Join the Vault — not available yet">
+                Join the Vault
+            </button>
+        </div>
 
-      <button
-        class="btn btn--primary header-register"
-        type="button"
-        disabled
-        aria-label="Join the Vault — not available yet"
-      >
-        Join the Vault
-      </button>
     </div>
-
-  </div>
 </header>

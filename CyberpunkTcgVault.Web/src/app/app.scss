@@ -5,8 +5,8 @@
 /*
  * Global Choom Vault application shell.
  *
- * The root owns the shared header/footer and guarantees that short pages
- * still keep the footer at the bottom of the viewport.
+ * The root owns shared navigation and keeps the footer at the bottom of short
+ * pages without making individual routes repeat the same shell structure.
  */
 .app-shell {
     display: flex;
@@ -17,8 +17,8 @@
 }
 
 /*
- * The active Angular route occupies the space between the shared header and
- * footer. Individual route components continue to own their page layout.
+ * The active route occupies the space between the shared header and footer.
+ * Individual route components continue to own their page-specific layout.
  */
 .app-route {
     display: flex;

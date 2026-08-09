@@ -10,22 +10,6 @@
     max-width: 960px;
 }
 
-.about-hero h1 {
-    max-width: 900px;
-    margin: 20px 0 0;
-    font-family: var(--font-display);
-    font-size: clamp(4.6rem, 9vw, 8.5rem);
-    font-weight: 900;
-    line-height: 0.88;
-    letter-spacing: -0.018em;
-    text-transform: uppercase;
-}
-
-.about-hero h1 span {
-    display: block;
-    color: var(--colour-yellow);
-    letter-spacing: -0.012em;
-}
 
 /*
  * Environmental image.
@@ -98,31 +82,6 @@
     gap: clamp(50px, 8vw, 120px);
 }
 
-.about-section__label {
-    align-self: start;
-    padding-top: 4px;
-    border-top: 1px solid var(--colour-border-strong);
-}
-
-.about-section__label span {
-    display: block;
-    margin-top: 14px;
-    color: var(--colour-yellow);
-    font-family: var(--font-display);
-    font-size: 0.67rem;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-}
-
-.about-section__label p {
-    margin: 8px 0 0;
-    color: var(--colour-text-muted);
-    font-family: var(--font-display);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
 
 .about-section__content h2 {
     max-width: 680px;
@@ -369,10 +328,6 @@
  * The photograph uses a deliberately deeper crop in order to preserve the subject and composition on smaller screens.
  */
 @media (max-width: 700px) {
-    .about-hero h1 {
-        font-size: clamp(4rem, 15vw, 6rem);
-    }
-
     .about-environment {
         padding-block: 30px 40px;
     }
@@ -409,10 +364,6 @@
  * Narrow mobile.
  */
 @media (max-width: 390px) {
-    .about-hero h1 {
-        font-size: clamp(3.5rem, 17vw, 4.6rem);
-    }
-
     .about-environment__media {
         aspect-ratio: 1.15 / 1;
     }
