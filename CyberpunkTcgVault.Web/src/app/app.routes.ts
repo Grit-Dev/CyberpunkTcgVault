@@ -1,22 +1,23 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
-
 import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalogue';
+import { NotFound } from './pages/not-found/not-found';
 
 export const routes: Routes = [
     {
         path: '',
-        title: 'Cyberpunk TCG Vault',
+        title: 'Choom Vault',
         component: Home
     },
     // Public API-connected catalogue, kept separate from the homepage prototype.
     {
         path: 'cards',
-        title: 'CardCatalogue | Cyberpunk TCG Vault',
+        title: 'Vault Archive | Choom Vault',
         component: CardCatalogue
     },
     {
         path: '**',
-        redirectTo: '',
+        title: '404 Not Found | Choom Vault',
+        component: NotFound,
     }
 ];
