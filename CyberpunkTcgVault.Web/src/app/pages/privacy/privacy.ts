@@ -6,12 +6,11 @@ import { RouterLink } from '@angular/router';
   selector: 'app-privacy',
   standalone: true,
   imports: [
-    RouterLink,
+    RouterLink
   ],
   templateUrl: './privacy.html',
   styleUrl: './privacy.scss'
 })
-
 export class Privacy {
   private readonly document = inject(DOCUMENT);
 

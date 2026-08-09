@@ -12,16 +12,6 @@
     max-width: 900px;
 }
 
-.privacy-hero h1 {
-    max-width: 800px;
-    margin: 20px 0 0;
-    font-family: var(--font-display);
-    font-size: clamp(4rem, 7vw, 7rem);
-    font-weight: 900;
-    line-height: 0.9;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-}
 
 /*
  * Privacy document.
@@ -287,10 +277,6 @@
  * becomes a simple stacked navigation area.
  */
 @media (max-width: 700px) {
-    .privacy-hero h1 {
-        font-size: clamp(3.7rem, 14vw, 5.25rem);
-    }
-
     .privacy-document {
         gap: 48px;
     }
@@ -340,10 +326,6 @@
 }
 
 @media (max-width: 390px) {
-    .privacy-hero h1 {
-        font-size: clamp(3.2rem, 16vw, 4.2rem);
-    }
-
     .privacy-document {
         gap: 42px;
     }
