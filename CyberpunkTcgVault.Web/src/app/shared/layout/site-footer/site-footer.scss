@@ -6,16 +6,52 @@
     border-top: 1px solid var(--colour-border);
 }
 
-.footer-layout {
+.footer-inner {
     display: grid;
-    min-height: 175px;
-    grid-template-columns: 1fr 1.4fr 1fr;
+    min-height: 190px;
+    grid-template-columns:
+        minmax(210px, 0.95fr) minmax(0, 1.5fr) minmax(190px, 0.9fr);
     align-items: center;
-    gap: 40px;
+    gap: clamp(36px, 5vw, 70px);
 }
 
-.footer-layout p {
-    margin: 0;
+.footer-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 17px;
+}
+
+.footer-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+}
+
+.footer-navigation a {
+    color: var(--colour-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.69rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 160ms ease;
+}
+
+.footer-navigation a:hover {
+    color: var(--colour-text);
+}
+
+
+.footer-navigation a.is-active {
+    color: var(--colour-yellow);
+}
+
+.footer-legal {
+    max-width: 620px;
+    margin: 0 auto;
     color: var(--colour-text-muted);
     font-size: 0.68rem;
     line-height: 1.7;
@@ -33,19 +69,74 @@
     text-transform: uppercase;
 }
 
-@media (max-width: 820px) {
-    .footer-layout {
+/*
+ * Tablet / smaller desktop.
+ *
+ * The three-part footer becomes a deliberate vertical document rather than
+ * preserving narrow desktop columns.
+ */
+@media (max-width: 900px) {
+    .footer-inner {
         grid-template-columns: 1fr;
-        gap: 24px;
-        padding-block: 45px;
+        gap: 30px;
+        padding-block: 46px;
     }
 
-    .footer-layout .brand {
-        margin-inline: auto;
+    .footer-identity {
+        align-items: center;
     }
 
-    .footer-layout p,
+    .footer-navigation {
+        justify-content: center;
+    }
+
+    .footer-legal {
+        max-width: 680px;
+    }
+
     .footer-stack {
         text-align: center;
+    }
+}
+
+/*
+ * Mobile.
+ *
+ * Order remains:
+ * identity → supporting links → legal → collector statement.
+ */
+@media (max-width: 560px) {
+    .footer-inner {
+        gap: 26px;
+        padding-block: 40px;
+    }
+
+    .footer-navigation {
+        width: 100%;
+        justify-content: center;
+        gap: 10px 16px;
+    }
+
+    .footer-navigation a {
+        font-size: 0.67rem;
+    }
+
+    .footer-legal {
+        font-size: 0.67rem;
+        line-height: 1.75;
+    }
+
+    .footer-stack {
+        font-size: 0.67rem;
+    }
+}
+
+@media (max-width: 390px) {
+    .footer-navigation {
+        gap: 10px 14px;
+    }
+
+    .footer-legal {
+        font-size: 0.67rem;
     }
 }

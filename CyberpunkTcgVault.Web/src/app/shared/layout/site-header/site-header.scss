@@ -1,89 +1,161 @@
 :host {
-    display: block;
+  display: block;
 }
 
 .site-header {
-    position: relative;
-    z-index: 20;
-    border-bottom: 1px solid var(--colour-border);
-    background: rgba(6, 8, 13, 0.86);
-    backdrop-filter: blur(18px);
+  position: relative;
+  z-index: 20;
+  border-bottom: 1px solid var(--colour-border);
+  background: rgba(6, 8, 13, 0.86);
+  backdrop-filter: blur(18px);
 }
 
 .header-inner {
-    display: grid;
-    min-height: 88px;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 30px;
+  display: grid;
+  min-height: 88px;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 30px;
+}
+
+.header-inner .brand {
+  justify-self: start;
 }
 
 .site-navigation {
-    display: flex;
-    align-items: center;
-    gap: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .site-navigation a {
-    position: relative;
-    padding: 34px 0;
-    color: var(--colour-text-muted);
-    font-family: var(--font-display);
-    font-size: 0.86rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: color 160ms ease;
+  position: relative;
+  padding: 34px 0;
+  color: var(--colour-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 160ms ease;
 }
 
 .site-navigation a::after {
-    position: absolute;
-    right: 0;
-    bottom: 24px;
-    left: 0;
-    height: 3px;
-    background: var(--colour-yellow);
-    content: "";
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 160ms ease;
+  position: absolute;
+  right: 0;
+  bottom: 24px;
+  left: 0;
+  height: 3px;
+  background: var(--colour-yellow);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 160ms ease;
 }
 
-.site-navigation a:hover {
-    color: var(--colour-text);
+.site-navigation a:hover,
+.site-navigation a.is-active {
+  color: var(--colour-text);
 }
 
-.site-navigation a:hover::after {
-    transform: scaleX(1);
-    transform-origin: left;
+.site-navigation a:hover::after,
+.site-navigation a.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 .header-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
-@media (max-width: 1120px) {
-    .header-inner {
-        grid-template-columns: 1fr auto;
-    }
-
-    .site-navigation {
-        display: none;
-    }
+.header-actions button:disabled {
+  cursor: default;
+  opacity: 1;
 }
 
+.header-login:disabled {
+  color: var(--colour-text-muted);
+}
+
+.header-register:disabled {
+  color: #06080d;
+  background: var(--colour-yellow);
+}
+
+/*
+ * Intermediate desktop / tablet widths.
+ */
+@media (max-width: 1000px) {
+  .header-inner {
+    gap: 22px;
+  }
+}
+
+/*
+ * Tablet.
+ *
+ * Join the Vault disappears before the essential brand / Catalogue / Login
+ * structure becomes cramped.
+ */
 @media (max-width: 820px) {
-    .header-register {
-        display: none;
-    }
+  .header-inner {
+    grid-template-columns: auto 1fr auto;
+    gap: 18px;
+  }
+
+  .site-navigation {
+    justify-content: center;
+  }
+
+  .header-register {
+    display: none;
+  }
 }
 
+/*
+ * Mobile.
+ *
+ * The global brand rules already collapse the long wordmark at compact
+ * widths, leaving room for Catalogue and the quieter Login control.
+ */
 @media (max-width: 560px) {
-    .header-inner {
-        min-height: 74px;
-    }
+  .header-inner {
+    min-height: 74px;
+    gap: 14px;
+  }
+
+  .site-navigation a {
+    padding-block: 27px;
+    font-size: 0.78rem;
+  }
+
+  .site-navigation a::after {
+    bottom: 18px;
+    height: 2px;
+  }
+
+  .header-login {
+    padding-inline: 10px;
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .header-inner {
+    gap: 10px;
+  }
+
+  .site-navigation a {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+  }
+
+  .header-login {
+    padding-inline: 6px;
+    font-size: 0.72rem;
+  }
 }

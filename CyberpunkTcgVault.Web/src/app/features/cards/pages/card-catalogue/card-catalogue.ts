@@ -5,11 +5,12 @@ import {
   OnInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardFilters } from '../../models/card-filters';
 import { Card } from '../../models/card';
 import { CardsService } from '../../services/cards.service';
+import { SiteFooter } from '../../../../shared/layout/site-footer/site-footer';
+import { SiteHeader } from '../../../../shared/layout/site-header/site-header';
 
 /**
  * Public Vault Archive for browsing Choom Vault cards.
@@ -22,7 +23,9 @@ import { CardsService } from '../../services/cards.service';
   standalone: true,
   imports: [
     FormsModule,
-    CardArtworkDirective
+    CardArtworkDirective,
+    SiteHeader,
+    SiteFooter
   ],
   templateUrl: './card-catalogue.html',
   styleUrl: './card-catalogue.scss'
@@ -256,22 +259,22 @@ export class CardCatalogue implements OnInit, OnDestroy {
     this.loadCards();
   }
 
-/**
- * Retries the current Archive request after an error.
- *
- * If the initial request failed, filter options are captured
- * when the retry succeeds.
- */
-retryLoad(): void {
-  const shouldCaptureFilterOptions =
-    this.rarityOptions.length === 0 &&
-    this.classificationOptions.length === 0 &&
-    this.cardTypeOptions.length === 0;
+  /**
+   * Retries the current Archive request after an error.
+   *
+   * If the initial request failed, filter options are captured
+   * when the retry succeeds.
+   */
+  retryLoad(): void {
+    const shouldCaptureFilterOptions =
+      this.rarityOptions.length === 0 &&
+      this.classificationOptions.length === 0 &&
+      this.cardTypeOptions.length === 0;
 
-  this.loadCards(
-    shouldCaptureFilterOptions
-  );
-}
+    this.loadCards(
+      shouldCaptureFilterOptions
+    );
+  }
 
   /**
    * Moves directly to an Archive page.
