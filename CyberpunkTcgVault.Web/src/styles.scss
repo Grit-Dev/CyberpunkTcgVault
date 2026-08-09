@@ -265,3 +265,81 @@ svg {
     display: none;
   }
 }
+
+/*
+ * Public supporting-page foundations.
+ *
+ * Shared by editorial/supporting surfaces such as About, Privacy and Contact.
+ * Individual pages still own their specific compositions and visual character.
+ */
+.support-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  color: var(--colour-text);
+  background: var(--colour-background);
+}
+
+.support-page>main {
+  flex: 1;
+}
+
+/*
+ * Shared opening rhythm.
+ *
+ * Vertical spacing responds to viewport height so wide laptop and split-screen
+ * layouts do not become unnecessarily tall.
+ */
+.support-page-hero {
+  padding-block: clamp(72px, 8vh, 104px);
+  border-bottom: 1px solid var(--colour-border);
+}
+
+.support-page-hero__intro {
+  max-width: 680px;
+  margin: 30px 0 0;
+  color: var(--colour-text-muted);
+  font-size: clamp(1rem, 1.15vw, 1.1rem);
+  line-height: 1.8;
+}
+
+/*
+ * Shared editorial section spacing.
+ */
+.support-page-section {
+  padding-block: clamp(68px, 7vw, 104px);
+  border-bottom: 1px solid var(--colour-border);
+}
+
+/*
+ * Short desktop / laptop-height viewports.
+ */
+@media (min-width: 901px) and (max-height: 760px) {
+  .support-page-hero {
+    padding-block: 56px 64px;
+  }
+
+  .support-page-section {
+    padding-block: 72px;
+  }
+}
+
+@media (max-width: 700px) {
+  .support-page-hero {
+    padding-block: 64px 74px;
+  }
+
+  .support-page-section {
+    padding-block: 68px;
+  }
+}
+
+@media (max-width: 390px) {
+  .support-page-hero {
+    padding-block: 54px 64px;
+  }
+
+  .support-page-section {
+    padding-block: 58px;
+  }
+}

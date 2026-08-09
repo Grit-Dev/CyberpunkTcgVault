@@ -1,0 +1,430 @@
+:host {
+    display: block;
+}
+
+.about-page {
+    min-height: 100vh;
+    color: var(--colour-text);
+    background: var(--colour-background);
+}
+
+/*
+ * Page opening.
+ *
+ * About is allowed more expression than the other supporting pages, but the
+ * composition remains editorial rather than behaving like another homepage.
+ */
+.about-hero {
+    position: relative;
+    padding-block: clamp(86px, 11vw, 150px);
+    border-bottom: 1px solid var(--colour-border);
+}
+
+.about-hero::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: max(var(--page-padding),
+            calc((100vw - var(--container-width)) / 2));
+    width: 1px;
+    background: rgba(255, 255, 255, 0.035);
+    content: "";
+    pointer-events: none;
+}
+
+.about-hero__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 72px;
+}
+
+.about-hero__copy {
+    max-width: 900px;
+}
+
+.about-hero h1 {
+    max-width: 900px;
+    margin: 20px 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(4.6rem, 9vw, 8.5rem);
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -0.018em;
+    text-transform: uppercase;
+}
+
+.about-hero h1 span {
+    display: block;
+    color: var(--colour-yellow);
+    letter-spacing: -0.012em;
+}
+
+.about-hero__intro {
+    max-width: 680px;
+    margin: 38px 0 0;
+    color: var(--colour-text-muted);
+    font-size: clamp(1rem, 1.25vw, 1.12rem);
+    line-height: 1.8;
+}
+
+.about-hero__datum {
+    display: flex;
+    min-width: 160px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    padding-bottom: 6px;
+    color: var(--colour-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-align: right;
+    text-transform: uppercase;
+}
+
+.about-hero__datum strong {
+    color: var(--colour-text);
+    font-size: 0.82rem;
+}
+
+/*
+ * Editorial sections.
+ */
+.about-section {
+    padding-block: clamp(74px, 9vw, 120px);
+    border-bottom: 1px solid var(--colour-border);
+}
+
+.about-section__layout {
+    display: grid;
+    grid-template-columns: minmax(150px, 220px) minmax(0, 720px);
+    justify-content: space-between;
+    gap: clamp(50px, 8vw, 120px);
+}
+
+.about-section__label {
+    align-self: start;
+    padding-top: 4px;
+    border-top: 1px solid var(--colour-border-strong);
+}
+
+.about-section__label span {
+    display: block;
+    margin-top: 14px;
+    color: var(--colour-yellow);
+    font-family: var(--font-display);
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.about-section__label p {
+    margin: 8px 0 0;
+    color: var(--colour-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.about-section__content h2 {
+    max-width: 680px;
+    margin: 0 0 30px;
+    font-family: var(--font-display);
+    font-size: clamp(2.3rem, 4vw, 3.7rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+}
+
+.about-section__content>p {
+    max-width: 680px;
+    margin: 0;
+    color: var(--colour-text-muted);
+    font-size: 0.98rem;
+    line-height: 1.85;
+}
+
+.about-section__content>p+p {
+    margin-top: 20px;
+}
+
+.about-note {
+    padding-left: 18px;
+    border-left: 2px solid var(--colour-yellow);
+}
+
+.about-section--statement {
+    background: var(--colour-background-soft);
+}
+
+.collector-principles {
+    margin-top: 42px;
+    padding-block: 27px;
+    border-top: 1px solid var(--colour-border);
+    border-bottom: 1px solid var(--colour-border);
+}
+
+.collector-principles p {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 2.5vw, 2.15rem);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+}
+
+.collector-principles p+p {
+    margin-top: 10px;
+}
+
+.collector-principles p:nth-child(2) {
+    color: var(--colour-yellow);
+}
+
+/*
+ * Own / Trace / Express.
+ *
+ * These are deliberately architectural columns rather than three floating
+ * SaaS cards. The borders and spacing provide the structure.
+ */
+.product-direction {
+    padding-block: clamp(82px, 10vw, 130px);
+    border-bottom: 1px solid var(--colour-border);
+}
+
+.product-direction__intro {
+    max-width: 720px;
+}
+
+.product-direction__intro h2 {
+    margin: 18px 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+}
+
+.product-direction__intro>p:last-child {
+    max-width: 620px;
+    margin: 26px 0 0;
+    color: var(--colour-text-muted);
+    line-height: 1.8;
+}
+
+.product-direction__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 68px;
+    border-top: 1px solid var(--colour-border-strong);
+    border-bottom: 1px solid var(--colour-border-strong);
+}
+
+.product-direction__grid article {
+    min-height: 330px;
+    padding: 30px clamp(24px, 3vw, 38px) 34px;
+}
+
+.product-direction__grid article+article {
+    border-left: 1px solid var(--colour-border);
+}
+
+.product-direction__index {
+    color: var(--colour-yellow);
+    font-family: var(--font-display);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+}
+
+.product-direction__grid h3 {
+    margin: 58px 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.7rem, 4vw, 4rem);
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+}
+
+.product-direction__grid p {
+    margin: 24px 0 0;
+    color: var(--colour-text-muted);
+    font-size: 0.91rem;
+    line-height: 1.75;
+}
+
+.product-direction__grid small {
+    display: block;
+    margin-top: 24px;
+    color: var(--colour-text-muted);
+    font-size: 0.7rem;
+    line-height: 1.6;
+}
+
+/*
+ * Independent fan-project statement.
+ */
+.fan-project {
+    padding-block: clamp(76px, 9vw, 115px);
+    border-bottom: 1px solid var(--colour-border);
+    background: var(--colour-background-soft);
+}
+
+.fan-project__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+    gap: clamp(60px, 9vw, 130px);
+}
+
+.fan-project h2 {
+    max-width: 520px;
+    margin: 20px 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 800;
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+}
+
+.fan-project__copy {
+    padding-top: 6px;
+}
+
+.fan-project__copy p {
+    margin: 0;
+    color: var(--colour-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.85;
+}
+
+.fan-project__copy p+p {
+    margin-top: 22px;
+}
+
+/*
+ * Single closing action.
+ */
+.about-cta {
+    padding-block: clamp(64px, 8vw, 96px);
+}
+
+.about-cta__inner {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 48px;
+}
+
+.about-cta h2 {
+    margin: 14px 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 4.5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 0.94;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+    .about-hero__layout {
+        grid-template-columns: 1fr;
+        gap: 42px;
+    }
+
+    .about-hero__datum {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .about-section__layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .about-section__label {
+        max-width: 220px;
+    }
+
+    .product-direction__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-direction__grid article {
+        min-height: auto;
+    }
+
+    .product-direction__grid article+article {
+        border-top: 1px solid var(--colour-border);
+        border-left: 0;
+    }
+
+    .product-direction__grid h3 {
+        margin-top: 42px;
+    }
+
+    .fan-project__layout {
+        grid-template-columns: 1fr;
+        gap: 44px;
+    }
+}
+
+@media (max-width: 700px) {
+    .about-hero {
+        padding-block: 72px 82px;
+    }
+
+    .about-hero::before {
+        display: none;
+    }
+
+    .about-section,
+    .product-direction,
+    .fan-project {
+        padding-block: 72px;
+    }
+
+    .product-direction__grid {
+        margin-top: 48px;
+    }
+
+    .about-cta__inner {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .about-cta .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 390px) {
+    .about-hero {
+        padding-block: 60px 70px;
+    }
+
+    .about-hero h1 {
+        font-size: clamp(3.7rem, 18vw, 4.9rem);
+    }
+
+    .about-section,
+    .product-direction,
+    .fan-project {
+        padding-block: 60px;
+    }
+
+    .collector-principles {
+        margin-top: 34px;
+    }
+
+    .product-direction__grid article {
+        padding: 26px 20px 30px;
+    }
+}
