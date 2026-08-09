@@ -2,45 +2,12 @@
     display: block;
 }
 
-.about-page {
-    min-height: 100vh;
-    color: var(--colour-text);
-    background: var(--colour-background);
-}
-
-/*
- * Page opening.
- *
- * About is allowed more expression than the other supporting pages, but the
- * composition remains editorial rather than behaving like another homepage.
- */
-.about-hero {
-    position: relative;
-    padding-block: clamp(86px, 11vw, 150px);
-    border-bottom: 1px solid var(--colour-border);
-}
-
-.about-hero::before {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: max(var(--page-padding),
-            calc((100vw - var(--container-width)) / 2));
-    width: 1px;
-    background: rgba(255, 255, 255, 0.035);
-    content: "";
-    pointer-events: none;
-}
-
 .about-hero__layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 72px;
+    display: block;
 }
 
 .about-hero__copy {
-    max-width: 900px;
+    max-width: 960px;
 }
 
 .about-hero h1 {
@@ -60,43 +27,70 @@
     letter-spacing: -0.012em;
 }
 
-.about-hero__intro {
-    max-width: 680px;
-    margin: 38px 0 0;
-    color: var(--colour-text-muted);
-    font-size: clamp(1rem, 1.25vw, 1.12rem);
-    line-height: 1.8;
+/*
+ * Environmental image.
+ *
+ */
+.about-environment {
+    margin: 0;
+    padding-block: clamp(34px, 4vw, 56px);
+    border-bottom: 1px solid var(--colour-border);
 }
 
-.about-hero__datum {
+/*
+ * Desktop uses a wide editorial crop.
+ */
+.about-environment__media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2.35 / 1;
+    overflow: hidden;
+    background: var(--colour-background-soft);
+}
+
+.about-environment__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/*
+ * Required creator/licence attribution.
+ *
+ * Slightly larger than the trial version so it remains clearly readable
+ * without competing visually with the photograph.
+ */
+.about-environment__caption {
     display: flex;
-    min-width: 160px;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-    padding-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
     color: var(--colour-text-muted);
     font-family: var(--font-display);
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
-    text-align: right;
+    letter-spacing: 0.08em;
+    line-height: 1.55;
     text-transform: uppercase;
 }
 
-.about-hero__datum strong {
+.about-environment__caption a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--colour-border-strong);
+    text-underline-offset: 3px;
+    transition: color 160ms ease;
+}
+
+.about-environment__caption a:hover {
     color: var(--colour-text);
-    font-size: 0.82rem;
 }
 
 /*
  * Editorial sections.
  */
-.about-section {
-    padding-block: clamp(74px, 9vw, 120px);
-    border-bottom: 1px solid var(--colour-border);
-}
-
 .about-section__layout {
     display: grid;
     grid-template-columns: minmax(150px, 220px) minmax(0, 720px);
@@ -162,6 +156,9 @@
     background: var(--colour-background-soft);
 }
 
+/*
+ * Collector philosophy.
+ */
 .collector-principles {
     margin-top: 42px;
     padding-block: 27px;
@@ -185,17 +182,6 @@
 
 .collector-principles p:nth-child(2) {
     color: var(--colour-yellow);
-}
-
-/*
- * Own / Trace / Express.
- *
- * These are deliberately architectural columns rather than three floating
- * SaaS cards. The borders and spacing provide the structure.
- */
-.product-direction {
-    padding-block: clamp(82px, 10vw, 130px);
-    border-bottom: 1px solid var(--colour-border);
 }
 
 .product-direction__intro {
@@ -268,12 +254,7 @@
     line-height: 1.6;
 }
 
-/*
- * Independent fan-project statement.
- */
 .fan-project {
-    padding-block: clamp(76px, 9vw, 115px);
-    border-bottom: 1px solid var(--colour-border);
     background: var(--colour-background-soft);
 }
 
@@ -309,11 +290,8 @@
     margin-top: 22px;
 }
 
-/*
- * Single closing action.
- */
 .about-cta {
-    padding-block: clamp(64px, 8vw, 96px);
+    padding-block: clamp(64px, 7vw, 96px);
 }
 
 .about-cta__inner {
@@ -333,17 +311,26 @@
     text-transform: uppercase;
 }
 
+/*
+ * Short laptop-height desktop.
+ *
+ * Keep the image transition generous without making the overall page feel
+ * unnecessarily stretched vertically.
+ */
+@media (min-width: 901px) and (max-height: 760px) {
+    .about-environment {
+        padding-block: 30px 38px;
+    }
+
+    .product-direction__grid {
+        margin-top: 56px;
+    }
+}
+
+/*
+ * Tablet / smaller desktop.
+ */
 @media (max-width: 900px) {
-    .about-hero__layout {
-        grid-template-columns: 1fr;
-        gap: 42px;
-    }
-
-    .about-hero__datum {
-        align-items: flex-start;
-        text-align: left;
-    }
-
     .about-section__layout {
         grid-template-columns: 1fr;
         gap: 40px;
@@ -376,19 +363,32 @@
     }
 }
 
+/*
+ * Mobile.
+ *
+ * The photograph uses a deliberately deeper crop in order to preserve the subject and composition on smaller screens.
+ */
 @media (max-width: 700px) {
-    .about-hero {
-        padding-block: 72px 82px;
+    .about-hero h1 {
+        font-size: clamp(4rem, 15vw, 6rem);
     }
 
-    .about-hero::before {
-        display: none;
+    .about-environment {
+        padding-block: 30px 40px;
     }
 
-    .about-section,
-    .product-direction,
-    .fan-project {
-        padding-block: 72px;
+    .about-environment__media {
+        aspect-ratio: 1.25 / 1;
+    }
+
+    .about-environment__media img {
+        object-position: center;
+    }
+
+    .about-environment__caption {
+        margin-top: 10px;
+        font-size: 0.65rem;
+        line-height: 1.6;
     }
 
     .product-direction__grid {
@@ -405,19 +405,20 @@
     }
 }
 
+/*
+ * Narrow mobile.
+ */
 @media (max-width: 390px) {
-    .about-hero {
-        padding-block: 60px 70px;
-    }
-
     .about-hero h1 {
-        font-size: clamp(3.7rem, 18vw, 4.9rem);
+        font-size: clamp(3.5rem, 17vw, 4.6rem);
     }
 
-    .about-section,
-    .product-direction,
-    .fan-project {
-        padding-block: 60px;
+    .about-environment__media {
+        aspect-ratio: 1.15 / 1;
+    }
+
+    .about-environment__caption {
+        gap: 4px 6px;
     }
 
     .collector-principles {
