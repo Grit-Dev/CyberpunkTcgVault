@@ -1,0 +1,51 @@
+:host {
+    display: block;
+}
+
+.site-footer {
+    border-top: 1px solid var(--colour-border);
+}
+
+.footer-layout {
+    display: grid;
+    min-height: 175px;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    align-items: center;
+    gap: 40px;
+}
+
+.footer-layout p {
+    margin: 0;
+    color: var(--colour-text-muted);
+    font-size: 0.68rem;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.footer-stack {
+    color: var(--colour-text-muted);
+    font-family: var(--font-display);
+    font-size: 0.69rem;
+    font-weight: 700;
+    line-height: 1.6;
+    letter-spacing: 0.09em;
+    text-align: right;
+    text-transform: uppercase;
+}
+
+@media (max-width: 820px) {
+    .footer-layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding-block: 45px;
+    }
+
+    .footer-layout .brand {
+        margin-inline: auto;
+    }
+
+    .footer-layout p,
+    .footer-stack {
+        text-align: center;
+    }
+}

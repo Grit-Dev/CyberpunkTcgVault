@@ -113,14 +113,12 @@ svg {
   gap: 12px;
   padding: 0 23px;
   border: 1px solid transparent;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 10px) 0,
-    100% 10px,
-    100% 100%,
-    10px 100%,
-    0 calc(100% - 10px)
-  );
+  clip-path: polygon(0 0,
+      calc(100% - 10px) 0,
+      100% 10px,
+      100% 100%,
+      10px 100%,
+      0 calc(100% - 10px));
   cursor: pointer;
   font-family: var(--font-display);
   font-size: 0.92rem;
@@ -194,5 +192,76 @@ svg {
   .btn {
     min-height: 46px;
     padding-inline: 18px;
+  }
+}
+
+/*
+ * Shared Choom Vault brand identity.
+ *
+ * Used by application-level layout such as the public header and footer.
+ */
+.brand {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+}
+
+.brand-symbol {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  color: var(--colour-background);
+  background: var(--colour-yellow);
+  clip-path: polygon(0 0,
+      78% 0,
+      100% 22%,
+      100% 100%,
+      22% 100%,
+      0 78%);
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.brand-symbol>span {
+  font-size: 1.15rem;
+  letter-spacing: -0.05em;
+}
+
+.brand-symbol small {
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  font-size: 0.48rem;
+}
+
+.brand-name {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-display);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.brand-name strong {
+  font-size: 0.98rem;
+  letter-spacing: 0.08em;
+}
+
+.brand-name small {
+  margin-top: 6px;
+  color: var(--colour-yellow);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+@media (max-width: 560px) {
+  .brand-name {
+    display: none;
   }
 }

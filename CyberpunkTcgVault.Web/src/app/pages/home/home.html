@@ -1,35 +1,5 @@
 <div class="home-page">
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" routerLink="/" aria-label="Cyberpunk TCG Vault homepage">
-        <span class="brand-symbol">
-          <span>CV</span>
-          <small>01</small>
-        </span>
-
-        <span class="brand-name">
-          <strong>Cyberpunk TCG</strong>
-          <small>Collection Vault</small>
-        </span>
-      </a>
-
-      <nav class="site-navigation" aria-label="Primary navigation">
-        <a routerLink="/cards">Catalogue</a>
-        <a href="#vault">My Vault</a>
-        <a href="#security">Privacy</a>
-      </nav>
-
-      <div class="header-actions">
-        <button class="btn btn--text" type="button">
-          Log in
-        </button>
-
-        <button class="btn btn--primary header-register" type="button">
-          Join the vault
-        </button>
-      </div>
-    </div>
-  </header>
+  <app-site-header />
 
   <main>
     <section class="hero-section">
@@ -95,12 +65,16 @@
           </div>
 
           <div class="database-preview-notice">
-            <span class="database-preview-notice__icon" aria-hidden="true">⌕</span>
+            <span class="database-preview-notice__icon" aria-hidden="true">
+              ⌕
+            </span>
 
             <div>
               <strong>Discover here. Search there.</strong>
+
               <span>
-                Search, filters and the complete card list live in the full catalogue.
+                Search, filters and the complete card list live in the full
+                catalogue.
               </span>
             </div>
 
@@ -119,28 +93,22 @@
               </strong>
             </div>
 
-            <span class="database-heading__label">Homepage edit</span>
+            <span class="database-heading__label">
+              Homepage edit
+            </span>
           </div>
 
           <div class="prototype-card-grid">
             @for (card of featuredCards; track card.id) {
-            <a
-              class="prototype-card"
-              routerLink="/cards"
-              [attr.aria-label]="'Explore the full catalogue from ' + card.name"
-            >
+            <a class="prototype-card" routerLink="/cards"
+              [attr.aria-label]="'Explore the full catalogue from ' + card.name">
               <div class="card-header">
                 <span>{{ card.rarity ?? 'UNKNOWN' }}</span>
                 <strong>{{ card.cardNumber ?? 'NO-ID' }}</strong>
               </div>
 
               <div class="card-visual">
-                <img
-                  [appCardArtwork]="card.imageUrl"
-                  [alt]="card.name"
-                  loading="lazy"
-                  decoding="async"
-                />
+                <img [appCardArtwork]="card.imageUrl" [alt]="card.name" loading="lazy" decoding="async" />
               </div>
 
               <div class="card-information">
@@ -160,7 +128,9 @@
           </div>
 
           <div class="database-footer">
-            <span>Shared catalogue // curated homepage selection</span>
+            <span>
+              Shared catalogue // curated homepage selection
+            </span>
 
             <a class="database-footer__link" routerLink="/cards">
               Browse all cards
@@ -223,7 +193,9 @@
         <div class="vault-snapshot" aria-label="Personal Vault examples">
           <article class="vault-snapshot__feature">
             <div class="vault-snapshot__copy">
-              <span class="feature-index">01 / COLLECTION</span>
+              <span class="feature-index">
+                01 / COLLECTION
+              </span>
 
               <h3>Owned cards</h3>
 
@@ -236,20 +208,22 @@
             <div class="vault-record" aria-label="Owned card example">
               <div class="vault-record__thumbnail">
                 @if (collectionExampleCard?.imageUrl; as imagePath) {
-                <img
-                  [appCardArtwork]="imagePath"
-                  [alt]="collectionExampleCard?.name ?? 'Black Clinic Miracle'"
-                  loading="lazy"
-                  decoding="async"
-                />
+                <img [appCardArtwork]="imagePath" [alt]="collectionExampleCard?.name ?? 'Black Clinic Miracle'"
+                  loading="lazy" decoding="async" />
                 } @else {
                 <span aria-hidden="true">CV</span>
                 }
               </div>
 
               <div class="vault-record__content">
-                <span class="vault-record__type">Owned card</span>
-                <strong>{{ collectionExampleCard?.name ?? 'Black Clinic Miracle' }}</strong>
+                <span class="vault-record__type">
+                  Owned card
+                </span>
+
+                <strong>
+                  {{ collectionExampleCard?.name ?? 'Black Clinic Miracle' }}
+                </strong>
+
                 <span>
                   {{ collectionExampleCard?.rarity ?? 'Legendary' }} · Near Mint
                 </span>
@@ -264,7 +238,9 @@
 
           <article class="vault-snapshot__feature">
             <div class="vault-snapshot__copy">
-              <span class="feature-index">02 / WISHLIST</span>
+              <span class="feature-index">
+                02 / WISHLIST
+              </span>
 
               <h3>Wanted cards</h3>
 
@@ -277,20 +253,22 @@
             <div class="vault-record" aria-label="Wanted card example">
               <div class="vault-record__thumbnail">
                 @if (wishlistExampleCard?.imageUrl; as imagePath) {
-                <img
-                  [appCardArtwork]="imagePath"
-                  [alt]="wishlistExampleCard?.name ?? 'Void Geisha'"
-                  loading="lazy"
-                  decoding="async"
-                />
+                <img [appCardArtwork]="imagePath" [alt]="wishlistExampleCard?.name ?? 'Void Geisha'" loading="lazy"
+                  decoding="async" />
                 } @else {
                 <span aria-hidden="true">CV</span>
                 }
               </div>
 
               <div class="vault-record__content">
-                <span class="vault-record__type">Wishlist</span>
-                <strong>{{ wishlistExampleCard?.name ?? 'Void Geisha' }}</strong>
+                <span class="vault-record__type">
+                  Wishlist
+                </span>
+
+                <strong>
+                  {{ wishlistExampleCard?.name ?? 'Void Geisha' }}
+                </strong>
+
                 <span>
                   {{ wishlistExampleCard?.rarity ?? 'Legendary' }} · Priority want
                 </span>
@@ -305,7 +283,9 @@
 
           <article class="vault-snapshot__feature">
             <div class="vault-snapshot__copy">
-              <span class="feature-index">03 / SEALED</span>
+              <span class="feature-index">
+                03 / SEALED
+              </span>
 
               <h3>Sealed products</h3>
 
@@ -316,17 +296,20 @@
             </div>
 
             <div class="vault-record" aria-label="Owned sealed product example">
-              <div
-                class="vault-record__thumbnail vault-record__thumbnail--product"
-                aria-hidden="true"
-              >
+              <div class="vault-record__thumbnail vault-record__thumbnail--product" aria-hidden="true">
                 <span>SEALED</span>
               </div>
 
               <div class="vault-record__content">
-                <span class="vault-record__type">Sealed product</span>
+                <span class="vault-record__type">
+                  Sealed product
+                </span>
+
                 <strong>Booster Display</strong>
-                <span>Factory sealed · Stored</span>
+
+                <span>
+                  Factory sealed · Stored
+                </span>
               </div>
 
               <div class="vault-record__value">
@@ -384,7 +367,10 @@
           <div class="trust-surface__header">
             <div>
               <span>Account privacy</span>
-              <strong id="account-privacy-title">Private by default</strong>
+
+              <strong id="account-privacy-title">
+                Private by default
+              </strong>
             </div>
 
             <span class="trust-surface__status">
@@ -417,8 +403,10 @@
 
           <div class="trust-surface__note">
             <strong>Shared catalogue</strong>
+
             <span>
-              Card data is discoverable while your personal Vault records stay private.
+              Card data is discoverable while your personal Vault records stay
+              private.
             </span>
           </div>
         </aside>
@@ -428,9 +416,13 @@
     <section class="final-cta">
       <div class="container final-cta-inner">
         <div>
-          <span class="cta-code">BUILD YOUR VAULT</span>
+          <span class="cta-code">
+            BUILD YOUR VAULT
+          </span>
 
-          <h2>Your collection deserves a home.</h2>
+          <h2>
+            Your collection deserves a home.
+          </h2>
 
           <p>
             Explore the catalogue, keep track of what you own and build a Vault
@@ -446,31 +438,5 @@
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="container footer-layout">
-      <a class="brand" routerLink="/" aria-label="Cyberpunk TCG Vault homepage">
-        <span class="brand-symbol">
-          <span>CV</span>
-          <small>01</small>
-        </span>
-
-        <span class="brand-name">
-          <strong>Cyberpunk TCG</strong>
-          <small>Collection Vault</small>
-        </span>
-      </a>
-
-      <p>
-        This is a fan-made collection project and is not affiliated with
-        Cyberpunk TCG, WeirdCo, CD Projekt, Cyberpunk 2077, or any official
-        partners.
-      </p>
-
-      <span class="footer-stack">
-        Fan-made collection companion
-        <br />
-        Built for collectors
-      </span>
-    </div>
-  </footer>
+  <app-site-footer />
 </div>
