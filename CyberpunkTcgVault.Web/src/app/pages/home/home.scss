@@ -754,75 +754,6 @@
 
 
 /*
- * Homepage capability strip.
- */
-.project-strip {
-  border-top: 1px solid var(--colour-border);
-  border-bottom: 1px solid var(--colour-border);
-
-  background: rgba(255, 255, 255, 0.012);
-}
-
-.project-strip-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, 1fr);
-}
-
-.project-strip-grid>div {
-  position: relative;
-
-  min-height: 145px;
-
-  padding: 30px;
-
-  border-right: 1px solid var(--colour-border);
-}
-
-.project-strip-grid>div:last-child {
-  border-right: 0;
-}
-
-.project-strip-grid>div>span {
-  position: absolute;
-
-  top: 19px;
-  right: 21px;
-
-  color: rgba(255, 255, 255, 0.18);
-
-  font-family: var(--font-display);
-  font-size: 0.66rem;
-  font-weight: 800;
-}
-
-.project-strip-grid strong {
-  display: block;
-
-  color: var(--colour-yellow);
-
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-
-  letter-spacing: 0.06em;
-
-  text-transform: uppercase;
-}
-
-.project-strip-grid p {
-  max-width: 190px;
-
-  margin: 11px 0 0;
-
-  color: var(--colour-text-muted);
-
-  font-size: 0.72rem;
-  line-height: 1.55;
-}
-
-
-/*
  * Personal Vault section.
  *
  * This remains the main lower-page feature moment, while the compact
@@ -1233,10 +1164,14 @@
 
 
 /*
- * Reusable collector-facing trust/information surface.
+ * Private Vault record.
+ *
+ * This is one shared privacy state, not a collection of configurable
+ * account settings. The four collection areas belong beneath the same
+ * "Private by default" principle.
  */
 .trust-surface {
-  padding: 18px;
+  padding: 24px;
 
   background: rgba(7, 10, 15, 0.72);
 
@@ -1244,27 +1179,14 @@
 }
 
 .trust-surface__header {
-  display: flex;
-
-  align-items: flex-start;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  padding-bottom: 16px;
+  padding-bottom: 18px;
 
   border-bottom: 1px solid var(--colour-border);
 }
 
-.trust-surface__header>div {
-  display: flex;
+.trust-surface__header>span {
+  display: block;
 
-  flex-direction: column;
-
-  gap: 4px;
-}
-
-.trust-surface__header>div>span {
   color: var(--colour-text-muted);
 
   font-size: 0.58rem;
@@ -1273,65 +1195,44 @@
 }
 
 .trust-surface__header strong {
+  display: block;
+
+  margin-top: 5px;
+
   font-family: var(--font-display);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
 
   letter-spacing: 0.04em;
 
   text-transform: uppercase;
 }
 
-.trust-surface__status {
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  padding: 5px 7px;
-
-  color: var(--colour-text);
-
-  border: 1px solid var(--colour-border);
-
-  font-size: 0.58rem;
-  font-weight: 700;
-}
-
-.trust-surface__status>span {
-  color: var(--colour-cyan);
-}
-
 .trust-surface__records {
   display: grid;
 
-  margin-top: 4px;
-}
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 
-.trust-record {
-  display: flex;
+  gap: 14px 28px;
 
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-
-  min-height: 42px;
+  margin: 22px 0 0;
+  padding: 0 0 22px;
 
   border-bottom: 1px solid var(--colour-border);
 
-  font-size: 0.7rem;
+  list-style: none;
 }
 
-.trust-record>span {
-  color: var(--colour-text-muted);
-}
-
-.trust-record>strong {
+.trust-record {
   color: var(--colour-text);
 
-  font-size: 0.68rem;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
   font-weight: 700;
+
+  letter-spacing: 0.03em;
+
+  text-transform: uppercase;
 }
 
 .trust-surface__note {
@@ -1498,19 +1399,6 @@
     width: fit-content;
   }
 
-  .project-strip-grid {
-    grid-template-columns:
-      1fr 1fr;
-  }
-
-  .project-strip-grid>div:nth-child(2) {
-    border-right: 0;
-  }
-
-  .project-strip-grid>div:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--colour-border);
-  }
-
   .section-introduction {
     grid-template-columns: 1fr;
 
@@ -1668,20 +1556,6 @@
     flex-direction: column;
   }
 
-  .project-strip-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .project-strip-grid>div {
-    border-right: 0;
-
-    border-bottom: 1px solid var(--colour-border);
-  }
-
-  .project-strip-grid>div:last-child {
-    border-bottom: 0;
-  }
-
   .vault-section {
     padding-block: 92px 72px;
   }
@@ -1724,13 +1598,11 @@
   }
 
   .trust-surface {
-    padding: 15px;
+    padding: 20px;
   }
 
-  .trust-surface__header {
-    align-items: flex-start;
-
-    flex-direction: column;
+  .trust-surface__records {
+    grid-template-columns: 1fr;
   }
 
   .final-cta {

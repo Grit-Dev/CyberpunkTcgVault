@@ -418,3 +418,27 @@ svg {
     padding-block: 58px;
   }
 }
+
+/*
+ * Respects the user's reduced-motion preference.
+ *
+ * Removes smooth scrolling and movement-based button transitions while
+ * keeping Choom Vault's colour and focus feedback intact.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .btn {
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+}

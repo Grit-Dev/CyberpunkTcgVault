@@ -165,23 +165,35 @@
 }
 
 .product-direction__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
     margin-top: 68px;
     border-top: 1px solid var(--colour-border-strong);
     border-bottom: 1px solid var(--colour-border-strong);
 }
 
+/*
+ * Treats Own / Trace / Express as one editorial sequence rather than three
+ * interchangeable feature cards.
+ *
+ * The concept and its archive label sit together on the left while the
+ * supporting copy occupies a consistent reading column on the right.
+ */
 .product-direction__grid article {
-    min-height: 330px;
-    padding: 30px clamp(24px, 3vw, 38px) 34px;
+    display: grid;
+    grid-template-columns: minmax(190px, 0.7fr) minmax(0, 1.3fr);
+    grid-template-areas:
+        "index copy"
+        "title copy"
+        "title note";
+    column-gap: clamp(48px, 8vw, 120px);
+    padding: 38px 0 42px;
 }
 
 .product-direction__grid article+article {
-    border-left: 1px solid var(--colour-border);
+    border-top: 1px solid var(--colour-border);
 }
 
 .product-direction__index {
+    grid-area: index;
     color: var(--colour-yellow);
     font-family: var(--font-display);
     font-size: 0.64rem;
@@ -190,7 +202,8 @@
 }
 
 .product-direction__grid h3 {
-    margin: 58px 0 0;
+    grid-area: title;
+    margin: 18px 0 0;
     font-family: var(--font-display);
     font-size: clamp(2.7rem, 4vw, 4rem);
     font-weight: 900;
@@ -199,15 +212,19 @@
 }
 
 .product-direction__grid p {
-    margin: 24px 0 0;
+    grid-area: copy;
+    max-width: 590px;
+    margin: 0;
     color: var(--colour-text-muted);
     font-size: 0.91rem;
     line-height: 1.75;
 }
 
 .product-direction__grid small {
+    grid-area: note;
     display: block;
-    margin-top: 24px;
+    max-width: 590px;
+    margin-top: 18px;
     color: var(--colour-text-muted);
     font-size: 0.7rem;
     line-height: 1.6;
@@ -299,21 +316,22 @@
         max-width: 220px;
     }
 
-    .product-direction__grid {
-        grid-template-columns: 1fr;
-    }
-
     .product-direction__grid article {
-        min-height: auto;
-    }
-
-    .product-direction__grid article+article {
-        border-top: 1px solid var(--colour-border);
-        border-left: 0;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "index"
+            "title"
+            "copy"
+            "note";
+        row-gap: 0;
     }
 
     .product-direction__grid h3 {
-        margin-top: 42px;
+        margin-top: 18px;
+    }
+
+    .product-direction__grid p {
+        margin-top: 24px;
     }
 
     .fan-project__layout {
