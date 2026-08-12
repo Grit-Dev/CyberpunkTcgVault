@@ -5,7 +5,8 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import {
   provideRouter,
-  TitleStrategy
+  TitleStrategy,
+  withInMemoryScrolling
 } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -15,7 +16,13 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'enabled',
+        anchorScrolling: 'enabled'
+      })
+    ),
 
     /*
      * Uses Choom Vault's custom route title strategy so each page can
