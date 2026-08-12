@@ -140,34 +140,6 @@
       </div>
     </section>
 
-    <section class="project-strip">
-      <div class="container project-strip-grid">
-        <div>
-          <span>01</span>
-          <strong>Search</strong>
-          <p>Browse the shared master catalogue.</p>
-        </div>
-
-        <div>
-          <span>02</span>
-          <strong>Collect</strong>
-          <p>Track quantities, condition and duplicates.</p>
-        </div>
-
-        <div>
-          <span>03</span>
-          <strong>Secure</strong>
-          <p>Keep your personal collection private to your account.</p>
-        </div>
-
-        <div>
-          <span>04</span>
-          <strong>Manage</strong>
-          <p>Keep your cards, products and collection details organised.</p>
-        </div>
-      </div>
-    </section>
-
     <!-- Vault Lens is locked for this polish pass. -->
     <app-card-anatomy-showcase />
 
@@ -364,41 +336,19 @@
 
         <aside class="trust-surface" aria-labelledby="account-privacy-title">
           <div class="trust-surface__header">
-            <div>
-              <span>Account privacy</span>
+            <span>Personal Vault</span>
 
-              <strong id="account-privacy-title">
-                Private by default
-              </strong>
-            </div>
-
-            <span class="trust-surface__status">
-              <span aria-hidden="true">✓</span>
-              Your account
-            </span>
+            <strong id="account-privacy-title">
+              Private by default
+            </strong>
           </div>
 
-          <div class="trust-surface__records">
-            <div class="trust-record">
-              <span>Collection</span>
-              <strong>Private</strong>
-            </div>
-
-            <div class="trust-record">
-              <span>Wishlist</span>
-              <strong>Private</strong>
-            </div>
-
-            <div class="trust-record">
-              <span>Sealed products</span>
-              <strong>Private</strong>
-            </div>
-
-            <div class="trust-record">
-              <span>Personal notes</span>
-              <strong>Private</strong>
-            </div>
-          </div>
+          <ul class="trust-surface__records" aria-label="Private Vault information">
+            <li class="trust-record">Collection</li>
+            <li class="trust-record">Wishlist</li>
+            <li class="trust-record">Sealed products</li>
+            <li class="trust-record">Personal notes</li>
+          </ul>
 
           <div class="trust-surface__note">
             <strong>Shared catalogue</strong>
@@ -436,5 +386,5 @@
       </div>
     </section>
   </main>
-  
+
 </div>
