@@ -141,7 +141,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                 Notes = request.Notes?.Trim()
             };
 
-            await _context.OwnedCards.AddAsync(ownedCard);
+            await _context.OwnedCards.AddAsync(ownedCard, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
             var response = new OwnedCardResponse
