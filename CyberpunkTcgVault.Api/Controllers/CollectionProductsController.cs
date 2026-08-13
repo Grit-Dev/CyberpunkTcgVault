@@ -122,7 +122,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CollectionProduct>> CreateCollectionProduct(CreateCollectionProductRequest request)
+        public async Task<ActionResult<CollectionProductResponse>> CreateCollectionProduct(CreateCollectionProductRequest request)
         {
             var userId = GetLoggedInUserId();
 
