@@ -1,16 +1,13 @@
-﻿using CyberpunkTcgVault.Api.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CyberpunkTcgVault.Api.DTOs
 {
     public class CreateOwnedCardRequest
     {
-        public int Id { get; set; }
-
-        // foreign key to the Card table
+        [Range(1, int.MaxValue)]
         public int CardId { get; set; }
-
-        public Card Card { get; set; } = null!;
-
+        
+        [Range(0, int.MaxValue)]
         public int QuantityOwned { get; set; }
 
         public string? Condition { get; set; }
@@ -27,6 +24,7 @@ namespace CyberpunkTcgVault.Api.DTOs
 
         public bool MaySellLater { get; set; }
 
+        [StringLength(2000)]
         public string? Notes { get; set; }
     }
 }
