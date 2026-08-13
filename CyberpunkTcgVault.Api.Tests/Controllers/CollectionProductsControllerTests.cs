@@ -69,7 +69,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.GetCollectionProducts();
+            var result = await controller.GetCollectionProducts(CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -110,7 +110,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, userOne.Id);
 
             // Act
-            var result = await controller.GetCollectionProducts();
+            var result = await controller.GetCollectionProducts(CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -144,7 +144,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.GetCollectionProductById(product.Id);
+            var result = await controller.GetCollectionProductById(product.Id, CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -179,7 +179,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, otherUser.Id);
 
             // Act
-            var result = await controller.GetCollectionProductById(product.Id);
+            var result = await controller.GetCollectionProductById(product.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
@@ -206,7 +206,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.CreateCollectionProduct(request);
+            var result = await controller.CreateCollectionProduct(request, CancellationToken.None);
 
             // Assert
             var created = Assert.IsType<CreatedAtActionResult>(result.Result);
@@ -243,7 +243,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.CreateCollectionProduct(request);
+            var result = await controller.CreateCollectionProduct(request, CancellationToken.None);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -281,7 +281,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateCollectionProduct(product.Id, request);
+            var result = await controller.UpdateCollectionProduct(product.Id, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -325,7 +325,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateCollectionProduct(product.Id, request);
+            var result = await controller.UpdateCollectionProduct(product.Id, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -357,7 +357,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateCollectionProduct(999, request);
+            var result = await controller.UpdateCollectionProduct(999, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -393,7 +393,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateCollectionProduct(product.Id, request);
+            var result = await controller.UpdateCollectionProduct(product.Id, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);
@@ -423,7 +423,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.DeleteCollectionProduct(product.Id);
+            var result = await controller.DeleteCollectionProduct(product.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -458,7 +458,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, otherUser.Id);
 
             // Act
-            var result = await controller.DeleteCollectionProduct(product.Id);
+            var result = await controller.DeleteCollectionProduct(product.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -482,7 +482,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.DeleteCollectionProduct(999);
+            var result = await controller.DeleteCollectionProduct(999, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);

@@ -105,7 +105,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.Register(request);
+            var result = await controller.Register(request, CancellationToken.None);
 
             // Assert
             var created = Assert.IsType<ObjectResult>(result);
@@ -148,7 +148,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.Register(request);
+            var result = await controller.Register(request, CancellationToken.None);
 
             // Assert
             Assert.IsType<ConflictObjectResult>(result);
@@ -177,7 +177,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.Login(request);
+            var result = await controller.Login(request, CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result);
@@ -214,7 +214,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.Login(request);
+            var result = await controller.Login(request, CancellationToken.None);
 
             // Assert
             Assert.IsType<UnauthorizedObjectResult>(result);
@@ -243,7 +243,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.Login(request);
+            var result = await controller.Login(request, CancellationToken.None);
 
             // Assert
             Assert.IsType<UnauthorizedObjectResult>(result);
@@ -264,7 +264,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, userId: user.Id);
 
             // Act
-            var result = await controller.GetCurrentUser();
+            var result = await controller.GetCurrentUser(CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -284,7 +284,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, rawUserIdClaim: "not-a-guid");
 
             // Act
-            var result = await controller.GetCurrentUser();
+            var result = await controller.GetCurrentUser(CancellationToken.None);
 
             // Assert
             Assert.IsType<UnauthorizedResult>(result.Result);
@@ -301,7 +301,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, userId: missingUserId);
 
             // Act
-            var result = await controller.GetCurrentUser();
+            var result = await controller.GetCurrentUser(CancellationToken.None);
 
             // Assert
             Assert.IsType<UnauthorizedResult>(result.Result);

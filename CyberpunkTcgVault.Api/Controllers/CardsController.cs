@@ -28,7 +28,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards(string? name, string? rarity, string? classification, string? cardType)
+        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards(string? name, string? rarity, string? classification, string? cardType, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Received request to get cards.");
 
@@ -94,7 +94,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                     Notes = card.Notes
 
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             _logger.LogInformation("Retrieved {Count} cards from the database", cards.Count);
 
@@ -102,7 +102,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CardResponse>> GetCardById(int id)
+        public async Task<ActionResult<CardResponse>> GetCardById(int id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Received request to get card with ID {Id}.", id);
 
@@ -119,7 +119,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                     CardType = card.CardType,
                     Classification = card.Classification
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (card == null)
             {
@@ -135,7 +135,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<CardResponse>> CreateCard(CreateCardRequest request)
+        public async Task<ActionResult<CardResponse>> CreateCard(CreateCardRequest request, CancellationToken cancellationToken)
         {
 
             _logger.LogInformation("Received request to create a new card with name {Name}.", request.Name);
@@ -168,7 +168,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             _context.Cards.Add(card);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             var cardResponse = new CardResponse
             {
@@ -206,12 +206,12 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCard(int id, UpdateCardRequest request)
+        public async Task<IActionResult> UpdateCard(int id, UpdateCardRequest request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Received request to update card with ID {Id}.", id);
 
             var card = await _context.Cards
-                .FirstOrDefaultAsync(card => card.Id == id);
+                .FirstOrDefaultAsync(card => card.Id == id, cancellationToken);
 
             if (card == null)
             {
@@ -243,7 +243,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             card.ImageUrl = request.ImageUrl?.Trim();
             card.Notes = request.Notes?.Trim();
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Card with ID {Id} updated successfully.", id);
 
@@ -254,11 +254,11 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCard(int id)
+        public async Task<IActionResult> DeleteCard(int id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Recieved request to delete card with ID {CardId}", id);
 
-            var card = await _context.Cards.FirstOrDefaultAsync(card => card.Id == id);
+            var card = await _context.Cards.FirstOrDefaultAsync(card => card.Id == id, cancellationToken);
 
             if (card == null)
             {
@@ -269,7 +269,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             _context.Cards.Remove(card);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
 
             return NoContent();
