@@ -62,7 +62,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
         [Authorize]
         [HttpGet("me")]
-        public async Task<ActionResult<AuthUserResponse>> GetCurrentUser()
+        public async Task<ActionResult<AuthUserResponse>> GetCurrentUser(CancellationToken cancellationToken)
         {
             var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -73,7 +73,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             var user = await _context.Users
                 .AsNoTracking()
-                .FirstOrDefaultAsync(user => user.Id == userId);
+                .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
             if (user == null)
             {
@@ -91,10 +91,10 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterUserRequest request)
+        public async Task<IActionResult> Register(RegisterUserRequest request, CancellationToken cancellationToken)
         {
             var userExists = await _context.Users
-                .AnyAsync(user => user.UserName == request.UserName);
+                .AnyAsync(user => user.UserName == request.UserName, cancellationToken);
 
             if (userExists)
             {
@@ -114,7 +114,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             _context.Users.Add(user);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return StatusCode(
                 StatusCodes.Status201Created,
@@ -122,10 +122,10 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginUserRequest request)
+        public async Task<IActionResult> Login(LoginUserRequest request, CancellationToken cancellationToken)
         {
             var user = await _context.Users
-                .FirstOrDefaultAsync(user => user.UserName == request.UserName);
+                .FirstOrDefaultAsync(user => user.UserName == request.UserName, cancellationToken);
 
             if (user == null)
             {

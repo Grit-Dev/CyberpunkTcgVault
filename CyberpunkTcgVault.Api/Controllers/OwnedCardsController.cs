@@ -36,7 +36,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OwnedCardResponse>>> GetOwnedCards()
+        public async Task<ActionResult<IEnumerable<OwnedCardResponse>>> GetOwnedCards(CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -65,7 +65,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                     MaySellLater = ownedCard.MaySellLater,
                     Notes = ownedCard.Notes
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             _logger.LogInformation("Retrieved {Count} owned cards for user {UserId}.", ownedCards.Count, userId);
 
@@ -73,7 +73,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<OwnedCardResponse>> GetOwnedCardById(int id)
+        public async Task<ActionResult<OwnedCardResponse>> GetOwnedCardById(int id, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -100,7 +100,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                     MaySellLater = ownedCard.MaySellLater,
                     Notes = ownedCard.Notes
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (ownedCard == null)
             {
@@ -113,13 +113,13 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OwnedCardResponse>> CreateOwnedCard(CreateOwnedCardRequest request)
+        public async Task<ActionResult<OwnedCardResponse>> CreateOwnedCard(CreateOwnedCardRequest request, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
             var card = await _context.Cards
                 .AsNoTracking()
-                .FirstOrDefaultAsync(card => card.Id == request.CardId);
+                .FirstOrDefaultAsync(card => card.Id == request.CardId, cancellationToken);
 
             if (card == null)
             {
@@ -142,7 +142,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             };
 
             await _context.OwnedCards.AddAsync(ownedCard);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             var response = new OwnedCardResponse
             {
@@ -167,14 +167,14 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOwnedCard(int id, UpdateOwnedCardRequest request)
+        public async Task<IActionResult> UpdateOwnedCard(int id, UpdateOwnedCardRequest request, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
             var ownedCard = await _context.OwnedCards
                 .FirstOrDefaultAsync(ownedCard =>
                     ownedCard.Id == id &&
-                    ownedCard.UserId == userId);
+                    ownedCard.UserId == userId, cancellationToken);
 
             if (ownedCard == null)
             {
@@ -191,13 +191,13 @@ namespace CyberpunkTcgVault.Api.Controllers
             ownedCard.MaySellLater = request.MaySellLater;
             ownedCard.Notes = request.Notes?.Trim();
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOwnedCard(int id)
+        public async Task<IActionResult> DeleteOwnedCard(int id, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -209,7 +209,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             var ownedCard = await _context.OwnedCards
                 .FirstOrDefaultAsync(ownedCard =>
                     ownedCard.Id == id &&
-                    ownedCard.UserId == userId);
+                    ownedCard.UserId == userId, cancellationToken);
 
             if (ownedCard == null)
             {
@@ -223,7 +223,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             _context.OwnedCards.Remove(ownedCard);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation(
                 "Deleted owned card with ID {OwnedCardId} for user {UserId}.",

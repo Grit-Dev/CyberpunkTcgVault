@@ -70,7 +70,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.GetWishListItems();
+            var result = await controller.GetWishListItems(CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -116,7 +116,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, userOne.Id);
 
             // Act
-            var result = await controller.GetWishListItems();
+            var result = await controller.GetWishListItems(CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -152,7 +152,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.GetWishListItemById(item.Id);
+            var result = await controller.GetWishListItemById(item.Id, CancellationToken.None);
 
             // Assert
             var ok = Assert.IsType<OkObjectResult>(result.Result);
@@ -191,7 +191,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, otherUser.Id);
 
             // Act
-            var result = await controller.GetWishListItemById(item.Id);
+            var result = await controller.GetWishListItemById(item.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
@@ -226,7 +226,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.CreateWishListItem(request);
+            var result = await controller.CreateWishListItem(request, CancellationToken.None);
 
             // Assert
             var created = Assert.IsType<CreatedAtActionResult>(result.Result);
@@ -271,7 +271,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.CreateWishListItem(request);
+            var result = await controller.CreateWishListItem(request, CancellationToken.None);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -322,7 +322,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateWishListItem(item.Id, request);
+            var result = await controller.UpdateWishListItem(item.Id, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -376,7 +376,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateWishListItem(item.Id, request);
+            var result = await controller.UpdateWishListItem(item.Id, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -407,7 +407,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateWishListItem(999, request);
+            var result = await controller.UpdateWishListItem(999, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -439,7 +439,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.DeleteWishListItem(item.Id);
+            var result = await controller.DeleteWishListItem(item.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -477,7 +477,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, otherUser.Id);
 
             // Act
-            var result = await controller.DeleteWishListItem(item.Id);
+            var result = await controller.DeleteWishListItem(item.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -501,7 +501,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateController(context, user.Id);
 
             // Act
-            var result = await controller.DeleteWishListItem(999);
+            var result = await controller.DeleteWishListItem(999, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);

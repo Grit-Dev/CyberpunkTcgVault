@@ -37,7 +37,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CollectionProductResponse>>> GetCollectionProducts()
+        public async Task<ActionResult<IEnumerable<CollectionProductResponse>>> GetCollectionProducts(CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -72,13 +72,13 @@ namespace CyberpunkTcgVault.Api.Controllers
                     Notes = product.Notes
 
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return Ok(products);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CollectionProductResponse>> GetCollectionProductById(int id)
+        public async Task<ActionResult<CollectionProductResponse>> GetCollectionProductById(int id, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -111,7 +111,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                 ImageUrl = product.ImageUrl,
                 Notes = product.Notes
             })
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
             if (product == null)
             {
@@ -122,7 +122,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CollectionProductResponse>> CreateCollectionProduct(CreateCollectionProductRequest request)
+        public async Task<ActionResult<CollectionProduct>> CreateCollectionProduct(CreateCollectionProductRequest request, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -158,7 +158,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             };
 
             _context.Products.Add(collectionProduct);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             var response = new CollectionProductResponse
             {
@@ -189,13 +189,13 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCollectionProduct(int id, UpdateCollectionProductRequest request)
+        public async Task<IActionResult> UpdateCollectionProduct(int id, UpdateCollectionProductRequest request, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
             var product = await _context.Products
                 .FirstOrDefaultAsync(p => p.Id == id &&
-                p.UserId == userId);
+                p.UserId == userId, cancellationToken);
 
             if (product == null)
             {
@@ -228,20 +228,20 @@ namespace CyberpunkTcgVault.Api.Controllers
             product.ImageUrl = request.ImageUrl?.Trim();
             product.Notes = request.Notes?.Trim();
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
 
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCollectionProduct(int id)
+        public async Task<IActionResult> DeleteCollectionProduct(int id, CancellationToken cancellationToken)
         { 
             var userId = GetLoggedInUserId();
 
             var product = await _context.Products
                 .FirstOrDefaultAsync(p => p.Id == id &&
-                p.UserId == userId);
+                p.UserId == userId, cancellationToken);
 
             if (product == null)
             {
@@ -250,7 +250,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             _context.Products.Remove(product);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }

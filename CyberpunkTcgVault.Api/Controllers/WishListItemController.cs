@@ -37,7 +37,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WishListItemResponse>>> GetWishListItems()
+        public async Task<ActionResult<IEnumerable<WishListItemResponse>>> GetWishListItems(CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -64,7 +64,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                     IsOpenToTrade = wishListItem.IsOpenToTrade,
                     Notes = wishListItem.Notes
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             _logger.LogInformation("Retrieved {Count} wishlist items for user {UserId}.", wishListItems.Count, userId);
 
@@ -72,7 +72,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<WishListItemResponse>> GetWishListItemById(int id)
+        public async Task<ActionResult<WishListItemResponse>> GetWishListItemById(int id, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -98,7 +98,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                     IsOpenToTrade = wishListItem.IsOpenToTrade,
                     Notes = wishListItem.Notes
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (wishListItem == null)
             {
@@ -110,13 +110,13 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<WishListItemResponse>> CreateWishListItem(CreateWishListItemRequest request)
+        public async Task<ActionResult<WishListItemResponse>> CreateWishListItem(CreateWishListItemRequest request, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
             var card = await _context.Cards
                 .AsNoTracking()
-                .FirstOrDefaultAsync(card => card.Id == request.CardId);
+                .FirstOrDefaultAsync(card => card.Id == request.CardId, cancellationToken);
 
             if (card == null)
             {
@@ -137,8 +137,8 @@ namespace CyberpunkTcgVault.Api.Controllers
                 Notes = request.Notes?.Trim()
             };
 
-            await _context.WishList.AddAsync(wishListItem);
-            await _context.SaveChangesAsync();
+            await _context.WishList.AddAsync(wishListItem, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
             var response = new WishListItemResponse
             {
@@ -162,14 +162,14 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateWishListItem(int id, UpdateWishListItemRequest request)
+        public async Task<IActionResult> UpdateWishListItem(int id, UpdateWishListItemRequest request, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
             var wishListItem = await _context.WishList
                 .FirstOrDefaultAsync(wishListItem =>
                     wishListItem.Id == id &&
-                    wishListItem.UserId == userId);
+                    wishListItem.UserId == userId, cancellationToken);
 
             if (wishListItem == null)
             {
@@ -185,13 +185,13 @@ namespace CyberpunkTcgVault.Api.Controllers
             wishListItem.IsOpenToTrade = request.IsOpenToTrade;
             wishListItem.Notes = request.Notes?.Trim();
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteWishListItem(int id)
+        public async Task<IActionResult> DeleteWishListItem(int id, CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -203,7 +203,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             var wishListItem = await _context.WishList
                 .FirstOrDefaultAsync(wishListItem =>
                     wishListItem.Id == id &&
-                    wishListItem.UserId == userId);
+                    wishListItem.UserId == userId, cancellationToken);
 
             if (wishListItem == null)
             {
@@ -217,7 +217,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             _context.WishList.Remove(wishListItem);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation(
                 "Deleted wishlist item with ID {WishListItemId} for user {UserId}.",

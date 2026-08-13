@@ -71,7 +71,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateOwnedCardsController(context, user.Id);
 
             // Act
-            var result = await controller.GetOwnedCards();
+            var result = await controller.GetOwnedCards(CancellationToken.None);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -115,7 +115,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateOwnedCardsController(context, userOne.Id);
 
             // Act
-            var result = await controller.GetOwnedCards();
+            var result = await controller.GetOwnedCards(CancellationToken.None);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -151,7 +151,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateOwnedCardsController(context, user.Id);
 
             // Act
-            var result = await controller.GetOwnedCardById(owned.Id);
+            var result = await controller.GetOwnedCardById(owned.Id, CancellationToken.None);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -190,7 +190,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateOwnedCardsController(context, otherUser.Id);
 
             // Act
-            var result = await controller.GetOwnedCardById(owned.Id);
+            var result = await controller.GetOwnedCardById(owned.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
@@ -221,7 +221,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.CreateOwnedCard(request);
+            var result = await controller.CreateOwnedCard(request, CancellationToken.None);
 
             // Assert
             var created = Assert.IsType<CreatedAtActionResult>(result.Result);
@@ -260,7 +260,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.CreateOwnedCard(request);
+            var result = await controller.CreateOwnedCard(request, CancellationToken.None);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -300,7 +300,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateOwnedCard(owned.Id, request);
+            var result = await controller.UpdateOwnedCard(owned.Id, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -348,7 +348,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateOwnedCard(owned.Id, request);
+            var result = await controller.UpdateOwnedCard(owned.Id, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -379,7 +379,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             };
 
             // Act
-            var result = await controller.UpdateOwnedCard(999, request);
+            var result = await controller.UpdateOwnedCard(999, request, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -411,7 +411,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateOwnedCardsController(context, user.Id);
 
             // Act
-            var result = await controller.DeleteOwnedCard(owned.Id);
+            var result = await controller.DeleteOwnedCard(owned.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -449,7 +449,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateOwnedCardsController(context, otherUser.Id);
 
             // Act
-            var result = await controller.DeleteOwnedCard(owned.Id);
+            var result = await controller.DeleteOwnedCard(owned.Id, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -473,7 +473,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateOwnedCardsController(context, user.Id);
 
             // Act
-            var result = await controller.DeleteOwnedCard(999);
+            var result = await controller.DeleteOwnedCard(999, CancellationToken.None);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
