@@ -47,5 +47,7 @@
         public string? ImageUrl { get; set; }
 
         public string? Notes { get; set; }
+
+        public ICollection<CardPrinting> CardPrintings { get; set; } = [];
     }
 }

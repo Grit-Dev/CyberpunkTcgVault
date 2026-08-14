@@ -20,12 +20,56 @@ namespace CyberpunkTcgVault.Api.Data
 
         public DbSet<WishListItem> WishList { get; set; }
 
+        public DbSet<CardSet> CardSets { get; set; }
+
+        public DbSet<CardPrinting> CardPrintings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             builder.Entity<AppUser>()
                 .ToTable("Users");
+
+            // One Card can have many physical printings.
+            builder.Entity<CardPrinting>()
+                .HasOne(cardPrinting => cardPrinting.Card)
+                .WithMany(card => card.CardPrintings)
+                .HasForeignKey(cardPrinting => cardPrinting.CardId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // One CardSet can contain many physical printings.
+            builder.Entity<CardPrinting>()
+                .HasOne(cardPrinting => cardPrinting.CardSet)
+                .WithMany(cardSet => cardSet.CardPrintings)
+                .HasForeignKey(cardPrinting => cardPrinting.CardSetId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<CardSet>()
+                .Property(cardSet => cardSet.Name)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            builder.Entity<CardSet>()
+                .Property(cardSet => cardSet.Code)
+                .HasMaxLength(50);
+
+            builder.Entity<CardPrinting>()
+                .Property(cardPrinting => cardPrinting.CardNumber)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder.Entity<CardPrinting>()
+                .Property(cardPrinting => cardPrinting.Rarity)
+                .HasMaxLength(50);
+
+            builder.Entity<CardPrinting>()
+                .Property(cardPrinting => cardPrinting.ImageUrl)
+                .HasMaxLength(500);
+
+            builder.Entity<CardPrinting>()
+                .Property(cardPrinting => cardPrinting.LanguageCode)
+                .HasMaxLength(10);
         }
 
     }
