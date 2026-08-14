@@ -1,5 +1,6 @@
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Services.Interfaces;
+using CyberpunkTcgVault.Api.Services.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -61,15 +62,26 @@ namespace CyberpunkTcgVault.Api.Controllers
         {
             var userId = _currentUserService.GetUserId();
 
-            var response = await _wishListItemService.CreateWishListItemAsync(
+            var result = await _wishListItemService.CreateWishListItemAsync(
                 userId,
                 request,
                 cancellationToken);
 
-            if (response is null)
+            if (result.Status ==
+                WishListItemCreateStatus.CardPrintingNotFound)
             {
-                return BadRequest("Card printing does not exist");
+                return BadRequest(
+                    "Card printing does not exist");
             }
+
+            if (result.Status ==
+                WishListItemCreateStatus.Duplicate)
+            {
+                return Conflict(
+                    "This card printing is already on your wishlist.");
+            }
+
+            var response = result.Item!;
 
             return CreatedAtAction(
                 nameof(GetWishListItemById),

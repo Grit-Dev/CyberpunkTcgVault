@@ -2,6 +2,7 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Services.Interfaces;
+using CyberpunkTcgVault.Api.Services.Results;
 using Microsoft.EntityFrameworkCore;
 
 namespace CyberpunkTcgVault.Api.Services
@@ -52,7 +53,7 @@ namespace CyberpunkTcgVault.Api.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<WishListItemResponse?> CreateWishListItemAsync(
+        public async Task<WishListItemCreateResult> CreateWishListItemAsync(
             Guid userId,
             CreateWishListItemRequest request,
             CancellationToken cancellationToken)
@@ -66,7 +67,27 @@ namespace CyberpunkTcgVault.Api.Services
 
             if (!cardPrintingExists)
             {
-                return null;
+                return new WishListItemCreateResult
+                {
+                    Status =
+                        WishListItemCreateStatus.CardPrintingNotFound
+                };
+            }
+
+            var wishListItemExists = await _context.WishList
+                .AsNoTracking()
+                .AnyAsync(
+                    item =>
+                        item.UserId == userId &&
+                        item.CardPrintingId == request.CardPrintingId,
+                    cancellationToken);
+
+            if (wishListItemExists)
+            {
+                return new WishListItemCreateResult
+                {
+                    Status = WishListItemCreateStatus.Duplicate
+                };
             }
 
             var item = new WishListItem
@@ -88,17 +109,68 @@ namespace CyberpunkTcgVault.Api.Services
                 item,
                 cancellationToken);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException)
+            {
+                /*
+                 * The normal duplicate check above gives us a friendly
+                 * response in everyday use.
+                 *
+                 * The database unique index is still the final safety net.
+                 * Two requests could theoretically reach this method at
+                 * almost the same time and both pass the first check.
+                 *
+                 * If SQL rejected this save because another request created
+                 * the same wishlist entry first, confirm that the duplicate
+                 * now exists and return the normal Duplicate result.
+                 */
+                var duplicateNowExists = await _context.WishList
+                    .AsNoTracking()
+                    .AnyAsync(
+                        existingItem =>
+                            existingItem.UserId == userId &&
+                            existingItem.CardPrintingId ==
+                                request.CardPrintingId,
+                        cancellationToken);
+
+                if (duplicateNowExists)
+                {
+                    _logger.LogWarning(
+                        "Duplicate wishlist creation prevented for user {UserId} and printing {CardPrintingId}.",
+                        userId,
+                        request.CardPrintingId);
+
+                    return new WishListItemCreateResult
+                    {
+                        Status = WishListItemCreateStatus.Duplicate
+                    };
+                }
+
+                /*
+                 * If there is no duplicate, then the database error was
+                 * caused by something else and should not be hidden.
+                 */
+                throw;
+            }
 
             _logger.LogInformation(
                 "Created wishlist item {WishListItemId} for user {UserId}.",
                 item.Id,
                 userId);
 
-            return await GetWishListItemByIdAsync(
+            var createdItem = await GetWishListItemByIdAsync(
                 userId,
                 item.Id,
                 cancellationToken);
+
+            return new WishListItemCreateResult
+            {
+                Status = WishListItemCreateStatus.Created,
+                Item = createdItem
+            };
         }
 
         public async Task<bool> UpdateWishListItemAsync(
@@ -124,8 +196,7 @@ namespace CyberpunkTcgVault.Api.Services
             item.ReasonWanted = request.ReasonWanted?.Trim();
             item.WantRaw = request.WantRaw;
             item.WantGraded = request.WantGraded;
-            item.PreferredGradingCompany =
-                request.PreferredGradingCompany?.Trim();
+            item.PreferredGradingCompany = request.PreferredGradingCompany?.Trim();
             item.IsOpenToTrade = request.IsOpenToTrade;
             item.Notes = request.Notes?.Trim();
 
@@ -152,6 +223,7 @@ namespace CyberpunkTcgVault.Api.Services
             }
 
             _context.WishList.Remove(item);
+
             await _context.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation(
@@ -180,8 +252,7 @@ namespace CyberpunkTcgVault.Api.Services
                 ReasonWanted = item.ReasonWanted,
                 WantRaw = item.WantRaw,
                 WantGraded = item.WantGraded,
-                PreferredGradingCompany =
-                    item.PreferredGradingCompany,
+                PreferredGradingCompany = item.PreferredGradingCompany,
                 IsOpenToTrade = item.IsOpenToTrade,
                 Notes = item.Notes
             });

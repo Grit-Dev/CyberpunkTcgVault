@@ -593,5 +593,54 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
 
             Assert.IsType<NotFoundResult>(result);
         }
+
+        [Fact]
+        public async Task CreateWishListItem_WhenPrintingAlreadyExistsForUser_ReturnsConflict()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            var user = CreateTestUser();
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var cardPrinting = await CreateTestCardPrinting(
+                context,
+                "Duplicate Wish Card");
+
+            var existingItem = new WishListItem
+            {
+                UserId = user.Id,
+                CardPrintingId = cardPrinting.Id,
+                WantedQuantity = 1
+            };
+
+            context.WishList.Add(existingItem);
+            await context.SaveChangesAsync();
+
+            var controller = CreateController(
+                context,
+                user.Id);
+
+            var request = new CreateWishListItemRequest
+            {
+                CardPrintingId = cardPrinting.Id,
+                WantedQuantity = 5
+            };
+
+            var result = await controller.CreateWishListItem(
+                request,
+                CancellationToken.None);
+
+            var conflict =
+                Assert.IsType<ConflictObjectResult>(
+                    result.Result);
+
+            Assert.Equal(
+                "This card printing is already on your wishlist.",
+                conflict.Value);
+
+            Assert.Single(context.WishList);
+        }
     }
 }

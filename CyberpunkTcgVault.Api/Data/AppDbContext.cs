@@ -82,6 +82,34 @@ namespace CyberpunkTcgVault.Api.Data
                 .WithMany(cardPrinting => cardPrinting.WishListItems)
                 .HasForeignKey(wishListItem => wishListItem.CardPrintingId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<WishListItem>()
+                .HasIndex(wishListItem => new
+                {
+                    wishListItem.UserId,
+                    wishListItem.CardPrintingId
+                })
+                .IsUnique();
+
+            builder.Entity<CollectionProduct>()
+                .Property(cp => cp.PurchaseCost)
+                .HasPrecision(18, 2);
+
+            builder.Entity<CollectionProduct>()
+                .Property(cp => cp.ShippingCost)
+                .HasPrecision(18, 2);
+
+            builder.Entity<CollectionProduct>()
+                .Property(cp => cp.VatCost)
+                .HasPrecision(18, 2);
+
+            builder.Entity<CollectionProduct>()
+                .Property(cp => cp.EstimatedValue)
+                .HasPrecision(18, 2);
+
+            builder.Entity<CollectionProduct>()
+                .Property(cp => cp.MinimumSellPrice)
+                .HasPrecision(18, 2);
         }
 
     }
