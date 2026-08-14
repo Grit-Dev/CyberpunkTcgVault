@@ -2,324 +2,537 @@
 using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
-using CyberpunkTcgVault.Api.Tests.TestHelpers;
+using CyberpunkTcgVault.Api.Options;
+using CyberpunkTcgVault.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
+using FrameworkOptions = Microsoft.Extensions.Options.Options;
 
 namespace CyberpunkTcgVault.Api.Tests.Controllers
 {
     public class AuthControllerTests
     {
-        private static IConfiguration CreateConfiguration()
-        {
-            var settings = new Dictionary<string, string?>
-            {
-                ["Jwt:Key"] = "this-is-a-test-jwt-key-that-is-at-least-32-characters-long",
-                ["Jwt:Issuer"] = "CyberpunkTcgVault.Api",
-                ["Jwt:Audience"] = "CyberpunkTcgVault.Client"
-            };
-
-            return new ConfigurationBuilder()
-                .AddInMemoryCollection(settings)
-                .Build();
-        }
-
-        private static AuthController CreateController(
-            AppDbContext context,
-            IPasswordHasher<AppUser>? passwordHasher = null,
-            Guid? userId = null,
-            string? rawUserIdClaim = null)
-        {
-            var controller = new AuthController(
-                context,
-                passwordHasher ?? new PasswordHasher<AppUser>(),
-                CreateConfiguration());
-
-            var claims = new List<Claim>();
-
-            if (userId.HasValue)
-            {
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, userId.Value.ToString()));
-            }
-
-            if (rawUserIdClaim != null)
-            {
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, rawUserIdClaim));
-            }
-
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
-                }
-            };
-
-            return controller;
-        }
-
-        private static AppUser CreateTestUser(string userName = "test-user", string role = "User")
-        {
-            return new AppUser
-            {
-                Id = Guid.NewGuid(),
-                UserName = userName,
-                Role = role,
-                PasswordHash = string.Empty
-            };
-        }
-
-        private static string GetTokenFromOkResult(OkObjectResult okResult)
-        {
-            var tokenProperty = okResult.Value!
-                .GetType()
-                .GetProperty("token");
-
-            Assert.NotNull(tokenProperty);
-
-            var token = tokenProperty!.GetValue(okResult.Value) as string;
-
-            Assert.False(string.IsNullOrWhiteSpace(token));
-
-            return token!;
-        }
-
         [Fact]
-        public async Task Register_WhenUsernameDoesNotExist_CreatesUserWithUserRole()
+        public async Task Register_WhenDetailsAreValid_CreatesUserWithUserRole()
         {
             // Arrange
-            using var context = TestDbContextFactory.Create();
-
-            var passwordHasher = new PasswordHasher<AppUser>();
-            var controller = CreateController(context, passwordHasher);
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
 
             var request = new RegisterUserRequest
             {
                 UserName = "   paul   ",
+                Email = "paul@example.com",
                 Password = "Password123!"
             };
 
             // Act
-            var result = await controller.Register(request, CancellationToken.None);
+            var result =
+                await environment.Controller.Register(request);
 
             // Assert
-            var created = Assert.IsType<ObjectResult>(result);
+            var created =
+                Assert.IsType<ObjectResult>(result);
 
-            Assert.Equal(StatusCodes.Status201Created, created.StatusCode);
+            Assert.Equal(
+                StatusCodes.Status201Created,
+                created.StatusCode);
 
-            var user = Assert.Single(context.Users);
+            var user =
+                await environment.UserManager
+                    .FindByEmailAsync("paul@example.com");
+
+            Assert.NotNull(user);
 
             Assert.Equal("paul", user.UserName);
-            Assert.Equal("User", user.Role);
-            Assert.NotEqual("Password123!", user.PasswordHash);
-            Assert.False(string.IsNullOrWhiteSpace(user.PasswordHash));
+            Assert.Equal("paul@example.com", user.Email);
 
-            var passwordResult = passwordHasher.VerifyHashedPassword(
-                user,
-                user.PasswordHash,
-                "Password123!");
+            Assert.False(
+                string.IsNullOrWhiteSpace(user.PasswordHash));
 
-            Assert.Equal(PasswordVerificationResult.Success, passwordResult);
+            Assert.NotEqual(
+                "Password123!",
+                user.PasswordHash);
+
+            var passwordIsValid =
+                await environment.UserManager.CheckPasswordAsync(
+                    user,
+                    "Password123!");
+
+            Assert.True(passwordIsValid);
+
+            var isUser =
+                await environment.UserManager.IsInRoleAsync(
+                    user,
+                    AppRoles.User);
+
+            Assert.True(isUser);
         }
 
         [Fact]
-        public async Task Register_WhenUsernameAlreadyExists_ReturnsConflict()
+        public async Task Register_WhenAccountAlreadyExists_ReturnsConflict()
         {
             // Arrange
-            using var context = TestDbContextFactory.Create();
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
 
-            var existingUser = CreateTestUser("paul");
-            existingUser.PasswordHash = "hashed-password";
+            var existingUser = new AppUser
+            {
+                UserName = "paul",
+                Email = "paul@example.com"
+            };
 
-            context.Users.Add(existingUser);
-            await context.SaveChangesAsync();
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    existingUser,
+                    "Password123!");
 
-            var controller = CreateController(context);
+            Assert.True(createResult.Succeeded);
 
             var request = new RegisterUserRequest
             {
                 UserName = "paul",
+                Email = "paul@example.com",
                 Password = "Password123!"
             };
 
             // Act
-            var result = await controller.Register(request, CancellationToken.None);
+            var result =
+                await environment.Controller.Register(request);
 
             // Assert
             Assert.IsType<ConflictObjectResult>(result);
         }
 
         [Fact]
-        public async Task Login_WhenCredentialsAreValid_ReturnsJwtToken()
+        public async Task Register_WhenPublicRegistrationIsDisabled_ReturnsNotFound()
         {
             // Arrange
-            using var context = TestDbContextFactory.Create();
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync(
+                    publicRegistrationEnabled: false);
 
-            var passwordHasher = new PasswordHasher<AppUser>();
-
-            var user = CreateTestUser("paul-admin", "Admin");
-            user.PasswordHash = passwordHasher.HashPassword(user, "Password123!");
-
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
-
-            var controller = CreateController(context, passwordHasher);
-
-            var request = new LoginUserRequest
+            var request = new RegisterUserRequest
             {
-                UserName = "paul-admin",
+                UserName = "paul",
+                Email = "paul@example.com",
                 Password = "Password123!"
             };
 
             // Act
-            var result = await controller.Login(request, CancellationToken.None);
+            var result =
+                await environment.Controller.Register(request);
 
             // Assert
-            var ok = Assert.IsType<OkObjectResult>(result);
-
-            var token = GetTokenFromOkResult(ok);
-
-            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
-
-            Assert.Contains(jwt.Claims, claim =>
-                (claim.Type == ClaimTypes.NameIdentifier || claim.Type == "nameid") &&
-                claim.Value == user.Id.ToString());
-
-            Assert.Contains(jwt.Claims, claim =>
-                (claim.Type == ClaimTypes.Name || claim.Type == "unique_name" || claim.Type == "name") &&
-                claim.Value == "paul-admin");
-
-            Assert.Contains(jwt.Claims, claim =>
-                (claim.Type == ClaimTypes.Role || claim.Type == "role") &&
-                claim.Value == "Admin");
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
-        public async Task Login_WhenUsernameDoesNotExist_ReturnsUnauthorized()
+        public async Task Login_WhenCredentialsAreValid_ReturnsCurrentUser()
         {
             // Arrange
-            using var context = TestDbContextFactory.Create();
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
 
-            var controller = CreateController(context);
+            var user = new AppUser
+            {
+                UserName = "paul-admin",
+                Email = "paul@example.com"
+            };
+
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    user,
+                    "Password123!");
+
+            Assert.True(createResult.Succeeded);
+
+            var roleResult =
+                await environment.UserManager.AddToRoleAsync(
+                    user,
+                    AppRoles.Admin);
+
+            Assert.True(roleResult.Succeeded);
 
             var request = new LoginUserRequest
             {
-                UserName = "missing-user",
+                Email = "paul@example.com",
                 Password = "Password123!"
             };
 
             // Act
-            var result = await controller.Login(request, CancellationToken.None);
+            var result =
+                await environment.Controller.Login(request);
 
             // Assert
-            Assert.IsType<UnauthorizedObjectResult>(result);
+            var ok =
+                Assert.IsType<OkObjectResult>(result.Result);
+
+            var response =
+                Assert.IsType<AuthUserResponse>(ok.Value);
+
+            Assert.Equal(user.Id, response.UserId);
+            Assert.Equal("paul-admin", response.UserName);
+            Assert.Equal("paul@example.com", response.Email);
+
+            Assert.Contains(
+                AppRoles.Admin,
+                response.Roles);
+        }
+
+        [Fact]
+        public async Task Login_WhenEmailDoesNotExist_ReturnsUnauthorized()
+        {
+            // Arrange
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var request = new LoginUserRequest
+            {
+                Email = "missing@example.com",
+                Password = "Password123!"
+            };
+
+            // Act
+            var result =
+                await environment.Controller.Login(request);
+
+            // Assert
+            Assert.IsType<UnauthorizedObjectResult>(
+                result.Result);
         }
 
         [Fact]
         public async Task Login_WhenPasswordIsInvalid_ReturnsUnauthorized()
         {
             // Arrange
-            using var context = TestDbContextFactory.Create();
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
 
-            var passwordHasher = new PasswordHasher<AppUser>();
+            var user = new AppUser
+            {
+                UserName = "paul",
+                Email = "paul@example.com"
+            };
 
-            var user = CreateTestUser("paul", "User");
-            user.PasswordHash = passwordHasher.HashPassword(user, "CorrectPassword123!");
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    user,
+                    "CorrectPassword123!");
 
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
-
-            var controller = CreateController(context, passwordHasher);
+            Assert.True(createResult.Succeeded);
 
             var request = new LoginUserRequest
             {
-                UserName = "paul",
+                Email = "paul@example.com",
                 Password = "WrongPassword123!"
             };
 
             // Act
-            var result = await controller.Login(request, CancellationToken.None);
+            var result =
+                await environment.Controller.Login(request);
 
             // Assert
-            Assert.IsType<UnauthorizedObjectResult>(result);
+            Assert.IsType<UnauthorizedObjectResult>(
+                result.Result);
         }
 
         [Fact]
-        public async Task GetCurrentUser_WhenUserClaimIsValid_ReturnsCurrentUser()
+        public async Task GetCurrentUser_WhenUserExists_ReturnsCurrentUser()
         {
             // Arrange
-            using var context = TestDbContextFactory.Create();
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
 
-            var user = CreateTestUser("paul-admin", "Admin");
-            user.PasswordHash = "hashed-password";
+            var user = new AppUser
+            {
+                UserName = "paul-admin",
+                Email = "paul@example.com"
+            };
 
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    user,
+                    "Password123!");
 
-            var controller = CreateController(context, userId: user.Id);
+            Assert.True(createResult.Succeeded);
+
+            var roleResult =
+                await environment.UserManager.AddToRoleAsync(
+                    user,
+                    AppRoles.Admin);
+
+            Assert.True(roleResult.Succeeded);
+
+            environment.SetCurrentUser(user.Id);
 
             // Act
-            var result = await controller.GetCurrentUser(CancellationToken.None);
+            var result =
+                await environment.Controller.GetCurrentUser();
 
             // Assert
-            var ok = Assert.IsType<OkObjectResult>(result.Result);
-            var response = Assert.IsType<AuthUserResponse>(ok.Value);
+            var ok =
+                Assert.IsType<OkObjectResult>(result.Result);
+
+            var response =
+                Assert.IsType<AuthUserResponse>(ok.Value);
 
             Assert.Equal(user.Id, response.UserId);
             Assert.Equal("paul-admin", response.UserName);
-            Assert.Equal("Admin", response.Role);
-        }
+            Assert.Equal("paul@example.com", response.Email);
 
-        [Fact]
-        public async Task GetCurrentUser_WhenUserClaimIsInvalid_ReturnsUnauthorized()
-        {
-            // Arrange
-            using var context = TestDbContextFactory.Create();
-
-            var controller = CreateController(context, rawUserIdClaim: "not-a-guid");
-
-            // Act
-            var result = await controller.GetCurrentUser(CancellationToken.None);
-
-            // Assert
-            Assert.IsType<UnauthorizedResult>(result.Result);
+            Assert.Contains(
+                AppRoles.Admin,
+                response.Roles);
         }
 
         [Fact]
         public async Task GetCurrentUser_WhenUserDoesNotExist_ReturnsUnauthorized()
         {
             // Arrange
-            using var context = TestDbContextFactory.Create();
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
 
-            var missingUserId = Guid.NewGuid();
-
-            var controller = CreateController(context, userId: missingUserId);
+            environment.SetCurrentUser(Guid.NewGuid());
 
             // Act
-            var result = await controller.GetCurrentUser(CancellationToken.None);
+            var result =
+                await environment.Controller.GetCurrentUser();
 
             // Assert
-            Assert.IsType<UnauthorizedResult>(result.Result);
+            Assert.IsType<UnauthorizedResult>(
+                result.Result);
+        }
+
+        [Fact]
+        public async Task GetCurrentUser_WhenNoUserIsAuthenticated_ReturnsUnauthorized()
+        {
+            // Arrange
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            // Act
+            var result =
+                await environment.Controller.GetCurrentUser();
+
+            // Assert
+            Assert.IsType<UnauthorizedResult>(
+                result.Result);
+        }
+
+        [Fact]
+        public async Task Logout_WhenCalled_ReturnsNoContent()
+        {
+            // Arrange
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            // Act
+            var result =
+                await environment.Controller.Logout();
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
         public void GetCurrentUser_HasAuthorizeAttribute()
         {
             // Arrange
-            var methodInfo = typeof(AuthController).GetMethod(nameof(AuthController.GetCurrentUser));
+            var methodInfo =
+                typeof(AuthController)
+                    .GetMethod(nameof(AuthController.GetCurrentUser));
 
             // Act
-            var attributes = methodInfo!
-                .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true);
+            var attributes =
+                methodInfo!
+                    .GetCustomAttributes(
+                        typeof(AuthorizeAttribute),
+                        inherit: true);
 
             // Assert
             Assert.NotNull(methodInfo);
             Assert.NotEmpty(attributes);
+        }
+
+        [Fact]
+        public void Logout_HasAuthorizeAttribute()
+        {
+            // Arrange
+            var methodInfo =
+                typeof(AuthController)
+                    .GetMethod(nameof(AuthController.Logout));
+
+            // Act
+            var attributes =
+                methodInfo!
+                    .GetCustomAttributes(
+                        typeof(AuthorizeAttribute),
+                        inherit: true);
+
+            // Assert
+            Assert.NotNull(methodInfo);
+            Assert.NotEmpty(attributes);
+        }
+
+        private sealed class TestIdentityEnvironment : IDisposable
+        {
+            private readonly ServiceProvider _provider;
+            private readonly IServiceScope _scope;
+
+            public UserManager<AppUser> UserManager { get; }
+
+            public AuthController Controller { get; }
+
+            private HttpContext HttpContext { get; }
+
+            private TestIdentityEnvironment(
+                ServiceProvider provider,
+                IServiceScope scope,
+                UserManager<AppUser> userManager,
+                AuthController controller,
+                HttpContext httpContext)
+            {
+                _provider = provider;
+                _scope = scope;
+                UserManager = userManager;
+                Controller = controller;
+                HttpContext = httpContext;
+            }
+
+            public static async Task<TestIdentityEnvironment> CreateAsync(
+                bool publicRegistrationEnabled = true)
+            {
+                var services = new ServiceCollection();
+
+                services.AddLogging();
+                services.AddHttpContextAccessor();
+
+                services.AddDbContext<AppDbContext>(options =>
+                    options.UseInMemoryDatabase(
+                        Guid.NewGuid().ToString()));
+
+                services
+                    .AddIdentity<AppUser, IdentityRole<Guid>>(
+                        options =>
+                        {
+                            options.SignIn.RequireConfirmedEmail = false;
+
+                            options.User.RequireUniqueEmail = true;
+
+                            options.Password.RequiredLength = 8;
+                            options.Password.RequireDigit = false;
+                            options.Password.RequireLowercase = false;
+                            options.Password.RequireUppercase = false;
+                            options.Password.RequireNonAlphanumeric = false;
+                            options.Password.RequiredUniqueChars = 1;
+
+                            options.Lockout.AllowedForNewUsers = true;
+                            options.Lockout.MaxFailedAccessAttempts = 5;
+                            options.Lockout.DefaultLockoutTimeSpan =
+                                TimeSpan.FromMinutes(15);
+                        })
+                    .AddEntityFrameworkStores<AppDbContext>()
+                    .AddDefaultTokenProviders();
+
+                var provider =
+                    services.BuildServiceProvider();
+
+                var scope =
+                    provider.CreateScope();
+
+                var serviceProvider =
+                    scope.ServiceProvider;
+
+                var httpContextAccessor =
+                    serviceProvider
+                        .GetRequiredService<IHttpContextAccessor>();
+
+                var httpContext =
+                    new DefaultHttpContext
+                    {
+                        RequestServices = serviceProvider
+                    };
+
+                httpContextAccessor.HttpContext =
+                    httpContext;
+
+                var userManager =
+                    serviceProvider
+                        .GetRequiredService<UserManager<AppUser>>();
+
+                var signInManager =
+                    serviceProvider
+                        .GetRequiredService<SignInManager<AppUser>>();
+
+                signInManager.Context =
+                    httpContext;
+
+                var roleManager =
+                    serviceProvider
+                        .GetRequiredService<
+                            RoleManager<IdentityRole<Guid>>>();
+
+                await IdentitySeeder.SeedRolesAsync(
+                    roleManager);
+
+                var capabilityOptions =
+                    FrameworkOptions.Create(
+                        new ProductCapabilitiesOptions
+                        {
+                            PublicRegistrationEnabled =
+                                publicRegistrationEnabled,
+
+                            DemoAccessEnabled = true
+                        });
+
+                var controller =
+                    new AuthController(
+                        userManager,
+                        signInManager,
+                        capabilityOptions)
+                    {
+                        ControllerContext =
+                            new ControllerContext
+                            {
+                                HttpContext = httpContext
+                            }
+                    };
+
+                return new TestIdentityEnvironment(
+                    provider,
+                    scope,
+                    userManager,
+                    controller,
+                    httpContext);
+            }
+
+            public void SetCurrentUser(Guid userId)
+            {
+                var claims = new[]
+                {
+                    new Claim(
+                        ClaimTypes.NameIdentifier,
+                        userId.ToString())
+                };
+
+                HttpContext.User =
+                    new ClaimsPrincipal(
+                        new ClaimsIdentity(
+                            claims,
+                            "TestAuth"));
+            }
+
+            public void Dispose()
+            {
+                _scope.Dispose();
+                _provider.Dispose();
+            }
         }
     }
 }

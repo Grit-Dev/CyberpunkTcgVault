@@ -5,8 +5,7 @@ namespace CyberpunkTcgVault.Api.Data
 {
     public class IdentitySeeder
     {
-        public static async Task SeedRolesAsync(
-    RoleManager<IdentityRole<Guid>> roleManager)
+        public static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
         {
             var roles = new[]
             {
