@@ -129,7 +129,7 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cards");
+                    b.ToTable("Cards", (string)null);
                 });
 
             modelBuilder.Entity("CyberpunkTcgVault.Api.Models.CardPrinting", b =>
@@ -193,7 +193,7 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     b.HasIndex("CardSetId");
 
-                    b.ToTable("CardPrintings");
+                    b.ToTable("CardPrintings", (string)null);
                 });
 
             modelBuilder.Entity("CyberpunkTcgVault.Api.Models.CardSet", b =>
@@ -215,7 +215,7 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CardSets");
+                    b.ToTable("CardSets", (string)null);
                 });
 
             modelBuilder.Entity("CyberpunkTcgVault.Api.Models.CollectionProduct", b =>
@@ -294,7 +294,7 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("CyberpunkTcgVault.Api.Models.OwnedCard", b =>
@@ -344,7 +344,7 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("OwnedCards");
+                    b.ToTable("OwnedCards", (string)null);
                 });
 
             modelBuilder.Entity("CyberpunkTcgVault.Api.Models.WishListItem", b =>
@@ -391,7 +391,7 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("WishList");
+                    b.ToTable("WishList", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
