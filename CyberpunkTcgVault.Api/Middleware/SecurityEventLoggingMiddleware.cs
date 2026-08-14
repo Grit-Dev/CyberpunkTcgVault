@@ -28,12 +28,17 @@ namespace CyberpunkTcgVault.Api.Middleware
             await _next(context);
 
             var statusCode = context.Response.StatusCode;
-            var method = context.Request.Method;
-            var path = context.Request.Path.Value ?? string.Empty;
-            var clientIp = GetClientIp(context);
-            var userId = context.User.FindFirstValue(
-                ClaimTypes.NameIdentifier) ?? "anonymous";
-            var traceId = context.TraceIdentifier;
+
+            // Request/user-derived values are sanitized before logging so a
+            // malicious caller cannot inject new lines into security logs.
+            var method = SanitizeForLog(context.Request.Method);
+            var path = SanitizeForLog(
+                context.Request.Path.Value ?? string.Empty);
+            var clientIp = SanitizeForLog(GetClientIp(context));
+            var userId = SanitizeForLog(
+                context.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? "anonymous");
+            var traceId = SanitizeForLog(context.TraceIdentifier);
 
             if (statusCode == StatusCodes.Status429TooManyRequests)
             {
@@ -112,6 +117,13 @@ namespace CyberpunkTcgVault.Api.Middleware
         {
             return context.Connection.RemoteIpAddress?.ToString()
                 ?? "unknown";
+        }
+
+        private static string SanitizeForLog(string? value)
+        {
+            return (value ?? string.Empty)
+                .Replace("\r", string.Empty)
+                .Replace("\n", string.Empty);
         }
     }
 }

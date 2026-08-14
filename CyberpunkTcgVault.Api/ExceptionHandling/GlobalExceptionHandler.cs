@@ -16,17 +16,32 @@ namespace CyberpunkTcgVault.Api.ExceptionHandling
             _problemDetailsService = problemDetailsService;
         }
 
+        private static string SanitizeForLog(string? value)
+        {
+            return (value ?? string.Empty)
+                .Replace("\r", string.Empty)
+                .Replace("\n", string.Empty);
+        }
+
         public async ValueTask<bool> TryHandleAsync(
             HttpContext httpContext,
             Exception exception,
             CancellationToken cancellationToken)
         {
+            // Request-derived values are sanitized before logging so a caller
+            // cannot inject line breaks and forge misleading log entries.
+            var method = SanitizeForLog(httpContext.Request.Method);
+            var path = SanitizeForLog(
+                httpContext.Request.Path.ToString());
+            var traceId = SanitizeForLog(
+                httpContext.TraceIdentifier);
+
             _logger.LogError(
                 exception,
                 "Unhandled exception while processing {Method} {Path}. TraceId: {TraceId}",
-                httpContext.Request.Method,
-                httpContext.Request.Path,
-                httpContext.TraceIdentifier);
+                method,
+                path,
+                traceId);
 
             httpContext.Response.StatusCode =
                 StatusCodes.Status500InternalServerError;

@@ -2,12 +2,14 @@ using System.Security.Claims;
 using System.Threading.RateLimiting;
 using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.ExceptionHandling;
+using CyberpunkTcgVault.Api.HealthChecks;
 using CyberpunkTcgVault.Api.Middleware;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Options;
 using CyberpunkTcgVault.Api.Security;
 using CyberpunkTcgVault.Api.Services;
 using CyberpunkTcgVault.Api.Services.Interfaces;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -88,6 +90,14 @@ builder.Services.AddProblemDetails(options =>
 });
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// Health monitoring:
+// /health checks that the API process is alive.
+// /health/ready additionally verifies database connectivity.
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>(
+        "database",
+        tags: ["ready"]);
 
 // A broad API safety limit plus stricter authentication limits.
 // The global limiter uses the authenticated user ID when available and
@@ -277,6 +287,27 @@ app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Liveness: if this responds Healthy, the ASP.NET Core process is alive.
+// No dependency checks are executed here.
+app.MapHealthChecks(
+        "/health",
+        new HealthCheckOptions
+        {
+            Predicate = _ => false,
+            ResponseWriter = HealthCheckResponseWriter.WriteAsync
+        })
+    .AllowAnonymous();
+
+// Readiness: verifies that the API can also reach SQL Server.
+app.MapHealthChecks(
+        "/health/ready",
+        new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("ready"),
+            ResponseWriter = HealthCheckResponseWriter.WriteAsync
+        })
+    .AllowAnonymous();
 
 app.Run();
 
