@@ -17,75 +17,49 @@ namespace CyberpunkTcgVault.Api.Controllers
     [Route("api/[Controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly UserManager<AppUser> _userManager;
 
-        private readonly AppDbContext _context;
-        private readonly IPasswordHasher<AppUser> _passwordHasher;
-        private readonly IConfiguration _configuration;
+        private readonly SignInManager<AppUser> _signInManager;
 
-        public AuthController(AppDbContext context,
-            IPasswordHasher<AppUser> passwordHasher,
-            IConfiguration configuration)
+        public AuthController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
-            _context = context;
-            _passwordHasher = passwordHasher;
-            _configuration = configuration;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        private string GenerateJwtToken(AppUser user)
+        private async Task<AuthUserResponse> CreateAuthUserResponse(
+            AppUser user)
         {
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new AuthUserResponse
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.Role)
+                UserId = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                Roles = roles.ToArray(),
+                EmailConfirmed = user.EmailConfirmed,
+                TwoFactorEnabled = user.TwoFactorEnabled
             };
-
-            var jwtKey = _configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException("JWT key is not configured.");
-
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey));
-
-            var credentials = new SigningCredentials(
-                securityKey,
-                SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult<AuthUserResponse>> GetCurrentUser(CancellationToken cancellationToken)
         {
-            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.GetUserAsync(User);
 
-            if (!Guid.TryParse(userIdValue, out var userId))
+            if (user is null)
             {
                 return Unauthorized();
             }
-
-            var user = await _context.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var response = new AuthUserResponse
-            {
-                UserId = user.Id,
-                UserName = user.UserName,
-                Role = user.Role
-            };
+            var response = await CreateAuthUserResponse(user);
 
             return Ok(response);
         }
