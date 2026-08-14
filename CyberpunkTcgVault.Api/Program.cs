@@ -1,5 +1,7 @@
 using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.Models;
+using CyberpunkTcgVault.Api.Services;
+using CyberpunkTcgVault.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
@@ -13,12 +15,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Registers ASP.NET Core Identity.
 // AppUser is user type.
-// IdentityRole<Guid> gives us  User / Demo / Admin roles.
+// IdentityRole<Guid> gives us User / Demo / Admin roles.
 // Identity stores its data through AppDbContext.
 builder.Services
     .AddIdentity<AppUser, IdentityRole<Guid>>(options =>
     {
-        // TO DO: introduce email confirmation before public accounts,
+        // TODO: Introduce email confirmation before public accounts.
         options.SignIn.RequireConfirmedEmail = false;
 
         options.User.RequireUniqueEmail = true;
@@ -40,8 +42,15 @@ builder.Services
     .AddDefaultTokenProviders();
 
 builder.Services.AddAuthorization();
-
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+
+// Application services are scoped because they use the scoped AppDbContext.
+builder.Services.AddScoped<ICardService, CardService>();
+builder.Services.AddScoped<IOwnedCardService, OwnedCardService>();
+builder.Services.AddScoped<IWishListItemService, WishListItemService>();
+builder.Services.AddScoped<ICollectionProductService, CollectionProductService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddCors(options =>
 {
@@ -64,16 +73,18 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Creates a service scope
-// such as AppDbContext during startup.
+// Creates a service scope for startup-only work such as seeding.
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var dbContext =
+        scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    var roleManager =
+        scope.ServiceProvider
+            .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
-    // Seed the database with initial card data if required.
     DbSeeder.Seed(dbContext);
+
     await IdentitySeeder.SeedRolesAsync(roleManager);
 }
 

@@ -1,14 +1,10 @@
-﻿namespace CyberpunkTcgVault.Api.Models
+namespace CyberpunkTcgVault.Api.Models
 {
     public class Card
     {
         public int Id { get; set; }
 
         public string Name { get; set; } = string.Empty;
-
-        public string? SetName { get; set; }
-
-        public string? Rarity { get; set; }
 
         public string? Colour { get; set; }
 
@@ -26,26 +22,8 @@
 
         public bool IsLegend { get; set; }
 
-        public bool HasBetaSymbol { get; set; }
-
-        public bool IsKickstarterVersion { get; set; }
-
-        public bool IsRetailVersion { get; set; }
-
-        public bool IsFoil { get; set; }
-
-        public bool IsAltArt { get; set; }
-
-        public bool IsBoxTopper { get; set; }
-
-        public bool IsPromo { get; set; }
-
-        public bool IsStarterDeckExclusive { get; set; }
-
-        public string? CardNumber { get; set; }
-
-        public string? ImageUrl { get; set; }
-
         public string? Notes { get; set; }
+
+        public ICollection<CardPrinting> CardPrintings { get; set; } = [];
     }
 }

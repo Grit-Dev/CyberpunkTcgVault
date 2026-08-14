@@ -4,6 +4,7 @@ using CyberpunkTcgVault.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CyberpunkTcgVault.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260814181256_LinkCollectionToCardPrintings")]
+    partial class LinkCollectionToCardPrintings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +99,9 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CardNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("CardType")
                         .HasColumnType("nvarchar(max)");
 
@@ -108,7 +114,34 @@ namespace CyberpunkTcgVault.Api.Migrations
                     b.Property<int?>("Cost")
                         .HasColumnType("int");
 
+                    b.Property<bool>("HasBetaSymbol")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAltArt")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBoxTopper")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFoil")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsKickstarterVersion")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsLegend")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPromo")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRetailVersion")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsStarterDeckExclusive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Keywords")
@@ -126,6 +159,12 @@ namespace CyberpunkTcgVault.Api.Migrations
 
                     b.Property<int?>("RamCost")
                         .HasColumnType("int");
+
+                    b.Property<string>("Rarity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SetName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -151,9 +190,6 @@ namespace CyberpunkTcgVault.Api.Migrations
                     b.Property<int>("CardSetId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("HasBetaSymbol")
-                        .HasColumnType("bit");
-
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -161,22 +197,7 @@ namespace CyberpunkTcgVault.Api.Migrations
                     b.Property<bool>("IsAltArt")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsBoxTopper")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsFoil")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsKickstarterVersion")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPromo")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRetailVersion")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsStarterDeckExclusive")
                         .HasColumnType("bit");
 
                     b.Property<string>("LanguageCode")

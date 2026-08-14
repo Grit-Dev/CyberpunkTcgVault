@@ -1,278 +1,139 @@
-﻿using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
-using CyberpunkTcgVault.Api.Models;
+using CyberpunkTcgVault.Api.Services.Interfaces;
+using CyberpunkTcgVault.Api.Services.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CyberpunkTcgVault.Api.Controllers
 {
-    // Marks this class as a Web API controller.
-    // This gives us API-specific behaviour such as automatic request validation
-    // and cleaner HTTP responses.
     [ApiController]
-
-    // Defines the base route for this controller.
-    // This means requests to /api/cards will be handled by this controller.
-    // Example: GET https://localhost:xxxx/api/cards
     [Route("api/[controller]")]
     public class CardsController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly ILogger<CardsController> _logger;
+        private readonly ICardService _cardService;
 
-        public CardsController(AppDbContext context, ILogger<CardsController> logger)
+        public CardsController(ICardService cardService)
         {
-            _context = context;
-            _logger = logger;
+            _cardService = cardService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards(string? name, string? rarity, string? classification, string? cardType, CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards(
+            string? name,
+            string? rarity,
+            string? classification,
+            string? cardType,
+            CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Received request to get cards.");
-
-            // IQueryable allows us to add filters before the query is executed.
-            // EF Core will translate the final query into SQL so filtering happens in the database.
-            var query = _context.Cards.AsNoTracking();
-
-
-            // Search by card name using partial matching.
-            // Contains allows users to search without knowing the full card name.
-            // Example: searching "Kai" will return "Kai Blackwire Sato".
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                query = query.Where(card => card.Name.Contains(name));
-            }
-
-            // Apply rarity filtering if a value was provided.
-            if (!string.IsNullOrWhiteSpace(rarity))
-            {
-                query = query.Where(card => card.Rarity == rarity);
-            }
-
-            // Apply classification filtering if a value was provided.
-            if (!string.IsNullOrWhiteSpace(classification))
-            {
-                query = query.Where(card => card.Classification == classification);
-            }
-
-            // Apply cardType filtering if a value was provided.
-            if (!string.IsNullOrWhiteSpace(cardType))
-            {
-                query = query.Where(card => card.CardType == cardType);
-            }
-
-            // Execute the query and map database entities into DTOs.
-            var cards = await query
-                .AsNoTracking()
-                .OrderBy(card => card.Name)
-                .Select(card => new CardResponse
-                {
-                    Id = card.Id,
-                    Name = card.Name,
-                    SetName = card.SetName,
-                    Rarity = card.Rarity,
-                    Colour = card.Colour,
-                    CardType = card.CardType,
-                    Classification = card.Classification,
-                    Keywords = card.Keywords,
-                    Cost = card.Cost,
-                    Power = card.Power,
-                    RamCost = card.RamCost,
-                    IsLegend = card.IsLegend,
-                    HasBetaSymbol = card.HasBetaSymbol,
-                    IsKickstarterVersion = card.IsKickstarterVersion,
-                    IsRetailVersion = card.IsRetailVersion,
-                    IsFoil = card.IsFoil,
-                    IsAltArt = card.IsAltArt,
-                    IsBoxTopper = card.IsBoxTopper,
-                    IsPromo = card.IsPromo,
-                    IsStarterDeckExclusive = card.IsStarterDeckExclusive,
-                    CardNumber = card.CardNumber,
-                    ImageUrl = card.ImageUrl,
-                    Notes = card.Notes
-
-                })
-                .ToListAsync(cancellationToken);
-
-            _logger.LogInformation("Retrieved {Count} cards from the database", cards.Count);
+            var cards = await _cardService.GetCardsAsync(
+                name,
+                rarity,
+                classification,
+                cardType,
+                cancellationToken);
 
             return Ok(cards);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CardResponse>> GetCardById(int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<CardResponse>> GetCardById(
+            int id,
+            CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Received request to get card with ID {Id}.", id);
+            var card = await _cardService.GetCardByIdAsync(
+                id,
+                cancellationToken);
 
-            var card = await _context.Cards
-                .AsNoTracking()
-                .Where(card => card.Id == id)
-                .Select(card => new CardResponse
-                {
-                    Id = card.Id,
-                    Name = card.Name,
-                    SetName = card.SetName,
-                    Rarity = card.Rarity,
-                    Colour = card.Colour,
-                    CardType = card.CardType,
-                    Classification = card.Classification
-                })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (card == null)
+            if (card is null)
             {
-                _logger.LogWarning("Card with ID {Id} not found.", id);
-
                 return NotFound();
             }
-
-            _logger.LogInformation("Card with ID {Id} retrieved successfully.", id);
 
             return Ok(card);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<CardResponse>> CreateCard(CreateCardRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<CardResponse>> CreateCard(
+            CreateCardRequest request,
+            CancellationToken cancellationToken)
         {
+            var hasSetName =
+                !string.IsNullOrWhiteSpace(request.SetName);
 
-            _logger.LogInformation("Received request to create a new card with name {Name}.", request.Name);
+            var hasCardNumber =
+                !string.IsNullOrWhiteSpace(request.CardNumber);
 
-            var card = new Card
+            if (hasSetName != hasCardNumber)
             {
-                Name = request.Name.Trim(),
-                SetName = request.SetName?.Trim(),
-                Rarity = request.Rarity?.Trim(),
-                Colour = request.Colour?.Trim(),
-                CardType = request.CardType?.Trim(),
-                Classification = request.Classification?.Trim(),
-                Keywords = request.Keywords?.Trim(),
-                Cost = request.Cost,
-                Power = request.Power,
-                RamCost = request.RamCost,
-                IsLegend = request.IsLegend,
-                HasBetaSymbol = request.HasBetaSymbol,
-                IsKickstarterVersion = request.IsKickstarterVersion,
-                IsRetailVersion = request.IsRetailVersion,
-                IsFoil = request.IsFoil,
-                IsAltArt = request.IsAltArt,
-                IsBoxTopper = request.IsBoxTopper,
-                IsPromo = request.IsPromo,
-                IsStarterDeckExclusive = request.IsStarterDeckExclusive,
-                CardNumber = request.CardNumber?.Trim(),
-                ImageUrl = request.ImageUrl?.Trim(),
-                Notes = request.Notes?.Trim()
-            };
+                return BadRequest(new
+                {
+                    message =
+                        "SetName and CardNumber must be supplied together when creating a printing."
+                });
+            }
 
-            _context.Cards.Add(card);
+            var response = await _cardService.CreateCardAsync(
+                request,
+                cancellationToken);
 
-            await _context.SaveChangesAsync(cancellationToken);
-
-            var cardResponse = new CardResponse
-            {
-                Id = card.Id,
-                Name = card.Name,
-                SetName = card.SetName,
-                Rarity = card.Rarity,
-                Colour = card.Colour,
-                CardType = card.CardType,
-                Classification = card.Classification,
-                Keywords = card.Keywords,
-                Cost = card.Cost,
-                Power = card.Power,
-                RamCost = card.RamCost,
-                IsLegend = card.IsLegend,
-                HasBetaSymbol = card.HasBetaSymbol,
-                IsKickstarterVersion = card.IsKickstarterVersion,
-                IsRetailVersion = card.IsRetailVersion,
-                IsFoil = card.IsFoil,
-                IsAltArt = card.IsAltArt,
-                IsBoxTopper = card.IsBoxTopper,
-                IsPromo = card.IsPromo,
-                IsStarterDeckExclusive = card.IsStarterDeckExclusive,
-                CardNumber = card.CardNumber,
-                ImageUrl = card.ImageUrl,
-                Notes = card.Notes
-            };
-
-
-            _logger.LogInformation("Card with ID {Id} created successfully.", card.Id);
-
-            return CreatedAtAction(nameof(GetCardById), new { id = cardResponse.Id }, cardResponse);
-
+            return CreatedAtAction(
+                nameof(GetCardById),
+                new { id = response.Id },
+                response);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCard(int id, UpdateCardRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateCard(
+            int id,
+            UpdateCardRequest request,
+            CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Received request to update card with ID {Id}.", id);
+            var result = await _cardService.UpdateCardAsync(
+                id,
+                request,
+                cancellationToken);
 
-            var card = await _context.Cards
-                .FirstOrDefaultAsync(card => card.Id == id, cancellationToken);
-
-            if (card == null)
+            return result switch
             {
-                _logger.LogWarning("Card with ID {Id} not found for update.", id);
-
-                return NotFound();
-            }
-
-            card.Name = request.Name.Trim();
-            card.SetName = request.SetName?.Trim();
-            card.Rarity = request.Rarity?.Trim();
-            card.Colour = request.Colour?.Trim();
-            card.CardType = request.CardType?.Trim();
-            card.Classification = request.Classification?.Trim();
-            card.Keywords = request.Keywords?.Trim();
-            card.Cost = request.Cost;
-            card.Power = request.Power;
-            card.RamCost = request.RamCost;
-            card.IsLegend = request.IsLegend;
-            card.HasBetaSymbol = request.HasBetaSymbol;
-            card.IsKickstarterVersion = request.IsKickstarterVersion;
-            card.IsRetailVersion = request.IsRetailVersion;
-            card.IsFoil = request.IsFoil;
-            card.IsAltArt = request.IsAltArt;
-            card.IsBoxTopper = request.IsBoxTopper;
-            card.IsPromo = request.IsPromo;
-            card.IsStarterDeckExclusive = request.IsStarterDeckExclusive;
-            card.CardNumber = request.CardNumber?.Trim();
-            card.ImageUrl = request.ImageUrl?.Trim();
-            card.Notes = request.Notes?.Trim();
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            _logger.LogInformation("Card with ID {Id} updated successfully.", id);
-
-            // PMG TODO: Return NoContent() - However I want to see the response 
-
-            return NoContent();
+                CardUpdateResult.Success => NoContent(),
+                CardUpdateResult.NotFound => NotFound(),
+                CardUpdateResult.PrintingNotFound => BadRequest(new
+                {
+                    message =
+                        "The requested card printing does not belong to this card."
+                }),
+                CardUpdateResult.InvalidPrintingData => BadRequest(new
+                {
+                    message =
+                        "SetName and CardNumber must be supplied together when creating a printing."
+                }),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCard(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteCard(
+            int id,
+            CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Recieved request to delete card with ID {CardId}", id);
+            var result = await _cardService.DeleteCardAsync(
+                id,
+                cancellationToken);
 
-            var card = await _context.Cards.FirstOrDefaultAsync(card => card.Id == id, cancellationToken);
-
-            if (card == null)
+            return result switch
             {
-                _logger.LogWarning("Owned card with ID {OwnedCardId} was not found.", id);
-
-                return NotFound();
-            }
-
-            _context.Cards.Remove(card);
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-
-            return NoContent();
+                CardDeleteResult.Success => NoContent(),
+                CardDeleteResult.NotFound => NotFound(),
+                CardDeleteResult.ReferencedByCollectorData => Conflict(new
+                {
+                    message =
+                        "This card cannot be deleted while one of its printings is referenced by collection or wishlist data."
+                }),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
         }
     }
 }

@@ -1,20 +1,20 @@
-﻿namespace CyberpunkTcgVault.Api.Models
+namespace CyberpunkTcgVault.Api.Models
 {
     public class OwnedCard
     {
         public int Id { get; set; }
 
-        //Foriegn Key to the user who owns this card
+        // Foreign key to the user who owns this card.
         public Guid UserId { get; set; }
 
-        // foreign key to the Card table
-        public int CardId { get; set; }
+        // Foreign key to the exact physical card printing that is owned.
+        public int CardPrintingId { get; set; }
 
-        // Navigation property back to the owner
+        // Navigation property to the exact physical card printing.
+        public CardPrinting CardPrinting { get; set; } = null!;
+
+        // Navigation property back to the owner.
         public AppUser User { get; set; } = null!;
-
-        // navigation property to the related Card entity
-        public Card Card { get; set; } = null!;
 
         public int QuantityOwned { get; set; }
 
