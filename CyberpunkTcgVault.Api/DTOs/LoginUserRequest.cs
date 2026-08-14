@@ -10,7 +10,7 @@ namespace CyberpunkTcgVault.Api.DTOs
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(12)]
+        [StringLength(128, MinimumLength = 8)]
         public string Password { get; set; } = string.Empty;
     }
 }

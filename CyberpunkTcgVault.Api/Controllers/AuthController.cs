@@ -5,12 +5,16 @@ using CyberpunkTcgVault.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
 namespace CyberpunkTcgVault.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ResponseCache(
+        NoStore = true,
+        Location = ResponseCacheLocation.None)]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
@@ -44,6 +48,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicyNames.Registration)]
         [HttpPost("register")]
         public async Task<IActionResult> Register(
             RegisterUserRequest request)
@@ -76,10 +81,13 @@ namespace CyberpunkTcgVault.Api.Controllers
                 {
                     return Conflict(new
                     {
-                        message = "An account with those details already exists."
+                        message =
+                            "An account with those details already exists."
                     });
                 }
 
+                // Identity validation errors are safe and useful client
+                // feedback. Internal exceptions are handled globally.
                 return BadRequest(new
                 {
                     errors = result.Errors
@@ -112,6 +120,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicyNames.Login)]
         [HttpPost("login")]
         public async Task<ActionResult<AuthUserResponse>> Login(
             LoginUserRequest request)
@@ -138,20 +147,13 @@ namespace CyberpunkTcgVault.Api.Controllers
                 return Unauthorized(new
                 {
                     message = "Two-factor authentication is required.",
-
                     requiresTwoFactor = true
                 });
             }
 
-            if (result.IsLockedOut)
-            {
-                return Unauthorized(new
-                {
-                    message = "Unable to sign in. Please try again later."
-                });
-            }
-
-            if (!result.Succeeded)
+            // Do not reveal whether the account is locked or the password
+            // was wrong. Both are intentionally the same public response.
+            if (result.IsLockedOut || !result.Succeeded)
             {
                 return Unauthorized(new
                 {
