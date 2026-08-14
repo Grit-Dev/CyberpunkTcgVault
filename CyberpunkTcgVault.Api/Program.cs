@@ -68,12 +68,19 @@ var app = builder.Build();
 // such as AppDbContext during startup.
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var dbContext =
+        scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    var roleManager =
+        scope.ServiceProvider
+            .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
-    // Seed the database with initial card data if required.
+    Console.WriteLine(">>> ABOUT TO RUN DB SEEDER");
+
     DbSeeder.Seed(dbContext);
+
+    Console.WriteLine(">>> DB SEEDER FINISHED");
+
     await IdentitySeeder.SeedRolesAsync(roleManager);
 }
 

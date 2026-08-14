@@ -12,6 +12,12 @@ namespace CyberpunkTcgVault.Api.Data
     {
         public static void Seed(AppDbContext context)
         {
+            SeedCards(context);
+            SeedCardPrintings(context);
+        }
+
+        private static void SeedCards(AppDbContext context)
+        {
             if (context.Cards.Any())
             {
                 return;
@@ -779,9 +785,75 @@ namespace CyberpunkTcgVault.Api.Data
                     ImageUrl = "/images/cards/madam-echo.png",
                 },
             };
+
             context.Cards.AddRange(cards);
             context.SaveChanges();
+        }
 
+        private static void SeedCardPrintings(AppDbContext context)
+        {
+            const string setName = "Choom Vault Origins";
+
+            var cardSet = context.CardSets
+                .FirstOrDefault(cardSet => cardSet.Name == setName);
+
+            if (cardSet is null)
+            {
+                cardSet = new CardSet
+                {
+                    Name = setName,
+                    Code = "CVO"
+                };
+
+                context.CardSets.Add(cardSet);
+                context.SaveChanges();
+            }
+
+            var cards = context.Cards
+                .Where(card =>
+                    card.SetName == setName &&
+                    card.CardNumber != null)
+                .ToList();
+
+            var existingPrintings = context.CardPrintings
+                .Where(printing => printing.CardSetId == cardSet.Id)
+                .ToList();
+
+            var cardPrintings = new List<CardPrinting>();
+
+            foreach (var card in cards)
+            {
+                var printingExists = existingPrintings.Any(printing =>
+                    printing.CardId == card.Id &&
+                    printing.CardNumber == card.CardNumber);
+
+                if (printingExists)
+                {
+                    continue;
+                }
+
+                var cardPrinting = new CardPrinting
+                {
+                    CardId = card.Id,
+                    CardSetId = cardSet.Id,
+                    CardNumber = card.CardNumber!,
+                    Rarity = card.Rarity,
+                    ImageUrl = card.ImageUrl,
+                    LanguageCode = "en",
+                    IsFoil = card.IsFoil,
+                    IsAltArt = card.IsAltArt
+                };
+
+                cardPrintings.Add(cardPrinting);
+            }
+
+            if (cardPrintings.Count == 0)
+            {
+                return;
+            }
+
+            context.CardPrintings.AddRange(cardPrintings);
+            context.SaveChanges();
         }
     }
 }
