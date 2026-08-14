@@ -1,14 +1,15 @@
 ﻿using CyberpunkTcgVault.Api.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CyberpunkTcgVault.Api.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
-            //PMG TODO: Db provider to be configured and connection string being used. 
         }
 
         public DbSet<Card> Cards { get; set; }
@@ -19,6 +20,13 @@ namespace CyberpunkTcgVault.Api.Data
 
         public DbSet<WishListItem> WishList { get; set; }
 
-        public DbSet<AppUser> Users { get; set; }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<AppUser>()
+                .ToTable("Users");
+        }
+
     }
 }

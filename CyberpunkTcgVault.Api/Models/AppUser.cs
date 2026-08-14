@@ -1,24 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace CyberpunkTcgVault.Api.Models
 {
-    public class AppUser
+    public class AppUser : IdentityUser<Guid>
     {
-        public Guid Id { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string UserName { get; set; } = string.Empty;
-
-        [Required]
-        [StringLength(50)]
-        public string Role { get; set; } = "User";
-
-        // Do not store Actually pasword
-        // - We will use a framework hash!
-        [Required]
-        public string PasswordHash { get; set; } = string.Empty;
-
         // Navigation property.
         // The user can have many owned cards linked to their account.
         public ICollection<OwnedCard> OwnedCards { get; set; } = [];

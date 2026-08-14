@@ -5,11 +5,12 @@ namespace CyberpunkTcgVault.Api.DTOs
     public class LoginUserRequest
     {
         [Required]
-        [StringLength(50)]
-        public string UserName { get; set; } = string.Empty;
+        [EmailAddress]
+        [StringLength(256)]
+        public string Email { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(50)]
+        [StringLength(12)]
         public string Password { get; set; } = string.Empty;
     }
 }

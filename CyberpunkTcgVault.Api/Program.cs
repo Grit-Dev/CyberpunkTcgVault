@@ -1,59 +1,47 @@
 using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Go into the application's configuration, find Jwt:Key, and if it doesn't exist, stop the application with a clear error.
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("JWT key is not configured.");
+// Registers AppDbContext so the API can connect to SQL Server.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Registers ASP.NET Core Identity.
+// AppUser is user type.
+// IdentityRole<Guid> gives us  User / Demo / Admin roles.
+// Identity stores its data through AppDbContext.
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .AddIdentity<AppUser, IdentityRole<Guid>>(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
+        // TO DO: introduce email confirmation before public accounts,
+        options.SignIn.RequireConfirmedEmail = false;
 
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+        options.User.RequireUniqueEmail = true;
 
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey))
-        };
-    });
+        // Prefer long passwords/passphrases.
+        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredUniqueChars = 1;
+
+        // Identity sign-in attempts.
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddAuthorization();
 
-// Add services to the container.
-
-// Registers AppDbContext so the API can connect to SQL Server using the DefaultConnection string.
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 builder.Services.AddControllers();
-
-
-/*
- * Allows the Angular frontend running locally to communicate
- * with the ASP.NET API during development.
- *
- * Angular and the API run on different ports, which means
- * the browser treats them as separate origins.
- *
- * This policy grants the local Angular application permission
- * to send requests to the Vault API.
- *
- * Production origins should be configured separately when deployed.
- */
 
 builder.Services.AddCors(options =>
 {
@@ -61,61 +49,34 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("http://localhost:4200")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
+                  .WithHeaders(
+                      HeaderNames.Accept,
+                      HeaderNames.ContentType,
+                      "X-XSRF-TOKEN")
+                  .AllowCredentials();
         });
 });
 
-// Password Hasher - Store the hash not the Actual Password!
-builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-
-
-// This API supports JWT Bearer authentication, and the token should be sent in the Authorization HTTP header.
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Enter your JWT token."
-    });
-
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Creates a service scope so we can access scoped services like AppDbContext during startup.
+// Creates a service scope
+// such as AppDbContext during startup.
 using (var scope = app.Services.CreateScope())
 {
-    // Get the database context from the dependency injection container.
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
     // Seed the database with initial card data if required.
     DbSeeder.Seed(dbContext);
+    await IdentitySeeder.SeedRolesAsync(roleManager);
 }
 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -124,23 +85,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
- // Enables CORS rules defined above.
- // This allows the Angular catalogue interface to access
- // the ASP.NET API while running locally.
-
 app.UseCors("AngularDevelopment");
 
-// Enables serving static files (such as card images) from the wwwroot folder.
-// This allows API responses to reference image URLs that can be accessed by the frontend.
 app.UseStaticFiles();
-
-// TODO: Remove After
-Console.WriteLine(
-    Directory.Exists(Path.Combine(
-        app.Environment.WebRootPath,
-        "images",
-        "cards"))
-);
 
 app.UseAuthentication();
 app.UseAuthorization();

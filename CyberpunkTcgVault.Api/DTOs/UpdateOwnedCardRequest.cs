@@ -2,10 +2,9 @@
 
 namespace CyberpunkTcgVault.Api.DTOs
 {
-    // PMG TODO: No inheritance right now. This may change
     public class UpdateOwnedCardRequest
     {
-        [Range(0, 999)]
+        [Range(1, 999)]
         public int QuantityOwned { get; set; }
 
         [StringLength(50)]

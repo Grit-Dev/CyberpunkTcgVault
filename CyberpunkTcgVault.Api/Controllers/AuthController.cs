@@ -1,153 +1,192 @@
-﻿using CyberpunkTcgVault.Api.Data;
-using CyberpunkTcgVault.Api.DTOs;
+﻿using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
+using CyberpunkTcgVault.Api.Options;
+using CyberpunkTcgVault.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace CyberpunkTcgVault.Api.Controllers
-
 {
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly ProductCapabilitiesOptions _capabilities;
 
-        private readonly AppDbContext _context;
-        private readonly IPasswordHasher<AppUser> _passwordHasher;
-        private readonly IConfiguration _configuration;
-
-        public AuthController(AppDbContext context,
-            IPasswordHasher<AppUser> passwordHasher,
-            IConfiguration configuration)
+        public AuthController(
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            IOptions<ProductCapabilitiesOptions> options)
         {
-            _context = context;
-            _passwordHasher = passwordHasher;
-            _configuration = configuration;
-        }
-
-        private string GenerateJwtToken(AppUser user)
-        {
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
-
-            var jwtKey = _configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException("JWT key is not configured.");
-
-            var securityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey));
-
-            var credentials = new SigningCredentials(
-                securityKey,
-                SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _capabilities = options.Value;
         }
 
         [Authorize]
         [HttpGet("me")]
-        public async Task<ActionResult<AuthUserResponse>> GetCurrentUser(CancellationToken cancellationToken)
+        public async Task<ActionResult<AuthUserResponse>> GetCurrentUser()
         {
-            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.GetUserAsync(User);
 
-            if (!Guid.TryParse(userIdValue, out var userId))
+            if (user is null)
             {
                 return Unauthorized();
             }
 
-            var user = await _context.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
-
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var response = new AuthUserResponse
-            {
-                UserId = user.Id,
-                UserName = user.UserName,
-                Role = user.Role
-            };
+            var response = await CreateAuthUserResponse(user);
 
             return Ok(response);
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterUserRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Register(
+            RegisterUserRequest request)
         {
-            var userExists = await _context.Users
-                .AnyAsync(user => user.UserName == request.UserName, cancellationToken);
-
-            if (userExists)
+            if (!_capabilities.PublicRegistrationEnabled)
             {
-                return Conflict("Username already exists.");
+                return NotFound(new
+                {
+                    message = "Public registration is not available."
+                });
             }
 
             var user = new AppUser
             {
                 UserName = request.UserName.Trim(),
-                Role = "User"
+                Email = request.Email.Trim()
             };
 
-            // No Password Saved - Its hashed and we only get back the Hash!
-            user.PasswordHash = _passwordHasher.HashPassword(
+            var result = await _userManager.CreateAsync(
                 user,
                 request.Password);
 
-            _context.Users.Add(user);
+            if (!result.Succeeded)
+            {
+                var duplicateAccount = result.Errors.Any(error =>
+                    error.Code == "DuplicateUserName" ||
+                    error.Code == "DuplicateEmail");
 
-            await _context.SaveChangesAsync(cancellationToken);
+                if (duplicateAccount)
+                {
+                    return Conflict(new
+                    {
+                        message = "An account with those details already exists."
+                    });
+                }
+
+                return BadRequest(new
+                {
+                    errors = result.Errors
+                        .Select(error => error.Description)
+                });
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(
+                user,
+                AppRoles.User);
+
+            if (!roleResult.Succeeded)
+            {
+                await _userManager.DeleteAsync(user);
+
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    new
+                    {
+                        message = "Unable to complete registration."
+                    });
+            }
 
             return StatusCode(
                 StatusCodes.Status201Created,
-                new { message = "User registered successfully." });
+                new
+                {
+                    message = "User registered successfully."
+                });
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginUserRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<AuthUserResponse>> Login(
+            LoginUserRequest request)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(user => user.UserName == request.UserName, cancellationToken);
+            var user = await _userManager.FindByEmailAsync(
+                request.Email.Trim());
 
-            if (user == null)
+            if (user is null)
             {
-                return Unauthorized("Invalid username or password.");
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password."
+                });
             }
 
-            var passwordResult = _passwordHasher.VerifyHashedPassword(
+            var result = await _signInManager.PasswordSignInAsync(
                 user,
-                user.PasswordHash,
-                request.Password);
+                request.Password,
+                isPersistent: false,
+                lockoutOnFailure: true);
 
-            if (passwordResult == PasswordVerificationResult.Failed)
+            if (result.RequiresTwoFactor)
             {
-                return Unauthorized("Invalid username or password.");
+                return Unauthorized(new
+                {
+                    message = "Two-factor authentication is required.",
+
+                    requiresTwoFactor = true
+                });
             }
 
-            var token = GenerateJwtToken(user);
-
-            return Ok(new
+            if (result.IsLockedOut)
             {
-                token
-            });
+                return Unauthorized(new
+                {
+                    message = "Unable to sign in. Please try again later."
+                });
+            }
+
+            if (!result.Succeeded)
+            {
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password."
+                });
+            }
+
+            var response = await CreateAuthUserResponse(user);
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+
+            return NoContent();
+        }
+
+        private async Task<AuthUserResponse> CreateAuthUserResponse(
+            AppUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new AuthUserResponse
+            {
+                UserId = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                Roles = roles.ToArray(),
+                EmailConfirmed = user.EmailConfirmed,
+                TwoFactorEnabled = user.TwoFactorEnabled
+            };
         }
     }
 }
