@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CyberpunkTcgVault.Api.DTOs
 {
     public class CreateWishListItemRequest
     {
-        // Foreign key to the Cards table.
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int CardId { get; set; }
+        // Foreign key to the CardPrintings table.
+        public int CardPrintingId { get; set; }
 
         [Required]
         [Range(1, 999)]

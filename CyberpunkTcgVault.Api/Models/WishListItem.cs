@@ -4,17 +4,15 @@
     {
         public int Id { get; set; }
 
-        // Foreign key to the Cards table.
-        public int CardId { get; set; }
+        public int CardPrintingId { get; set; }
+
+        public CardPrinting CardPrinting { get; set; } = null!;
 
         // Foriegn Key to the User Who owns this WishListItem
         public Guid UserId { get; set; }
 
         // Navigation property back to the owning user.
         public AppUser User { get; set; } = null!;
-
-        // Navigation property. Lets EF Core load the related Card.
-        public Card Card { get; set; } = null!;
 
         public int WantedQuantity { get; set; }
 

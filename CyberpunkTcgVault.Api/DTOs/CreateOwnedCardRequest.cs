@@ -4,9 +4,8 @@ namespace CyberpunkTcgVault.Api.DTOs
 {
     public class CreateOwnedCardRequest
     {
-        [Range(1, int.MaxValue)]
-        public int CardId { get; set; }
-        
+        public int CardPrintingId { get; set; }
+
         [Range(0, int.MaxValue)]
         public int QuantityOwned { get; set; }
 

@@ -70,6 +70,18 @@ namespace CyberpunkTcgVault.Api.Data
             builder.Entity<CardPrinting>()
                 .Property(cardPrinting => cardPrinting.LanguageCode)
                 .HasMaxLength(10);
+
+            builder.Entity<OwnedCard>()
+                .HasOne(ownedCard => ownedCard.CardPrinting)
+                .WithMany(cardPrinting => cardPrinting.OwnedCards)
+                .HasForeignKey(ownedCard => ownedCard.CardPrintingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<WishListItem>()
+                .HasOne(wishListItem => wishListItem.CardPrinting)
+                .WithMany(cardPrinting => cardPrinting.WishListItems)
+                .HasForeignKey(wishListItem => wishListItem.CardPrintingId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
     }

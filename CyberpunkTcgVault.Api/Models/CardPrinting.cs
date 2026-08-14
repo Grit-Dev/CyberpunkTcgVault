@@ -23,5 +23,9 @@
         public bool IsFoil { get; set; }
 
         public bool IsAltArt { get; set; }
+
+        public ICollection<OwnedCard> OwnedCards { get; set; } = [];
+
+        public ICollection<WishListItem> WishListItems { get; set; } = [];
     }
 }

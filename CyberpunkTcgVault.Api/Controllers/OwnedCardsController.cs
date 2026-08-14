@@ -16,45 +16,52 @@ namespace CyberpunkTcgVault.Api.Controllers
         private readonly AppDbContext _context;
         private readonly ILogger<OwnedCardsController> _logger;
 
-        public OwnedCardsController(AppDbContext context, ILogger<OwnedCardsController> logger)
+        public OwnedCardsController(
+            AppDbContext context,
+            ILogger<OwnedCardsController> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        // Look inside the JWT. Find the logged-in user's ID. Convert it back into a Guid. Return it
+        // Find the authenticated user's ID claim and convert it back into a Guid.
         private Guid GetLoggedInUserId()
         {
             var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (!Guid.TryParse(userIdValue, out var userId))
             {
-                throw new InvalidOperationException("User ID claim was not found or was invalid.");
+                throw new InvalidOperationException(
+                    "User ID claim was not found or was invalid.");
             }
 
             return userId;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OwnedCardResponse>>> GetOwnedCards(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<OwnedCardResponse>>> GetOwnedCards(
+            CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
-            _logger.LogInformation("Received request to get owned cards for user {UserId}.", userId);
+            _logger.LogInformation(
+                "Received request to get owned cards for user {UserId}.",
+                userId);
 
             var ownedCards = await _context.OwnedCards
                 .AsNoTracking()
                 .Where(ownedCard => ownedCard.UserId == userId)
-                .Include(ownedCard => ownedCard.Card)
-                .OrderBy(ownedCard => ownedCard.Card.Name)
+                .OrderBy(ownedCard => ownedCard.CardPrinting.Card.Name)
                 .Select(ownedCard => new OwnedCardResponse
                 {
                     Id = ownedCard.Id,
-                    CardId = ownedCard.CardId,
-                    CardName = ownedCard.Card.Name,
-                    SetName = ownedCard.Card.SetName,
-                    Rarity = ownedCard.Card.Rarity,
-                    Colour = ownedCard.Card.Colour,
+                    CardPrintingId = ownedCard.CardPrintingId,
+                    CardId = ownedCard.CardPrinting.CardId,
+                    CardName = ownedCard.CardPrinting.Card.Name,
+                    SetName = ownedCard.CardPrinting.CardSet.Name,
+                    CardNumber = ownedCard.CardPrinting.CardNumber,
+                    Rarity = ownedCard.CardPrinting.Rarity,
+                    Colour = ownedCard.CardPrinting.Card.Colour,
                     QuantityOwned = ownedCard.QuantityOwned,
                     Condition = ownedCard.Condition,
                     IsInMasterCollection = ownedCard.IsInMasterCollection,
@@ -67,13 +74,18 @@ namespace CyberpunkTcgVault.Api.Controllers
                 })
                 .ToListAsync(cancellationToken);
 
-            _logger.LogInformation("Retrieved {Count} owned cards for user {UserId}.", ownedCards.Count, userId);
+            _logger.LogInformation(
+                "Retrieved {Count} owned cards for user {UserId}.",
+                ownedCards.Count,
+                userId);
 
             return Ok(ownedCards);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<OwnedCardResponse>> GetOwnedCardById(int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<OwnedCardResponse>> GetOwnedCardById(
+            int id,
+            CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -85,11 +97,13 @@ namespace CyberpunkTcgVault.Api.Controllers
                 .Select(ownedCard => new OwnedCardResponse
                 {
                     Id = ownedCard.Id,
-                    CardId = ownedCard.CardId,
-                    CardName = ownedCard.Card.Name,
-                    SetName = ownedCard.Card.SetName,
-                    Rarity = ownedCard.Card.Rarity,
-                    Colour = ownedCard.Card.Colour,
+                    CardPrintingId = ownedCard.CardPrintingId,
+                    CardId = ownedCard.CardPrinting.CardId,
+                    CardName = ownedCard.CardPrinting.Card.Name,
+                    SetName = ownedCard.CardPrinting.CardSet.Name,
+                    CardNumber = ownedCard.CardPrinting.CardNumber,
+                    Rarity = ownedCard.CardPrinting.Rarity,
+                    Colour = ownedCard.CardPrinting.Card.Colour,
                     QuantityOwned = ownedCard.QuantityOwned,
                     Condition = ownedCard.Condition,
                     IsInMasterCollection = ownedCard.IsInMasterCollection,
@@ -104,7 +118,10 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             if (ownedCard == null)
             {
-                _logger.LogWarning("Owned card with ID {Id} was not found for user {UserId}.", id, userId);
+                _logger.LogWarning(
+                    "Owned card with ID {Id} was not found for user {UserId}.",
+                    id,
+                    userId);
 
                 return NotFound();
             }
@@ -113,23 +130,29 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OwnedCardResponse>> CreateOwnedCard(CreateOwnedCardRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<OwnedCardResponse>> CreateOwnedCard(
+            CreateOwnedCardRequest request,
+            CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
-            var card = await _context.Cards
+            var cardPrinting = await _context.CardPrintings
                 .AsNoTracking()
-                .FirstOrDefaultAsync(card => card.Id == request.CardId, cancellationToken);
+                .Include(cardPrinting => cardPrinting.Card)
+                .Include(cardPrinting => cardPrinting.CardSet)
+                .FirstOrDefaultAsync(
+                    cardPrinting => cardPrinting.Id == request.CardPrintingId,
+                    cancellationToken);
 
-            if (card == null)
+            if (cardPrinting == null)
             {
-                return BadRequest("Card does not exist");
+                return BadRequest("Card printing does not exist");
             }
 
             var ownedCard = new OwnedCard
             {
                 UserId = userId,
-                CardId = request.CardId,
+                CardPrintingId = request.CardPrintingId,
                 QuantityOwned = request.QuantityOwned,
                 Condition = request.Condition?.Trim(),
                 IsInMasterCollection = request.IsInMasterCollection,
@@ -141,17 +164,22 @@ namespace CyberpunkTcgVault.Api.Controllers
                 Notes = request.Notes?.Trim()
             };
 
-            await _context.OwnedCards.AddAsync(ownedCard, cancellationToken);
+            await _context.OwnedCards.AddAsync(
+                ownedCard,
+                cancellationToken);
+
             await _context.SaveChangesAsync(cancellationToken);
 
             var response = new OwnedCardResponse
             {
                 Id = ownedCard.Id,
-                CardId = ownedCard.CardId,
-                CardName = card.Name,
-                SetName = card.SetName,
-                Rarity = card.Rarity,
-                Colour = card.Colour,
+                CardPrintingId = ownedCard.CardPrintingId,
+                CardId = cardPrinting.CardId,
+                CardName = cardPrinting.Card.Name,
+                SetName = cardPrinting.CardSet.Name,
+                CardNumber = cardPrinting.CardNumber,
+                Rarity = cardPrinting.Rarity,
+                Colour = cardPrinting.Card.Colour,
                 QuantityOwned = ownedCard.QuantityOwned,
                 Condition = ownedCard.Condition,
                 IsInMasterCollection = ownedCard.IsInMasterCollection,
@@ -163,18 +191,26 @@ namespace CyberpunkTcgVault.Api.Controllers
                 Notes = ownedCard.Notes
             };
 
-            return CreatedAtAction(nameof(GetOwnedCardById), new { id = ownedCard.Id }, response);
+            return CreatedAtAction(
+                nameof(GetOwnedCardById),
+                new { id = ownedCard.Id },
+                response);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOwnedCard(int id, UpdateOwnedCardRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateOwnedCard(
+            int id,
+            UpdateOwnedCardRequest request,
+            CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
             var ownedCard = await _context.OwnedCards
-                .FirstOrDefaultAsync(ownedCard =>
-                    ownedCard.Id == id &&
-                    ownedCard.UserId == userId, cancellationToken);
+                .FirstOrDefaultAsync(
+                    ownedCard =>
+                        ownedCard.Id == id &&
+                        ownedCard.UserId == userId,
+                    cancellationToken);
 
             if (ownedCard == null)
             {
@@ -197,7 +233,9 @@ namespace CyberpunkTcgVault.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOwnedCard(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteOwnedCard(
+            int id,
+            CancellationToken cancellationToken)
         {
             var userId = GetLoggedInUserId();
 
@@ -207,9 +245,11 @@ namespace CyberpunkTcgVault.Api.Controllers
                 userId);
 
             var ownedCard = await _context.OwnedCards
-                .FirstOrDefaultAsync(ownedCard =>
-                    ownedCard.Id == id &&
-                    ownedCard.UserId == userId, cancellationToken);
+                .FirstOrDefaultAsync(
+                    ownedCard =>
+                        ownedCard.Id == id &&
+                        ownedCard.UserId == userId,
+                    cancellationToken);
 
             if (ownedCard == null)
             {
