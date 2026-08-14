@@ -14,23 +14,30 @@ namespace CyberpunkTcgVault.Api.Tests.Data
             DbSeeder.Seed(context);
 
             var repositoryRoot = FindRepositoryRoot();
+
             var apiRoot = Path.Combine(
                 repositoryRoot,
                 "CyberpunkTcgVault.Api");
 
             // Act
-            var missingArtwork = context.Cards
-                .Where(card => !string.IsNullOrWhiteSpace(card.ImageUrl))
-                .AsEnumerable()
-                .Select(card => new
+            var missingArtwork = context.CardPrintings
+                .Where(printing =>
+                    !string.IsNullOrWhiteSpace(printing.ImageUrl))
+                .Select(printing => new
                 {
-                    card.Name,
-                    card.ImageUrl,
+                    CardName = printing.Card.Name,
+                    printing.ImageUrl
+                })
+                .AsEnumerable()
+                .Select(printing => new
+                {
+                    printing.CardName,
+                    printing.ImageUrl,
                     FilePath = ResolveArtworkPath(
                         apiRoot,
-                        card.ImageUrl!)
+                        printing.ImageUrl!)
                 })
-                .Where(card => !File.Exists(card.FilePath))
+                .Where(printing => !File.Exists(printing.FilePath))
                 .ToList();
 
             // Assert
@@ -39,8 +46,8 @@ namespace CyberpunkTcgVault.Api.Tests.Data
                 "Seeded cards reference missing artwork:\n" +
                 string.Join(
                     Environment.NewLine,
-                    missingArtwork.Select(card =>
-                        $"- {card.Name}: {card.ImageUrl}")));
+                    missingArtwork.Select(printing =>
+                        $"- {printing.CardName}: {printing.ImageUrl}")));
         }
 
         private static string ResolveArtworkPath(

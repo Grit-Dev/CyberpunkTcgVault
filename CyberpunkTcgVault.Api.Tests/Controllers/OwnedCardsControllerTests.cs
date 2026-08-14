@@ -3,10 +3,9 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Tests.TestHelpers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Security.Claims;
+using CyberpunkTcgVault.Api.Services;
 
 namespace CyberpunkTcgVault.Api.Tests.Controllers
 {
@@ -16,26 +15,16 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             AppDbContext context,
             Guid userId)
         {
-            var controller = new OwnedCardsController(
+            var ownedCardService = new OwnedCardService(
                 context,
-                NullLogger<OwnedCardsController>.Instance)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = new DefaultHttpContext
-                    {
-                        User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [
-                            new Claim(
-                                ClaimTypes.NameIdentifier,
-                                userId.ToString())
-                        ],
-                        "TestAuth"))
-                    }
-                }
-            };
+                NullLogger<OwnedCardService>.Instance);
 
-            return controller;
+            var currentUserService =
+                new TestCurrentUserService(userId);
+
+            return new OwnedCardsController(
+                ownedCardService,
+                currentUserService);
         }
 
         private static AppUser CreateTestUser()

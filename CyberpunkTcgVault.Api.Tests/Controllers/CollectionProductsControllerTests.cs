@@ -1,36 +1,30 @@
-﻿using CyberpunkTcgVault.Api.Controllers;
+using CyberpunkTcgVault.Api.Controllers;
 using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Tests.TestHelpers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
-using System.Security.Claims;
+using CyberpunkTcgVault.Api.Services;
 
 namespace CyberpunkTcgVault.Api.Tests.Controllers
 {
     public class CollectionProductsControllerTests
     {
-        private static CollectionProductsController CreateController(AppDbContext context, Guid userId)
+        private static CollectionProductsController CreateController(
+            AppDbContext context,
+            Guid userId)
         {
-            var controller = new CollectionProductsController(
+            var collectionProductService = new CollectionProductService(
                 context,
-                NullLogger<CollectionProductsController>.Instance)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = new DefaultHttpContext
-                    {
-                        User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [
-                            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-                        ], "TestAuth"))
-                    }
-                }
-            };
+                NullLogger<CollectionProductService>.Instance);
 
-            return controller;
+            var currentUserService =
+                new TestCurrentUserService(userId);
+
+            return new CollectionProductsController(
+                collectionProductService,
+                currentUserService);
         }
 
         private static AppUser CreateTestUser()

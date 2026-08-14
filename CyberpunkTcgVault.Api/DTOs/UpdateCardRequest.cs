@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CyberpunkTcgVault.Api.DTOs
 {
@@ -7,6 +7,10 @@ namespace CyberpunkTcgVault.Api.DTOs
         [Required]
         [StringLength(200)]
         public string Name { get; set; } = string.Empty;
+
+        // Optional exact printing to update.
+        // If omitted, the current primary printing is used.
+        public int? CardPrintingId { get; set; }
 
         [StringLength(200)]
         public string? SetName { get; set; }
@@ -53,7 +57,6 @@ namespace CyberpunkTcgVault.Api.DTOs
 
         public bool IsStarterDeckExclusive { get; set; }
 
-        // PMG TODO: Need to consider next new sets that come out
         [StringLength(200)]
         public string? CardNumber { get; set; }
 

@@ -1,16 +1,14 @@
-namespace CyberpunkTcgVault.Api.Models
+namespace CyberpunkTcgVault.Api.DTOs
 {
-    public class CardPrinting
+    public class CardPrintingResponse
     {
         public int Id { get; set; }
 
-        public int CardId { get; set; }
-
         public int CardSetId { get; set; }
 
-        public Card Card { get; set; } = null!;
+        public string SetName { get; set; } = string.Empty;
 
-        public CardSet CardSet { get; set; } = null!;
+        public string? SetCode { get; set; }
 
         public string CardNumber { get; set; } = string.Empty;
 
@@ -35,9 +33,5 @@ namespace CyberpunkTcgVault.Api.Models
         public bool IsPromo { get; set; }
 
         public bool IsStarterDeckExclusive { get; set; }
-
-        public ICollection<OwnedCard> OwnedCards { get; set; } = [];
-
-        public ICollection<WishListItem> WishListItems { get; set; } = [];
     }
 }
