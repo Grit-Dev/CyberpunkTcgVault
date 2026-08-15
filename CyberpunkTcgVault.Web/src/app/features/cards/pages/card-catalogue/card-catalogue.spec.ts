@@ -36,7 +36,8 @@ describe('CardCatalogue', () => {
       pageSize: 24,
       totalCount: 0,
       totalPages: 0
-    })
+    }),
+    getImageUrl: (imagePath: string | null) => imagePath ?? '/images/cards/placeholder.png'
   };
 
   beforeEach(async () => {
