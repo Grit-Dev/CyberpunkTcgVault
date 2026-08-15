@@ -38,3 +38,14 @@ export interface MfaLoginRequest {
 export interface RecoveryCodeLoginRequest {
   recoveryCode: string;
 }
+
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  userId: string;
+  token: string;
+  newPassword: string;
+}

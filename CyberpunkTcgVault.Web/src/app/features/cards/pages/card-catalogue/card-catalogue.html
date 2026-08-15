@@ -236,6 +236,7 @@
                 class="catalogue-card__link"
                 [routerLink]="['/cards', card.id]"
                 [attr.aria-label]="'Inspect ' + card.name"
+                (click)="rememberArchiveState()"
               >
                 <!-- Physical card artwork + GHOST SIGNAL fallback -->
                 <div class="catalogue-card__visual">

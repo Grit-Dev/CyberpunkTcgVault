@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import {
   finalize,
+  map,
   Observable,
   of,
   shareReplay,
@@ -17,7 +18,8 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { API_ENDPOINTS } from '../../../core/http/api-endpoints';
 import {
   CreateOwnedCardRequest,
-  OwnedCard
+  OwnedCard,
+  UpdateOwnedCardRequest
 } from '../models/owned-card';
 
 /**
@@ -104,4 +106,51 @@ export class OwnedCardsService {
         })
       );
   }
+
+  /**
+   * Changes the copy count on the existing OwnedCard row.
+   *
+   * PUT uses the backend's full update DTO, so all existing collector metadata
+   * is deliberately preserved instead of being reset while quantity changes.
+   */
+  updateQuantity(item: OwnedCard, quantityOwned: number): Observable<OwnedCard> {
+    const request: UpdateOwnedCardRequest = {
+      quantityOwned,
+      condition: item.condition,
+      isInMasterCollection: item.isInMasterCollection,
+      isDuplicate: item.isDuplicate,
+      isGradingCandidate: item.isGradingCandidate,
+      isOpenForTrade: item.isOpenForTrade,
+      isOpenToMessages: item.isOpenToMessages,
+      maySellLater: item.maySellLater,
+      notes: item.notes
+    };
+
+    return this.http
+      .put<void>(API_ENDPOINTS.ownedCardById(item.id), request)
+      .pipe(
+        map(() => ({ ...item, quantityOwned })),
+        tap(updated => {
+          this.itemsState.update(items =>
+            items.map(existing =>
+              existing.id === updated.id ? updated : existing
+            )
+          );
+        })
+      );
+  }
+
+  /** Removes only the authenticated collector's OwnedCard record. */
+  remove(item: OwnedCard): Observable<void> {
+    return this.http
+      .delete<void>(API_ENDPOINTS.ownedCardById(item.id))
+      .pipe(
+        tap(() => {
+          this.itemsState.update(items =>
+            items.filter(existing => existing.id !== item.id)
+          );
+        })
+      );
+  }
+
 }

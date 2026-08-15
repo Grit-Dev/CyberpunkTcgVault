@@ -29,3 +29,17 @@ export interface CreateOwnedCardRequest {
   cardPrintingId: number;
   quantityOwned: number;
 }
+
+
+/** Full backend update contract. Keep existing metadata when changing quantity. */
+export interface UpdateOwnedCardRequest {
+  quantityOwned: number;
+  condition: string | null;
+  isInMasterCollection: boolean;
+  isDuplicate: boolean;
+  isGradingCandidate: boolean;
+  isOpenForTrade: boolean;
+  isOpenToMessages: boolean;
+  maySellLater: boolean;
+  notes: string | null;
+}

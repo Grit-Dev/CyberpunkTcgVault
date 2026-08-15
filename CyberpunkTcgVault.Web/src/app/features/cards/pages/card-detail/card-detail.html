@@ -1,5 +1,5 @@
 <main class="card-detail-page">
-  <div class="container card-detail-shell">
+  <div class="card-detail-shell">
     <a class="card-detail-back" routerLink="/cards">
       <span aria-hidden="true">←</span>
       Vault Archive
@@ -29,7 +29,7 @@
       </section>
     } @else if (loadError()) {
       <section class="card-detail-state" aria-labelledby="card-error-title">
-        <p class="eyebrow">Card Record</p>
+        <p class="eyebrow">Vault Archive</p>
         <h1 id="card-error-title">We couldn't load this card.</h1>
         <p>Try the card again, or return to the Vault Archive.</p>
         <div class="card-detail-state__actions">
@@ -47,6 +47,7 @@
                 [appCardArtwork]="selectedPrinting()?.imageUrl ?? currentCard.imageUrl"
                 [alt]="currentCard.name + (selectedPrinting()?.cardNumber ? ' — printing ' + selectedPrinting()?.cardNumber : '')"
                 decoding="async"
+                fetchpriority="high"
               />
             </div>
           </div>
@@ -54,8 +55,6 @@
 
         <div class="inspection-record">
           <header class="card-record-header">
-            <p class="record-kicker">Card Record</p>
-
             <h1 [id]="'card-title-' + currentCard.id">
               {{ currentCard.name }}
             </h1>
@@ -63,7 +62,8 @@
             @if (
               hasMeaningfulValue(currentCard.cardType) ||
               hasMeaningfulValue(currentCard.classification) ||
-              hasMeaningfulValue(currentCard.colour)
+              hasMeaningfulValue(currentCard.colour) ||
+              hasMeaningfulValue(currentCard.keywords)
             ) {
               <p class="card-identity-line">
                 @if (hasMeaningfulValue(currentCard.cardType)) {
@@ -75,11 +75,19 @@
                 @if (hasMeaningfulValue(currentCard.colour)) {
                   <span>{{ currentCard.colour }}</span>
                 }
+                @if (hasMeaningfulValue(currentCard.keywords)) {
+                  <span>{{ currentCard.keywords }}</span>
+                }
               </p>
             }
           </header>
 
-          @if (currentCard.cost !== null || currentCard.power !== null || currentCard.ramCost !== null) {
+          @if (
+            currentCard.cost !== null ||
+            currentCard.power !== null ||
+            currentCard.ramCost !== null ||
+            currentCard.eddies !== null
+          ) {
             <dl class="gameplay-rail" aria-label="Gameplay values">
               @if (currentCard.cost !== null) {
                 <div>
@@ -99,88 +107,95 @@
                   <dd>{{ currentCard.ramCost }}</dd>
                 </div>
               }
+              @if (currentCard.eddies !== null) {
+                <div>
+                  <dt>Eddies</dt>
+                  <dd>{{ currentCard.eddies }}</dd>
+                </div>
+              }
             </dl>
           }
 
-          @if (currentCard.printings.length > 1) {
-            <section class="printing-selector" aria-labelledby="printing-selector-title">
-              <div class="record-section-heading">
-                <p>Printing</p>
-                <h2 id="printing-selector-title">Choose a printing</h2>
-              </div>
-
-              <div class="printing-rail" aria-label="Available card printings">
-                @for (printing of currentCard.printings; track printing.id) {
-                  <button
-                    class="printing-option"
-                    type="button"
-                    [class.printing-option--selected]="selectedPrinting()?.id === printing.id"
-                    [attr.aria-pressed]="selectedPrinting()?.id === printing.id"
-                    [attr.aria-label]="'Inspect printing ' + printing.cardNumber + ' from ' + printing.setName"
-                    (click)="selectPrinting(printing)"
-                  >
-                    <span class="printing-option__number">{{ printing.cardNumber }}</span>
-                    <span class="printing-option__set">{{ printing.setName }}</span>
-                    @if (printingVariants(printing).length > 0) {
-                      <span class="printing-option__variant">
-                        {{ printingVariants(printing).join(' · ') }}
-                      </span>
-                    }
-                  </button>
-                }
-              </div>
-            </section>
-          }
+          <!--
+            Rules Text is intentionally not fabricated from Notes or artwork.
+            When the backend exposes a source-backed Rules field, it belongs
+            here before the physical printing record.
+          -->
 
           @if (selectedPrinting(); as printing) {
-            <section class="printing-record" aria-labelledby="printing-record-title">
-              <div class="record-section-heading">
-                <p>Printing Record</p>
-                <h2 id="printing-record-title">{{ printing.cardNumber }}</h2>
+            <section class="printing-record" [attr.aria-labelledby]="'printing-id-' + printing.id">
+              <div class="printing-record__identifier">
+                <span class="printing-record__label">Printing</span>
+                <h2 [id]="'printing-id-' + printing.id">{{ printing.cardNumber }}</h2>
               </div>
 
-              <dl class="printing-facts">
+              <div class="printing-record__body">
                 @if (hasMeaningfulValue(printing.setName)) {
-                  <div>
-                    <dt>Set</dt>
-                    <dd>{{ printing.setName }}</dd>
-                  </div>
+                  <p class="printing-record__set">{{ printing.setName }}</p>
                 }
-                @if (hasMeaningfulValue(printing.setCode)) {
-                  <div>
-                    <dt>Set Code</dt>
-                    <dd>{{ printing.setCode }}</dd>
-                  </div>
-                }
-                @if (hasMeaningfulValue(printing.rarity)) {
-                  <div>
-                    <dt>Rarity</dt>
-                    <dd>{{ printing.rarity }}</dd>
-                  </div>
-                }
-                @if (hasMeaningfulValue(printing.languageCode)) {
-                  <div>
-                    <dt>Language</dt>
-                    <dd>{{ printing.languageCode }}</dd>
-                  </div>
-                }
-              </dl>
 
-              @if (printingVariants(printing).length > 0) {
-                <p class="printing-variants">
-                  {{ printingVariants(printing).join(' · ') }}
+                <p class="printing-record__line">
+                  @if (hasMeaningfulValue(printing.setCode)) {
+                    <span>{{ printing.setCode }}</span>
+                  }
+                  @if (hasMeaningfulValue(printing.languageCode)) {
+                    <span>{{ printing.languageCode }}</span>
+                  }
+                  @if (hasMeaningfulValue(printing.rarity)) {
+                    <span>{{ printing.rarity }}</span>
+                  }
                 </p>
-              }
+
+                @if (printingVariants(printing).length > 0) {
+                  <p class="printing-record__variants">
+                    {{ printingVariants(printing).join(' · ') }}
+                  </p>
+                }
+              </div>
             </section>
 
-            <section class="collector-record" aria-labelledby="collector-record-title">
-              <div class="record-section-heading">
-                <p>Collector Record</p>
-                <h2 id="collector-record-title">
-                  {{ authService.isAuthenticated() ? 'Your copy of this printing' : 'Own or want this printing' }}
-                </h2>
-              </div>
+            @if (currentCard.printings.length > 1) {
+              <section class="printing-selector" aria-labelledby="printing-selector-title">
+                <div class="printing-selector__heading">
+                  <h2 id="printing-selector-title">Available printings</h2>
+                  <p>Select another physical printing.</p>
+                </div>
 
+                <div class="printing-rail" aria-label="Available card printings">
+                  @for (candidate of currentCard.printings; track candidate.id) {
+                    <button
+                      class="printing-option"
+                      type="button"
+                      [class.printing-option--selected]="selectedPrinting()?.id === candidate.id"
+                      [attr.aria-pressed]="selectedPrinting()?.id === candidate.id"
+                      [attr.aria-label]="printingAccessibleLabel(candidate)"
+                      (click)="selectPrinting(candidate)"
+                    >
+                      <span class="printing-option__thumb" aria-hidden="true">
+                        <img
+                          [appCardArtwork]="candidate.imageUrl"
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </span>
+                      <span class="printing-option__copy">
+                        <strong>{{ candidate.cardNumber }}</strong>
+                        <span>{{ candidate.setName }}</span>
+                        @if (printingVariants(candidate).length > 0) {
+                          <small>{{ printingVariants(candidate).join(' · ') }}</small>
+                        }
+                      </span>
+                      @if (selectedPrinting()?.id === candidate.id) {
+                        <span class="sr-only">Selected</span>
+                      }
+                    </button>
+                  }
+                </div>
+              </section>
+            }
+
+            <section class="collector-record" aria-label="Your collector record for this printing">
               @if (collectorError()) {
                 <p class="collector-feedback collector-feedback--error" role="alert">
                   {{ collectorError() }}
@@ -198,62 +213,108 @@
                   Checking your collector record…
                 </p>
               } @else {
-                <div class="collector-state-grid">
-                  <div class="collector-state">
+                <div class="collector-row">
+                  <div class="collector-row__summary">
+                    <span class="collector-row__label">Collection</span>
                     @if (ownedRecord(); as owned) {
-                      <p class="collector-state__label">In your Collection</p>
                       <strong>
                         {{ owned.quantityOwned }} {{ owned.quantityOwned === 1 ? 'copy' : 'copies' }}
                       </strong>
+                    } @else if (authService.isAuthenticated()) {
+                      <span>Not in your collection</span>
                     } @else {
-                      <p class="collector-state__label">Collection</p>
-                      <button
-                        class="btn btn--primary collector-action"
-                        type="button"
-                        [disabled]="isAddingToCollection()"
-                        (click)="addToCollection()"
-                      >
-                        {{ isAddingToCollection() ? 'Adding…' : 'Add to Collection' }}
-                      </button>
+                      <span>Sign in to record ownership</span>
                     }
                   </div>
 
-                  <div class="collector-state collector-state--secondary">
-                    @if (wishlistRecord(); as wanted) {
-                      <p class="collector-state__label">On your Wishlist</p>
-                      <strong>
-                        Wanted quantity {{ wanted.wantedQuantity }}
-                      </strong>
-                    } @else {
-                      <p class="collector-state__label">Wishlist</p>
+                  <div class="collector-row__actions">
+                    @if (ownedRecord(); as owned) {
+                      <div class="quantity-control" aria-label="Collection quantity">
+                        <button
+                          type="button"
+                          [disabled]="owned.quantityOwned <= 1 || isCollectionBusy()"
+                          [attr.aria-label]="'Decrease collection quantity from ' + owned.quantityOwned"
+                          (click)="decreaseCollectionQuantity()"
+                        >−</button>
+                        <span aria-live="polite">{{ owned.quantityOwned }}</span>
+                        <button
+                          type="button"
+                          [disabled]="owned.quantityOwned >= 999 || isCollectionBusy()"
+                          [attr.aria-label]="'Increase collection quantity from ' + owned.quantityOwned"
+                          (click)="increaseCollectionQuantity()"
+                        >+</button>
+                      </div>
                       <button
-                        class="btn btn--secondary collector-action"
+                        class="collector-inline-action collector-inline-action--muted"
                         type="button"
-                        [disabled]="isAddingToWishlist()"
+                        [disabled]="isCollectionBusy()"
+                        (click)="removeFromCollection()"
+                      >Remove from Collection</button>
+                    } @else {
+                      <button
+                        class="collector-inline-action"
+                        type="button"
+                        [disabled]="isCollectionBusy()"
+                        (click)="addToCollection()"
+                      >{{ isCollectionBusy() ? 'Adding…' : 'Add' }}</button>
+                    }
+                  </div>
+                </div>
+
+                <div class="collector-row">
+                  <div class="collector-row__summary">
+                    <span class="collector-row__label">Wishlist</span>
+                    @if (wishlistRecord(); as wanted) {
+                      <strong>
+                        Wanted {{ wanted.wantedQuantity }}
+                      </strong>
+                    } @else if (authService.isAuthenticated()) {
+                      <span>Not on your wishlist</span>
+                    } @else {
+                      <span>Sign in to record wanted state</span>
+                    }
+                  </div>
+
+                  <div class="collector-row__actions">
+                    @if (wishlistRecord(); as wanted) {
+                      <div class="quantity-control" aria-label="Wishlist wanted quantity">
+                        <button
+                          type="button"
+                          [disabled]="wanted.wantedQuantity <= 1 || isWishlistBusy()"
+                          [attr.aria-label]="'Decrease wanted quantity from ' + wanted.wantedQuantity"
+                          (click)="decreaseWishlistQuantity()"
+                        >−</button>
+                        <span aria-live="polite">{{ wanted.wantedQuantity }}</span>
+                        <button
+                          type="button"
+                          [disabled]="wanted.wantedQuantity >= 999 || isWishlistBusy()"
+                          [attr.aria-label]="'Increase wanted quantity from ' + wanted.wantedQuantity"
+                          (click)="increaseWishlistQuantity()"
+                        >+</button>
+                      </div>
+                      <button
+                        class="collector-inline-action collector-inline-action--muted"
+                        type="button"
+                        [disabled]="isWishlistBusy()"
+                        (click)="removeFromWishlist()"
+                      >Remove from Wishlist</button>
+                    } @else {
+                      <button
+                        class="collector-inline-action"
+                        type="button"
+                        [disabled]="isWishlistBusy()"
                         (click)="addToWishlist()"
-                      >
-                        {{ isAddingToWishlist() ? 'Adding…' : 'Add to Wishlist' }}
-                      </button>
+                      >{{ isWishlistBusy() ? 'Adding…' : 'Add' }}</button>
                     }
                   </div>
                 </div>
 
                 @if (!authService.isAuthenticated()) {
                   <p class="collector-auth-note">
-                    Sign in only when you want to record ownership or Wishlist state.
+                    Sign in only when you want to record Collection or Wishlist state.
                   </p>
                 }
               }
-            </section>
-          }
-
-          @if (hasMeaningfulValue(currentCard.notes)) {
-            <section class="rules-record" aria-labelledby="card-notes-title">
-              <div class="record-section-heading">
-                <p>Card Notes</p>
-                <h2 id="card-notes-title">Notes</h2>
-              </div>
-              <p>{{ currentCard.notes }}</p>
             </section>
           }
         </div>

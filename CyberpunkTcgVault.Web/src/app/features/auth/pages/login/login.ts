@@ -93,6 +93,8 @@ export class Login implements OnInit {
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('registered') === '1') {
       this.registeredMessage.set('Account created. Sign in to continue.');
+    } else if (this.route.snapshot.queryParamMap.get('passwordReset') === '1') {
+      this.registeredMessage.set('Password updated. Sign in with your new password.');
     }
 
     const intent = this.route.snapshot.queryParamMap.get('intent');

@@ -28,6 +28,7 @@ const card: Card = {
   cost: 5,
   power: 6,
   ramCost: 2,
+  eddies: 3,
   isLegend: true,
   notes: null,
   cardPrintingId: 101,
@@ -92,19 +93,24 @@ describe('CardDetail', () => {
     const authServiceStub = {
       currentUser,
       isAuthenticated: signal(false),
+      isInitialized: signal(true),
       restoreSession: () => of(null)
     };
 
     const ownedCardsServiceStub = {
       items: signal([]),
       load: () => of([]),
-      addPrinting: () => of({})
+      addPrinting: () => of({}),
+      updateQuantity: () => of({}),
+      remove: () => of(undefined)
     };
 
     const wishlistServiceStub = {
       items: signal([]),
       load: () => of([]),
-      addPrinting: () => of({})
+      addPrinting: () => of({}),
+      updateQuantity: () => of({}),
+      remove: () => of(undefined)
     };
 
     await TestBed.configureTestingModule({

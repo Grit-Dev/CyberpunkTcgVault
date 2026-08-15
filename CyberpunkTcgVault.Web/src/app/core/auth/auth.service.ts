@@ -19,11 +19,13 @@ import { API_ENDPOINTS } from '../http/api-endpoints';
 import { CsrfService } from '../http/csrf.service';
 import {
   AuthUser,
+  ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
   MfaLoginRequest,
   RecoveryCodeLoginRequest,
   RegisterRequest,
+  ResetPasswordRequest,
   RegisterResponse
 } from './auth.models';
 import { AuthStateService } from './auth-state.service';
@@ -150,6 +152,31 @@ export class AuthService {
       .pipe(
         tap(() => this.csrfService.invalidate())
       );
+  }
+
+
+  /**
+   * Requests password recovery without revealing whether an account exists.
+   * The backend owns account lookup, reset-token generation and email delivery.
+   */
+  forgotPassword(email: string): Observable<void> {
+    const request: ForgotPasswordRequest = { email: email.trim() };
+
+    return this.http.post<void>(
+      API_ENDPOINTS.auth.forgotPassword,
+      request
+    );
+  }
+
+  /**
+   * Submits the opaque Identity reset token exactly as received from the
+   * backend-generated reset link. Angular never creates or validates tokens.
+   */
+  resetPassword(request: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(
+      API_ENDPOINTS.auth.resetPassword,
+      request
+    );
   }
 
   logout(): Observable<void> {

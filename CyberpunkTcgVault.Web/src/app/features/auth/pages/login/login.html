@@ -95,6 +95,11 @@
             }
           </div>
 
+          <!--
+            TODO: Password reset UI ready — enable entry point when transactional
+            email delivery is configured.
+          -->
+
           <button
             class="btn btn--primary login-submit"
             type="submit"
@@ -106,7 +111,6 @@
 
         @if (capabilitiesService.demoAccessEnabled()) {
           <div class="login-demo">
-            <span class="login-demo__rule" aria-hidden="true"></span>
             <p>Want to explore without using a personal account?</p>
 
             <button

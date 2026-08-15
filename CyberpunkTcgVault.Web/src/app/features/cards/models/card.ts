@@ -17,6 +17,7 @@ export interface Card {
   cost: number | null;
   power: number | null;
   ramCost: number | null;
+  eddies: number | null;
   isLegend: boolean;
   notes: string | null;
 

@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
 
+import { ForgotPassword } from './features/auth/pages/forgot-password/forgot-password';
 import { Login } from './features/auth/pages/login/login';
 import { Register } from './features/auth/pages/register/register';
+import { ResetPassword } from './features/auth/pages/reset-password/reset-password';
 import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalogue';
 import { CardDetail } from './features/cards/pages/card-detail/card-detail';
 import { About } from './pages/about/about';
@@ -63,6 +65,24 @@ export const routes: Routes = [
     data: {
       description:
         'Create a Choom Vault collector account when public registration is available.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  {
+    path: 'forgot-password',
+    title: 'Forgot Password | Choom Vault',
+    component: ForgotPassword,
+    data: {
+      description: 'Request a password reset link for a Choom Vault collector account.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  {
+    path: 'reset-password',
+    title: 'Reset Password | Choom Vault',
+    component: ResetPassword,
+    data: {
+      description: 'Set a new password using a Choom Vault password reset link.',
       robots: 'noindex, nofollow'
     }
   },

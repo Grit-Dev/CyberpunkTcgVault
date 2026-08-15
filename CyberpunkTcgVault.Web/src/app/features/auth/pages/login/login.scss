@@ -4,17 +4,45 @@
 }
 
 .login-page {
+  position: relative;
   display: flex;
   width: 100%;
   flex: 1;
   align-items: stretch;
+  overflow: hidden;
   background: var(--colour-background);
 }
 
+/*
+ * The private side is only a material change, not a grey login panel.
+ * Keep the tonal shift extremely close to the public archive surface so the
+ * seam carries the threshold instead of a large rectangle doing the work.
+ */
+.login-page::before {
+  position: absolute;
+  z-index: 0;
+  inset-block: 0;
+  right: max(
+    var(--page-padding),
+    calc((100% - 1440px) / 2)
+  );
+  width: min(
+    calc((100% - (var(--page-padding) * 2)) * 0.42),
+    605px
+  );
+  background: #07090e;
+  content: "";
+  pointer-events: none;
+}
+
 .login-layout {
+  position: relative;
+  z-index: 1;
   display: grid;
+  width: min(100% - (var(--page-padding) * 2), 1440px);
   grid-template-columns: minmax(0, 1.16fr) minmax(360px, 0.84fr);
   align-items: stretch;
+  margin-inline: auto;
   padding-block: clamp(62px, 8vh, 100px);
 }
 
@@ -23,11 +51,11 @@
   min-height: 540px;
   flex-direction: column;
   justify-content: flex-start;
-  padding: clamp(34px, 5vw, 68px) clamp(56px, 7vw, 108px) 48px 0;
+  padding: clamp(34px, 5vw, 68px) clamp(64px, 7vw, 118px) 48px 0;
 }
 
 .login-intro h1 {
-  max-width: 700px;
+  max-width: 730px;
   margin: 26px 0 0;
   font-family: var(--font-display);
   font-size: clamp(4.6rem, 8vw, 8.4rem);
@@ -45,23 +73,29 @@
   line-height: 1.8;
 }
 
+/*
+ * The private side is a material transition, not a floating login card.
+ * The page background owns the graphite plane; this section only establishes
+ * the seam and content rhythm.
+ */
 .login-access {
   position: relative;
   display: flex;
   min-height: 540px;
   flex-direction: column;
   justify-content: flex-start;
-  padding: clamp(42px, 5vw, 68px) clamp(28px, 4vw, 54px);
-  border-left: 1px solid var(--colour-border-strong);
-  background: var(--colour-background-soft);
+  padding: clamp(42px, 5vw, 68px) 0 clamp(42px, 5vw, 68px) clamp(42px, 5vw, 66px);
+  border-left: 1px solid rgba(255, 255, 255, 0.13);
+  background: transparent;
+  --form-control-background: #090d13;
 }
 
 .login-access__index {
   position: absolute;
   top: clamp(58px, 6vw, 82px);
-  left: -3px;
-  width: 5px;
-  height: 46px;
+  left: -2px;
+  width: 3px;
+  height: 40px;
   background: var(--colour-yellow);
 }
 
@@ -99,23 +133,34 @@
   margin-top: 32px;
 }
 
+.login-form-utility {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+}
+
+.login-form-utility a,
+.login-register-link a,
+.login-mfa-switch {
+  color: var(--colour-text);
+  font-size: 0.86rem;
+  text-underline-offset: 4px;
+}
+
+.login-form-utility a:hover,
+.login-register-link a:hover {
+  color: var(--colour-yellow);
+}
+
 .login-submit {
   width: 100%;
-  margin-top: 6px;
+  margin-top: 2px;
 }
 
 .login-demo {
-  margin-top: 34px;
-  padding-top: 28px;
-  border-top: 1px solid var(--colour-border);
-}
-
-.login-demo__rule {
-  display: block;
-  width: 30px;
-  height: 2px;
-  margin-bottom: 16px;
-  background: var(--colour-border-strong);
+  margin-top: 32px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .login-demo p,
@@ -135,15 +180,6 @@
   margin-top: 24px;
 }
 
-.login-register-link a,
-.login-mfa-switch {
-  color: var(--colour-text);
-}
-
-.login-register-link a:hover {
-  color: var(--colour-yellow);
-}
-
 .login-mfa-switch {
   margin-top: 22px;
 }
@@ -159,6 +195,10 @@
 }
 
 @media (max-width: 760px) {
+  .login-page::before {
+    display: none;
+  }
+
   .login-layout {
     display: block;
     padding-block: 52px 64px;
@@ -183,7 +223,6 @@
     padding: 42px 0 0;
     border-top: 1px solid var(--colour-border-strong);
     border-left: 0;
-    background: transparent;
   }
 
   .login-access__index {

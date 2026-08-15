@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardFilters } from '../../models/card-filters';
 import { Card } from '../../models/card';
+import { CardCatalogueStateService } from '../../services/card-catalogue-state.service';
 import { CardsService } from '../../services/cards.service';
 
 /**
@@ -60,11 +61,30 @@ export class CardCatalogue implements OnInit, OnDestroy {
 
   constructor(
     private readonly cardsService: CardsService,
+    private readonly catalogueStateService: CardCatalogueStateService,
     private readonly changeDetectorRef: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadCards(true);
+    const restoredState =
+      this.catalogueStateService.consume();
+
+    if (restoredState) {
+      this.filters = restoredState.filters;
+      this.currentPage = restoredState.currentPage;
+      this.rarityOptions = restoredState.rarityOptions;
+      this.classificationOptions =
+        restoredState.classificationOptions;
+      this.cardTypeOptions =
+        restoredState.cardTypeOptions;
+    }
+
+    const shouldCaptureFilterOptions =
+      this.rarityOptions.length === 0 &&
+      this.classificationOptions.length === 0 &&
+      this.cardTypeOptions.length === 0;
+
+    this.loadCards(shouldCaptureFilterOptions);
   }
 
   ngOnDestroy(): void {
@@ -272,6 +292,24 @@ export class CardCatalogue implements OnInit, OnDestroy {
     this.loadCards(
       shouldCaptureFilterOptions
     );
+  }
+
+  /**
+   * Remembers the exact Archive view before opening Card Detail.
+   *
+   * Returning through the Card Detail back link restores the current page,
+   * search and filters instead of rebuilding the Archive at page one.
+   */
+  rememberArchiveState(): void {
+    this.catalogueStateService.save({
+      filters: { ...this.filters },
+      currentPage: this.currentPage,
+      rarityOptions: [...this.rarityOptions],
+      classificationOptions: [
+        ...this.classificationOptions
+      ],
+      cardTypeOptions: [...this.cardTypeOptions]
+    });
   }
 
   /**

@@ -50,13 +50,10 @@
             >
               @if (authService.isDemo()) {
                 <span class="header-demo-context">Demo Vault</span>
+              } @else {
+                <!-- Identity only until /account is implemented. -->
+                <span class="header-username">{{ user.userName }}</span>
               }
-
-              <!--
-                Identity only for now. Creative direction requires this to become
-                the Account link only after /account actually exists.
-              -->
-              <span class="header-username">{{ user.userName }}</span>
             </div>
           }
 

@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import {
   finalize,
+  map,
   Observable,
   of,
   shareReplay,
@@ -17,6 +18,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { API_ENDPOINTS } from '../../../core/http/api-endpoints';
 import {
   CreateWishlistItemRequest,
+  UpdateWishlistItemRequest,
   WishlistItem
 } from '../models/wishlist-item';
 
@@ -98,4 +100,48 @@ export class WishlistService {
         })
       );
   }
+
+  /** Updates wanted quantity while preserving the record's other metadata. */
+  updateQuantity(
+    item: WishlistItem,
+    wantedQuantity: number
+  ): Observable<WishlistItem> {
+    const request: UpdateWishlistItemRequest = {
+      wantedQuantity,
+      priority: item.priority,
+      reasonWanted: item.reasonWanted,
+      wantRaw: item.wantRaw,
+      wantGraded: item.wantGraded,
+      preferredGradingCompany: item.preferredGradingCompany,
+      isOpenToTrade: item.isOpenToTrade,
+      notes: item.notes
+    };
+
+    return this.http
+      .put<void>(API_ENDPOINTS.wishlistItemById(item.id), request)
+      .pipe(
+        map(() => ({ ...item, wantedQuantity })),
+        tap(updated => {
+          this.itemsState.update(items =>
+            items.map(existing =>
+              existing.id === updated.id ? updated : existing
+            )
+          );
+        })
+      );
+  }
+
+  /** Removes only the authenticated collector's Wishlist row. */
+  remove(item: WishlistItem): Observable<void> {
+    return this.http
+      .delete<void>(API_ENDPOINTS.wishlistItemById(item.id))
+      .pipe(
+        tap(() => {
+          this.itemsState.update(items =>
+            items.filter(existing => existing.id !== item.id)
+          );
+        })
+      );
+  }
+
 }

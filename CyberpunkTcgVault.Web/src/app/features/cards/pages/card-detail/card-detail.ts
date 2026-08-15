@@ -18,7 +18,9 @@ import {
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { DynamicSeoService } from '../../../../core/seo/dynamic-seo.service';
+import { OwnedCard } from '../../../collection/models/owned-card';
 import { OwnedCardsService } from '../../../collection/services/owned-cards.service';
+import { WishlistItem } from '../../../wishlist/models/wishlist-item';
 import { WishlistService } from '../../../wishlist/services/wishlist.service';
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardPrinting } from '../../models/card-printing';
@@ -28,9 +30,10 @@ import { CardsService } from '../../services/cards.service';
 /**
  * Public Card Detail / Inspection Table.
  *
- * Shared catalogue data is public. Collector state is loaded separately only
- * for an authenticated user and every mutation still relies on backend cookie,
- * CSRF, role and ownership enforcement.
+ * Shared Card/CardPrinting data is public. Collector state is private and is
+ * loaded/mutated only for the authenticated browser session. Angular presents
+ * that state; backend authentication, CSRF, role and ownership checks remain
+ * authoritative for every private mutation.
  */
 @Component({
   selector: 'app-card-detail',
@@ -48,11 +51,12 @@ export class CardDetail implements OnInit, OnDestroy {
   readonly isLoading = signal(true);
   readonly isNotFound = signal(false);
   readonly loadError = signal(false);
+
   readonly collectorError = signal('');
-  readonly isCollectorStateLoading = signal(false);
   readonly collectorMessage = signal('');
-  readonly isAddingToCollection = signal(false);
-  readonly isAddingToWishlist = signal(false);
+  readonly isCollectorStateLoading = signal(false);
+  readonly isCollectionBusy = signal(false);
+  readonly isWishlistBusy = signal(false);
 
   readonly ownedRecord = computed(() => {
     const printingId = this.selectedPrinting()?.id;
@@ -79,6 +83,7 @@ export class CardDetail implements OnInit, OnDestroy {
   });
 
   private readonly subscriptions = new Subscription();
+  private collectorMessageTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     readonly authService: AuthService,
@@ -107,6 +112,7 @@ export class CardDetail implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.clearCollectorMessageTimer();
     this.seo.removeCanonical();
   }
 
@@ -124,8 +130,12 @@ export class CardDetail implements OnInit, OnDestroy {
     }
 
     this.selectedPrinting.set(printing);
-    this.collectorError.set('');
-    this.collectorMessage.set('');
+    this.clearCollectorFeedback();
+
+    const card = this.card();
+    if (card) {
+      this.applyCardSeo(card);
+    }
 
     void this.router.navigate([], {
       relativeTo: this.route,
@@ -140,7 +150,7 @@ export class CardDetail implements OnInit, OnDestroy {
   addToCollection(): void {
     const printing = this.selectedPrinting();
 
-    if (!printing || this.isAddingToCollection()) {
+    if (!printing || this.isCollectionBusy()) {
       return;
     }
 
@@ -153,30 +163,75 @@ export class CardDetail implements OnInit, OnDestroy {
       return;
     }
 
-    this.collectorError.set('');
-    this.collectorMessage.set('');
-    this.isAddingToCollection.set(true);
+    this.clearCollectorFeedback();
+    this.isCollectionBusy.set(true);
 
     this.subscriptions.add(
       this.ownedCardsService
         .addPrinting(printing.id)
         .subscribe({
           next: () => {
-            this.isAddingToCollection.set(false);
-            this.collectorMessage.set('Added to your Collection.');
+            this.isCollectionBusy.set(false);
+            this.showCollectorMessage('Added to Collection.');
           },
           error: error => {
-            this.isAddingToCollection.set(false);
+            this.isCollectionBusy.set(false);
             this.handleCollectorError(error, 'collection');
           }
         })
     );
   }
 
+  increaseCollectionQuantity(): void {
+    const owned = this.ownedRecord();
+
+    if (!owned || owned.quantityOwned >= 999 || this.isCollectionBusy()) {
+      return;
+    }
+
+    this.updateCollectionQuantity(owned, owned.quantityOwned + 1);
+  }
+
+  decreaseCollectionQuantity(): void {
+    const owned = this.ownedRecord();
+
+    // Quantity 1 is never silently converted into deletion. Removal has its
+    // own explicit action so destructive intent stays unambiguous.
+    if (!owned || owned.quantityOwned <= 1 || this.isCollectionBusy()) {
+      return;
+    }
+
+    this.updateCollectionQuantity(owned, owned.quantityOwned - 1);
+  }
+
+  removeFromCollection(): void {
+    const owned = this.ownedRecord();
+
+    if (!owned || this.isCollectionBusy()) {
+      return;
+    }
+
+    this.clearCollectorFeedback();
+    this.isCollectionBusy.set(true);
+
+    this.subscriptions.add(
+      this.ownedCardsService.remove(owned).subscribe({
+        next: () => {
+          this.isCollectionBusy.set(false);
+          this.showCollectorMessage('Removed from Collection.');
+        },
+        error: error => {
+          this.isCollectionBusy.set(false);
+          this.handleCollectorError(error, 'collection');
+        }
+      })
+    );
+  }
+
   addToWishlist(): void {
     const printing = this.selectedPrinting();
 
-    if (!printing || this.isAddingToWishlist()) {
+    if (!printing || this.isWishlistBusy()) {
       return;
     }
 
@@ -189,23 +244,66 @@ export class CardDetail implements OnInit, OnDestroy {
       return;
     }
 
-    this.collectorError.set('');
-    this.collectorMessage.set('');
-    this.isAddingToWishlist.set(true);
+    this.clearCollectorFeedback();
+    this.isWishlistBusy.set(true);
 
     this.subscriptions.add(
       this.wishlistService
         .addPrinting(printing.id)
         .subscribe({
           next: () => {
-            this.isAddingToWishlist.set(false);
-            this.collectorMessage.set('Added to your Wishlist.');
+            this.isWishlistBusy.set(false);
+            this.showCollectorMessage('Wishlist updated.');
           },
           error: error => {
-            this.isAddingToWishlist.set(false);
+            this.isWishlistBusy.set(false);
             this.handleCollectorError(error, 'wishlist');
           }
         })
+    );
+  }
+
+  increaseWishlistQuantity(): void {
+    const wanted = this.wishlistRecord();
+
+    if (!wanted || wanted.wantedQuantity >= 999 || this.isWishlistBusy()) {
+      return;
+    }
+
+    this.updateWishlistQuantity(wanted, wanted.wantedQuantity + 1);
+  }
+
+  decreaseWishlistQuantity(): void {
+    const wanted = this.wishlistRecord();
+
+    if (!wanted || wanted.wantedQuantity <= 1 || this.isWishlistBusy()) {
+      return;
+    }
+
+    this.updateWishlistQuantity(wanted, wanted.wantedQuantity - 1);
+  }
+
+  removeFromWishlist(): void {
+    const wanted = this.wishlistRecord();
+
+    if (!wanted || this.isWishlistBusy()) {
+      return;
+    }
+
+    this.clearCollectorFeedback();
+    this.isWishlistBusy.set(true);
+
+    this.subscriptions.add(
+      this.wishlistService.remove(wanted).subscribe({
+        next: () => {
+          this.isWishlistBusy.set(false);
+          this.showCollectorMessage('Removed from Wishlist.');
+        },
+        error: error => {
+          this.isWishlistBusy.set(false);
+          this.handleCollectorError(error, 'wishlist');
+        }
+      })
     );
   }
 
@@ -239,14 +337,68 @@ export class CardDetail implements OnInit, OnDestroy {
     return variants;
   }
 
+  printingAccessibleLabel(printing: CardPrinting): string {
+    const variants = this.printingVariants(printing);
+    const variantText = variants.length > 0
+      ? `, ${variants.join(', ')}`
+      : '';
+
+    return `Inspect printing ${printing.cardNumber} from ${printing.setName}${variantText}`;
+  }
+
+  private updateCollectionQuantity(
+    owned: OwnedCard,
+    quantityOwned: number
+  ): void {
+    this.clearCollectorFeedback();
+    this.isCollectionBusy.set(true);
+
+    this.subscriptions.add(
+      this.ownedCardsService
+        .updateQuantity(owned, quantityOwned)
+        .subscribe({
+          next: () => {
+            this.isCollectionBusy.set(false);
+            this.showCollectorMessage('Collection updated.');
+          },
+          error: error => {
+            this.isCollectionBusy.set(false);
+            this.handleCollectorError(error, 'collection');
+          }
+        })
+    );
+  }
+
+  private updateWishlistQuantity(
+    wanted: WishlistItem,
+    wantedQuantity: number
+  ): void {
+    this.clearCollectorFeedback();
+    this.isWishlistBusy.set(true);
+
+    this.subscriptions.add(
+      this.wishlistService
+        .updateQuantity(wanted, wantedQuantity)
+        .subscribe({
+          next: () => {
+            this.isWishlistBusy.set(false);
+            this.showCollectorMessage('Wishlist updated.');
+          },
+          error: error => {
+            this.isWishlistBusy.set(false);
+            this.handleCollectorError(error, 'wishlist');
+          }
+        })
+    );
+  }
+
   private loadCard(id: number): void {
     this.isLoading.set(true);
     this.isNotFound.set(false);
     this.loadError.set(false);
     this.card.set(null);
     this.selectedPrinting.set(null);
-    this.collectorError.set('');
-    this.collectorMessage.set('');
+    this.clearCollectorFeedback();
 
     this.subscriptions.add(
       this.cardsService.getCardById(id).subscribe({
@@ -296,9 +448,9 @@ export class CardDetail implements OnInit, OnDestroy {
             },
             error: () => {
               this.isCollectorStateLoading.set(false);
-              // Public Card Detail remains usable if private collector-state
-              // enrichment fails. Mutations still receive authoritative API
-              // responses when the collector explicitly performs an action.
+              // Public inspection still works if optional private enrichment
+              // fails. Any explicit mutation still receives the API's real
+              // authentication/authorization response.
             }
           })
         );
@@ -367,17 +519,16 @@ export class CardDetail implements OnInit, OnDestroy {
       }
 
       if (error.status === 409) {
-        // Refresh private state so a duplicate conflict becomes the genuine
-        // Owned/Wanted annotation instead of a generic error.
         if (target === 'collection') {
           this.ownedCardsService.load(true).subscribe();
         } else {
           this.wishlistService.load(true).subscribe();
         }
-        this.collectorMessage.set(
+
+        this.showCollectorMessage(
           target === 'collection'
-            ? 'This printing is already in your Collection.'
-            : 'This printing is already on your Wishlist.'
+            ? 'Collection state refreshed.'
+            : 'Wishlist state refreshed.'
         );
         return;
       }
@@ -391,13 +542,43 @@ export class CardDetail implements OnInit, OnDestroy {
         this.collectorError.set('This action is not available for your account.');
         return;
       }
+
+      if (error.status === 404) {
+        this.collectorError.set(
+          'That collector record is no longer available. Refresh the card and try again.'
+        );
+        return;
+      }
     }
 
     this.collectorError.set(
       target === 'collection'
-        ? 'We could not add this printing to your Collection. Try again.'
-        : 'We could not add this printing to your Wishlist. Try again.'
+        ? 'We could not update your Collection. Try again.'
+        : 'We could not update your Wishlist. Try again.'
     );
+  }
+
+  private showCollectorMessage(message: string): void {
+    this.clearCollectorMessageTimer();
+    this.collectorMessage.set(message);
+
+    this.collectorMessageTimer = setTimeout(() => {
+      this.collectorMessage.set('');
+      this.collectorMessageTimer = undefined;
+    }, 2600);
+  }
+
+  private clearCollectorFeedback(): void {
+    this.clearCollectorMessageTimer();
+    this.collectorError.set('');
+    this.collectorMessage.set('');
+  }
+
+  private clearCollectorMessageTimer(): void {
+    if (this.collectorMessageTimer) {
+      clearTimeout(this.collectorMessageTimer);
+      this.collectorMessageTimer = undefined;
+    }
   }
 
   private showNotFound(): void {

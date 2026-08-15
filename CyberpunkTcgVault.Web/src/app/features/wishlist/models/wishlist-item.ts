@@ -23,3 +23,16 @@ export interface CreateWishlistItemRequest {
   cardPrintingId: number;
   wantedQuantity: number;
 }
+
+
+/** Full backend update contract. Keep existing wishlist metadata on quantity edits. */
+export interface UpdateWishlistItemRequest {
+  wantedQuantity: number;
+  priority: string | null;
+  reasonWanted: string | null;
+  wantRaw: boolean;
+  wantGraded: boolean;
+  preferredGradingCompany: string | null;
+  isOpenToTrade: boolean;
+  notes: string | null;
+}

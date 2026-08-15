@@ -78,25 +78,21 @@
 }
 
 /*
- * Authenticated identity is deliberately part of the header architecture,
- * not a generic account pill/card. It contains only server-provided public
- * account data that the collector already owns: username and Demo context.
+ * Authenticated identity is deliberately just a quiet recognition mark.
+ * It is not an account widget, role badge or gamer profile treatment.
  */
 .header-identity {
-  position: relative;
-  display: grid;
-  justify-items: end;
-  gap: 2px;
+  display: flex;
   min-width: 0;
-  padding-left: 14px;
+  align-items: center;
+  gap: 7px;
 }
 
 .header-identity::before {
-  position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 0;
   width: 2px;
+  height: 8px;
+  flex: 0 0 auto;
+  margin-right: 2px;
   background: var(--colour-yellow);
   content: "";
 }
@@ -118,9 +114,9 @@
 .header-demo-context {
   color: var(--colour-text-muted);
   font-family: var(--font-display);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -166,10 +162,6 @@
 
   .header-register {
     display: none;
-  }
-
-  .header-identity {
-    padding-left: 10px;
   }
 
   .header-username {
@@ -264,10 +256,6 @@
 
   .header-inner--authenticated .header-actions {
     gap: 8px;
-  }
-
-  .header-identity {
-    padding-left: 9px;
   }
 
   .header-username {

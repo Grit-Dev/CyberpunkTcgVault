@@ -467,10 +467,10 @@ svg {
 
 .form-control {
   width: 100%;
-  min-height: 52px;
-  padding: 0 15px;
+  min-height: 56px;
+  padding: 0 16px;
   color: var(--colour-text);
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--form-control-background, rgba(255, 255, 255, 0.025));
   border: 1px solid var(--colour-border-strong);
   border-radius: 0;
   outline: 0;
@@ -481,6 +481,19 @@ svg {
 
 .form-control:hover {
   border-color: rgba(255, 255, 255, 0.32);
+}
+
+/*
+ * Preserve browser/password-manager autofill while keeping Choom Vault's
+ * graphite input material. This is styling only; autofill remains enabled.
+ */
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--colour-text);
+  caret-color: var(--colour-text);
+  box-shadow: 0 0 0 1000px var(--form-control-background, #0b0f16) inset;
+  transition: background-color 9999s ease-out 0s;
 }
 
 .form-control:focus-visible {
