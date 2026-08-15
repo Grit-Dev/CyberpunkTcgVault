@@ -25,108 +25,272 @@
         </header>
 
         <!-- Search and filters -->
-        <form class="catalogue-tools" (ngSubmit)="applyFilters()" aria-label="Vault Archive search and filters">
+        <form
+          class="catalogue-tools"
+          [class.catalogue-tools--expanded]="filtersExpanded"
+          (ngSubmit)="applyFilters()"
+          aria-label="Vault Archive search and filters"
+        >
+          <div class="catalogue-tools__primary">
+            <!-- Search remains the dominant Archive control. -->
+            <div class="catalogue-search">
+              <label class="catalogue-field catalogue-field--search" for="archive-search-input">
+                <span>Search cards</span>
 
-          <!-- Primary search -->
-          <div class="catalogue-search">
-            <label class="catalogue-field catalogue-field--search" for="archive-search-input">
-              <span>
-                Search cards
-              </span>
+                <div class="catalogue-search__control">
+                  <input
+                    id="archive-search-input"
+                    type="search"
+                    name="cardName"
+                    [ngModel]="filters.name"
+                    (ngModelChange)="onSearchChange($event)"
+                    placeholder="Search cards…"
+                    autocomplete="off"
+                  />
 
-              <div class="catalogue-search__control">
-                <input id="archive-search-input" type="search" name="cardName" [ngModel]="filters.name"
-                  (ngModelChange)="onSearchChange($event)" placeholder="Search cards…" autocomplete="off" />
+                  <button class="catalogue-search__submit" type="submit" [disabled]="isLoading">
+                    Search
+                  </button>
+                </div>
+              </label>
+            </div>
 
-                <button class="catalogue-search__submit" type="submit" [disabled]="isLoading">
-                  Search
-                </button>
-              </div>
+            <label class="catalogue-field catalogue-field--primary-filter">
+              <span>Set</span>
+              <select
+                name="setCode"
+                [ngModel]="filters.setCode"
+                (ngModelChange)="onFilterChange('setCode', $event)"
+                [disabled]="isFilterOptionsLoading || filterOptions.sets.length === 0"
+              >
+                <option value="">All sets</option>
+                @for (set of filterOptions.sets; track set.code) {
+                <option [value]="set.code">{{ formatSetOption(set) }}</option>
+                }
+              </select>
             </label>
 
-            @if (hasSearchQuery) {
-            <button class="catalogue-search__clear" type="button" (click)="clearSearch()" [disabled]="isLoading">
-              Clear search
+            <label class="catalogue-field catalogue-field--primary-filter">
+              <span>Type</span>
+              <select
+                name="cardType"
+                [ngModel]="filters.cardType"
+                (ngModelChange)="onFilterChange('cardType', $event)"
+                [disabled]="isFilterOptionsLoading || filterOptions.cardTypes.length === 0"
+              >
+                <option value="">All types</option>
+                @for (cardType of filterOptions.cardTypes; track cardType) {
+                <option [value]="cardType">{{ cardType }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="catalogue-field catalogue-field--primary-filter">
+              <span>Rarity</span>
+              <select
+                name="rarity"
+                [ngModel]="filters.rarity"
+                (ngModelChange)="onFilterChange('rarity', $event)"
+                [disabled]="isFilterOptionsLoading || filterOptionsUnavailable"
+              >
+                <option value="">All rarities</option>
+                @for (rarity of filterOptions.rarities; track rarity) {
+                <option [value]="rarity">{{ rarity }}</option>
+                }
+              </select>
+            </label>
+
+            <button
+              class="catalogue-filter-toggle catalogue-filter-toggle--desktop"
+              [class.catalogue-filter-toggle--active]="hasMoreFiltersActive"
+              type="button"
+              (click)="toggleFilters()"
+              [attr.aria-expanded]="filtersExpanded"
+              aria-controls="archive-more-filters"
+            >
+              More filters
+              @if (hasMoreFiltersActive) {
+              <span aria-hidden="true">·</span>
+              <span>{{ activeMoreFilterCount }}</span>
+              }
             </button>
+
+            <button
+              class="catalogue-filter-toggle catalogue-filter-toggle--mobile"
+              type="button"
+              (click)="toggleFilters()"
+              [attr.aria-expanded]="filtersExpanded"
+              aria-controls="archive-more-filters"
+            >
+              Filters
+              @if (activeFilterCount > 0) {
+              <span aria-hidden="true">·</span>
+              <span>{{ activeFilterCount }}</span>
+              }
+            </button>
+          </div>
+
+          <div
+            id="archive-more-filters"
+            class="catalogue-more-filters"
+            [hidden]="!filtersExpanded"
+          >
+            @if (!isFilterOptionsLoading && filterOptions.colours.length > 0) {
+            <label class="catalogue-field">
+              <span>Colour</span>
+              <select
+                name="colour"
+                [ngModel]="filters.colour"
+                (ngModelChange)="onFilterChange('colour', $event)"
+              >
+                <option value="">All colours</option>
+                @for (colour of filterOptions.colours; track colour) {
+                <option [value]="colour">{{ colour }}</option>
+                }
+              </select>
+            </label>
+            }
+
+            <label class="catalogue-field">
+              <span>Classification</span>
+              <input
+                type="text"
+                name="classification"
+                [(ngModel)]="filters.classification"
+                (change)="onClassificationChange(filters.classification ?? '')"
+                placeholder="Any classification"
+                autocomplete="off"
+              />
+            </label>
+
+            @if (!isFilterOptionsLoading && filterOptions.tags.length > 0) {
+            <label class="catalogue-field">
+              <span>Tags</span>
+              <select
+                name="tags"
+                [ngModel]="filters.tags"
+                (ngModelChange)="onFilterChange('tags', $event)"
+              >
+                <option value="">All tags</option>
+                @for (tag of filterOptions.tags; track tag) {
+                <option [value]="tag">{{ tag }}</option>
+                }
+              </select>
+            </label>
+            }
+
+            @if (!isFilterOptionsLoading && filterOptions.costs.length > 0) {
+            <label class="catalogue-field">
+              <span>Cost</span>
+              <select
+                name="cost"
+                [ngModel]="filters.cost"
+                (ngModelChange)="onFilterChange('cost', $event)"
+              >
+                <option [ngValue]="null">Any cost</option>
+                @for (cost of filterOptions.costs; track cost) {
+                <option [ngValue]="cost">{{ cost }}</option>
+                }
+              </select>
+            </label>
+            }
+
+            @if (!isFilterOptionsLoading && filterOptions.powers.length > 0) {
+            <label class="catalogue-field">
+              <span>Power</span>
+              <select
+                name="power"
+                [ngModel]="filters.power"
+                (ngModelChange)="onFilterChange('power', $event)"
+              >
+                <option [ngValue]="null">Any power</option>
+                @for (power of filterOptions.powers; track power) {
+                <option [ngValue]="power">{{ power }}</option>
+                }
+              </select>
+            </label>
+            }
+
+            @if (!isFilterOptionsLoading && filterOptions.ramValues.length > 0) {
+            <label class="catalogue-field">
+              <span>RAM</span>
+              <select
+                name="ram"
+                [ngModel]="filters.ram"
+                (ngModelChange)="onFilterChange('ram', $event)"
+              >
+                <option [ngValue]="null">Any RAM</option>
+                @for (ram of filterOptions.ramValues; track ram) {
+                <option [ngValue]="ram">{{ ram }}</option>
+                }
+              </select>
+            </label>
+            }
+
+            @if (!isFilterOptionsLoading && filterOptions.eddiesValues.length > 0) {
+            <label class="catalogue-field">
+              <span>Eddies</span>
+              <select
+                name="eddies"
+                [ngModel]="filters.eddies"
+                (ngModelChange)="onFilterChange('eddies', $event)"
+              >
+                <option [ngValue]="null">Any Eddies</option>
+                @for (eddies of filterOptions.eddiesValues; track eddies) {
+                <option [ngValue]="eddies">{{ eddies }}</option>
+                }
+              </select>
+            </label>
             }
           </div>
 
-          <!-- Secondary filters -->
-          <div class="catalogue-filters">
+          @if (filterOptionsUnavailable) {
+          <p class="catalogue-tools__notice" role="status">
+            Filter choices are temporarily unavailable. Search and Classification remain available.
+          </p>
+          }
 
-            <label class="catalogue-field">
-              <span>
-                Rarity
-              </span>
-
-              <select name="rarity" [ngModel]="filters.rarity" (ngModelChange)="onFilterChange('rarity', $event)"
-                [disabled]="rarityOptions.length === 0">
-                <option value="">
-                  All rarities
-                </option>
-
-                @for (rarity of rarityOptions; track rarity) {
-                <option [value]="rarity">
-                  {{ rarity }}
-                </option>
-                }
-              </select>
-            </label>
-
-            <label class="catalogue-field">
-              <span>
-                Classification
-              </span>
-
-              <select name="classification" [ngModel]="filters.classification"
-                (ngModelChange)="onFilterChange('classification', $event)"
-                [disabled]="classificationOptions.length === 0">
-                <option value="">
-                  All classifications
-                </option>
-
-                @for (
-                classification of classificationOptions;
-                track classification
-                ) {
-                <option [value]="classification">
-                  {{ classification }}
-                </option>
-                }
-              </select>
-            </label>
-
-            <label class="catalogue-field">
-              <span>
-                Card type
-              </span>
-
-              <select name="cardType" [ngModel]="filters.cardType" (ngModelChange)="onFilterChange('cardType', $event)"
-                [disabled]="cardTypeOptions.length === 0">
-                <option value="">
-                  All card types
-                </option>
-
-                @for (cardType of cardTypeOptions; track cardType) {
-                <option [value]="cardType">
-                  {{ cardType }}
-                </option>
-                }
-              </select>
-            </label>
-
-            <div class="catalogue-filters__action">
-              <button class="catalogue-action catalogue-action--secondary" type="button" (click)="clearFilters()"
-                [disabled]="!hasActiveFilters || isLoading">
-                Clear filters
+          @if (hasActiveFilters) {
+          <div class="catalogue-active-filters" aria-label="Active Archive filters">
+            <div class="catalogue-active-filters__items">
+              @if (hasSearchQuery) {
+              <button
+                class="catalogue-active-filter"
+                type="button"
+                (click)="clearSearch()"
+                [attr.aria-label]="'Clear card search ' + filters.name"
+              >
+                <span><strong>Search:</strong> {{ filters.name }}</span>
+                <span aria-hidden="true">×</span>
               </button>
+              }
+
+              @for (filter of activeFilters; track filter.key) {
+              <button
+                class="catalogue-active-filter"
+                type="button"
+                (click)="removeFilter(filter.key)"
+                [attr.aria-label]="'Remove ' + filter.label + ' filter ' + filter.value"
+              >
+                <span><strong>{{ filter.label }}:</strong> {{ filter.value }}</span>
+                <span aria-hidden="true">×</span>
+              </button>
+              }
             </div>
 
+            <button
+              class="catalogue-active-filters__clear"
+              type="button"
+              (click)="clearFilters()"
+            >
+              Clear filters
+            </button>
           </div>
+          }
         </form>
 
         <!-- Loading -->
-        @if (isLoading) {
+        @if (isLoading && !hasLoadedOnce) {
         <div class="catalogue-message" aria-live="polite">
           <span class="catalogue-message__code">
             Loading
@@ -177,13 +341,7 @@
             No matches
           </span>
 
-          <strong>
-            No cards found
-          </strong>
-
-          <p>
-            Try another name or remove a filter.
-          </p>
+          <strong>No cards match these filters.</strong>
 
           <button class="
                 catalogue-action
@@ -213,17 +371,36 @@
         <div class="catalogue-results">
 
           <!-- Authoritative results rail -->
-          <div class="catalogue-results__rail" aria-live="polite" aria-atomic="true">
-            <strong>
-              {{ totalCount }}
-              {{ totalCount === 1 ? 'card' : 'cards' }}
-            </strong>
+          <div
+            class="catalogue-results__rail"
+            aria-live="polite"
+            aria-atomic="true"
+            [attr.aria-busy]="isRefreshing"
+          >
+            <div class="catalogue-results__summary">
+              <strong>
+                {{ totalCount }}
+                {{ totalCount === 1 ? 'card' : 'cards' }}
+              </strong>
 
-            @if (totalPages > 1) {
-            <span>
-              Page {{ currentPage }} of {{ totalPages }}
-            </span>
-            }
+              @if (totalPages > 1) {
+              <span class="catalogue-results__separator" aria-hidden="true">·</span>
+              <span>Page {{ currentPage }} of {{ totalPages }}</span>
+              }
+
+              @if (isRefreshing) {
+              <span class="catalogue-results__updating">Updating…</span>
+              }
+            </div>
+
+            <label class="catalogue-sort">
+              <span>Sort</span>
+              <select [ngModel]="sortValue" (ngModelChange)="onSortChange($event)">
+                <option value="setOrder-asc">Set order</option>
+                <option value="name-asc">Card name A–Z</option>
+                <option value="name-desc">Card name Z–A</option>
+              </select>
+            </label>
           </div>
 
           <!-- Artwork-first Archive grid -->
@@ -371,6 +548,10 @@
                 [disabled]="currentPage === 1" aria-label="Previous Archive page">
                 Previous
               </button>
+
+              <span class="catalogue-pagination__mobile-status">
+                Page {{ currentPage }} of {{ totalPages }}
+              </span>
 
               <div class="catalogue-pagination__pages">
                 @for (

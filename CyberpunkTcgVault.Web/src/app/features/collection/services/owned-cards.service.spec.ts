@@ -10,7 +10,10 @@ import { TestBed } from '@angular/core/testing';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { API_ENDPOINTS } from '../../../core/http/api-endpoints';
-import { OwnedCard } from '../models/owned-card';
+import {
+  OwnedCard,
+  UpdateOwnedCardRequest
+} from '../models/owned-card';
 import { OwnedCardsService } from './owned-cards.service';
 
 const user = {
@@ -96,6 +99,37 @@ describe('OwnedCardsService', () => {
       status: 204,
       statusText: 'No Content'
     });
+  });
+
+  it('updates a complete collector record and replaces it in local state', () => {
+    service.load().subscribe();
+    httpTesting.expectOne(API_ENDPOINTS.ownedCards).flush([ownedCard]);
+
+    const update: UpdateOwnedCardRequest = {
+      quantityOwned: 4,
+      condition: 'Excellent',
+      isInMasterCollection: false,
+      isDuplicate: true,
+      isGradingCandidate: false,
+      isOpenForTrade: true,
+      isOpenToMessages: false,
+      maySellLater: true,
+      notes: 'Trade copy.'
+    };
+
+    service.updateRecord(ownedCard, update).subscribe(updated => {
+      expect(updated).toEqual({ ...ownedCard, ...update });
+    });
+
+    const request = httpTesting.expectOne(API_ENDPOINTS.ownedCardById(8));
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(update);
+    request.flush(null, {
+      status: 204,
+      statusText: 'No Content'
+    });
+
+    expect(service.items()).toEqual([{ ...ownedCard, ...update }]);
   });
 
   it('removes only the selected owned-card record from local state after API success', () => {

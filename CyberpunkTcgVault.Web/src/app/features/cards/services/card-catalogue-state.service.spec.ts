@@ -22,14 +22,20 @@ describe('CardCatalogueStateService', () => {
     const state: CardCatalogueState = {
       filters: {
         name: 'malvik',
+        setCode: 'NCL',
+        cardType: 'Unit',
         rarity: 'Legendary',
         classification: '',
-        cardType: ''
+        colour: 'Yellow',
+        tags: 'Solo',
+        cost: 7,
+        power: null,
+        ram: 2,
+        eddies: null,
+        sortBy: 'name',
+        sortDirection: 'asc'
       },
-      currentPage: 2,
-      rarityOptions: ['Legendary', 'Rare'],
-      classificationOptions: ['Character'],
-      cardTypeOptions: ['Unit']
+      currentPage: 2
     };
 
     service.save(state);

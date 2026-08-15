@@ -3,8 +3,13 @@ import {
   ComponentFixture,
   TestBed
 } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import {
+  ActivatedRoute,
+  provideRouter,
+  Router
+} from '@angular/router';
 import { of } from 'rxjs';
+import { vi } from 'vitest';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CapabilitiesService } from '../../../../core/capabilities/capabilities.service';
@@ -12,6 +17,8 @@ import { Login } from './login';
 
 describe('Login', () => {
   let fixture: ComponentFixture<Login>;
+  let router: Router;
+  let route: ActivatedRoute;
 
   const capabilitiesServiceStub = {
     demoAccessEnabled: signal(true),
@@ -59,6 +66,9 @@ describe('Login', () => {
       ]
     }).compileComponents();
 
+    router = TestBed.inject(Router);
+    route = TestBed.inject(ActivatedRoute);
+
     fixture = TestBed.createComponent(Login);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -80,6 +90,56 @@ describe('Login', () => {
     ) as HTMLButtonElement | null;
 
     expect(demoAction).toBeTruthy();
+  });
+
+
+  it('sends a direct successful Demo login to Collection', () => {
+    const navigateByUrl = vi
+      .spyOn(router, 'navigateByUrl')
+      .mockResolvedValue(true);
+
+    fixture.componentInstance.enterDemoVault();
+
+    expect(navigateByUrl).toHaveBeenCalledTimes(1);
+    expect(navigateByUrl).toHaveBeenCalledWith('/collection');
+  });
+
+  it('preserves a valid implemented Collection return destination for Demo', () => {
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
+      key === 'returnUrl' ? '/collection?page=3&q=echo&set=CVO' : null
+    );
+    const navigateByUrl = vi
+      .spyOn(router, 'navigateByUrl')
+      .mockResolvedValue(true);
+
+    fixture.componentInstance.enterDemoVault();
+
+    expect(navigateByUrl).toHaveBeenCalledWith(
+      '/collection?page=3&q=echo&set=CVO'
+    );
+  });
+
+  it('falls back to Collection when Demo receives a stale return destination', () => {
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
+      key === 'returnUrl' ? '/my-vault' : null
+    );
+    const navigateByUrl = vi
+      .spyOn(router, 'navigateByUrl')
+      .mockResolvedValue(true);
+
+    fixture.componentInstance.enterDemoVault();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/collection');
+  });
+
+  it('rejects malformed external-style return destinations', () => {
+    const component = fixture.componentInstance as unknown as {
+      getValidAuthenticationReturnUrl: (returnUrl: string | null) => string | null;
+    };
+
+    expect(component.getValidAuthenticationReturnUrl('//example.com')).toBeNull();
+    expect(component.getValidAuthenticationReturnUrl('/\\example.com')).toBeNull();
+    expect(component.getValidAuthenticationReturnUrl('https://example.com')).toBeNull();
   });
 
   it('should not expose registration when public registration is disabled', () => {

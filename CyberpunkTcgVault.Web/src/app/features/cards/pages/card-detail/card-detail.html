@@ -17,7 +17,9 @@
           <span class="record-placeholder record-placeholder--short"></span>
           <span class="record-placeholder record-placeholder--rail"></span>
           <span class="record-placeholder record-placeholder--copy"></span>
-          <span class="record-placeholder record-placeholder--copy record-placeholder--copy-short"></span>
+          <span
+            class="record-placeholder record-placeholder--copy record-placeholder--copy-short"
+          ></span>
         </div>
       </section>
     } @else if (isNotFound()) {
@@ -45,7 +47,12 @@
               <img
                 class="card-detail-artwork"
                 [appCardArtwork]="selectedPrinting()?.imageUrl ?? currentCard.imageUrl"
-                [alt]="currentCard.name + (selectedPrinting()?.cardNumber ? ' — printing ' + selectedPrinting()?.cardNumber : '')"
+                [alt]="
+                  currentCard.name +
+                  (selectedPrinting()?.cardNumber
+                    ? ' — printing ' + selectedPrinting()?.cardNumber
+                    : '')
+                "
                 decoding="async"
                 fetchpriority="high"
               />
@@ -60,12 +67,16 @@
             </h1>
 
             @if (
+              hasMeaningfulValue(selectedPrinting()?.rarity) ||
               hasMeaningfulValue(currentCard.cardType) ||
               hasMeaningfulValue(currentCard.classification) ||
               hasMeaningfulValue(currentCard.colour) ||
               hasMeaningfulValue(currentCard.keywords)
             ) {
               <p class="card-identity-line">
+                @if (hasMeaningfulValue(selectedPrinting()?.rarity)) {
+                  <span>{{ selectedPrinting()?.rarity }}</span>
+                }
                 @if (hasMeaningfulValue(currentCard.cardType)) {
                   <span>{{ currentCard.cardType }}</span>
                 }
@@ -135,14 +146,14 @@
                 }
 
                 <p class="printing-record__line">
-                  @if (hasMeaningfulValue(printing.setCode)) {
-                    <span>{{ printing.setCode }}</span>
+                  @if (hasMeaningfulValue(printing.rarity)) {
+                    <span>{{ printing.rarity }}</span>
                   }
                   @if (hasMeaningfulValue(printing.languageCode)) {
                     <span>{{ printing.languageCode }}</span>
                   }
-                  @if (hasMeaningfulValue(printing.rarity)) {
-                    <span>{{ printing.rarity }}</span>
+                  @if (hasMeaningfulValue(printing.setCode)) {
+                    <span>Set Code {{ printing.setCode }}</span>
                   }
                 </p>
 
@@ -195,30 +206,38 @@
               </section>
             }
 
-            <section class="collector-record" aria-label="Your collector record for this printing">
-              @if (collectorError()) {
-                <p class="collector-feedback collector-feedback--error" role="alert">
-                  {{ collectorError() }}
-                </p>
-              }
+            <section
+              class="collector-record"
+              [attr.aria-labelledby]="'collector-record-title-' + printing.id"
+            >
+              <h2 class="collector-record__heading" [id]="'collector-record-title-' + printing.id">
+                Your record
+              </h2>
 
-              @if (collectorMessage()) {
-                <p class="collector-feedback" role="status">
-                  {{ collectorMessage() }}
-                </p>
-              }
+              <div class="collector-feedback-slot">
+                @if (collectorError()) {
+                  <p class="collector-feedback collector-feedback--error" role="alert">
+                    {{ collectorError() }}
+                  </p>
+                }
+
+                @if (collectorMessage()) {
+                  <p class="collector-feedback" role="status">
+                    {{ collectorMessage() }}
+                  </p>
+                }
+              </div>
 
               @if (!authService.isInitialized() || isCollectorStateLoading()) {
-                <p class="collector-auth-note" role="status">
-                  Checking your collector record…
-                </p>
+                <p class="collector-auth-note" role="status">Checking your collector record…</p>
               } @else {
                 <div class="collector-row">
                   <div class="collector-row__summary">
                     <span class="collector-row__label">Collection</span>
                     @if (ownedRecord(); as owned) {
                       <strong>
-                        {{ owned.quantityOwned }} {{ owned.quantityOwned === 1 ? 'copy' : 'copies' }}
+                        {{ owned.quantityOwned }}
+                        {{ owned.quantityOwned === 1 ? 'copy' : 'copies' }}
                       </strong>
                     } @else if (authService.isAuthenticated()) {
                       <span>Not in your collection</span>
@@ -233,30 +252,42 @@
                         <button
                           type="button"
                           [disabled]="owned.quantityOwned <= 1 || isCollectionBusy()"
-                          [attr.aria-label]="'Decrease collection quantity from ' + owned.quantityOwned"
+                          [attr.aria-label]="
+                            'Decrease collection quantity from ' + owned.quantityOwned
+                          "
                           (click)="decreaseCollectionQuantity()"
-                        >−</button>
+                        >
+                          −
+                        </button>
                         <span aria-live="polite">{{ owned.quantityOwned }}</span>
                         <button
                           type="button"
                           [disabled]="owned.quantityOwned >= 999 || isCollectionBusy()"
-                          [attr.aria-label]="'Increase collection quantity from ' + owned.quantityOwned"
+                          [attr.aria-label]="
+                            'Increase collection quantity from ' + owned.quantityOwned
+                          "
                           (click)="increaseCollectionQuantity()"
-                        >+</button>
+                        >
+                          +
+                        </button>
                       </div>
                       <button
                         class="collector-inline-action collector-inline-action--muted"
                         type="button"
                         [disabled]="isCollectionBusy()"
                         (click)="removeFromCollection()"
-                      >Remove from Collection</button>
+                      >
+                        Remove from Collection
+                      </button>
                     } @else {
                       <button
                         class="collector-inline-action"
                         type="button"
                         [disabled]="isCollectionBusy()"
                         (click)="addToCollection()"
-                      >{{ isCollectionBusy() ? 'Adding…' : 'Add' }}</button>
+                      >
+                        {{ isCollectionBusy() ? 'Adding…' : 'Add' }}
+                      </button>
                     }
                   </div>
                 </div>
@@ -265,9 +296,7 @@
                   <div class="collector-row__summary">
                     <span class="collector-row__label">Wishlist</span>
                     @if (wishlistRecord(); as wanted) {
-                      <strong>
-                        Wanted {{ wanted.wantedQuantity }}
-                      </strong>
+                      <strong> Wanted {{ wanted.wantedQuantity }} </strong>
                     } @else if (authService.isAuthenticated()) {
                       <span>Not on your wishlist</span>
                     } @else {
@@ -281,30 +310,42 @@
                         <button
                           type="button"
                           [disabled]="wanted.wantedQuantity <= 1 || isWishlistBusy()"
-                          [attr.aria-label]="'Decrease wanted quantity from ' + wanted.wantedQuantity"
+                          [attr.aria-label]="
+                            'Decrease wanted quantity from ' + wanted.wantedQuantity
+                          "
                           (click)="decreaseWishlistQuantity()"
-                        >−</button>
+                        >
+                          −
+                        </button>
                         <span aria-live="polite">{{ wanted.wantedQuantity }}</span>
                         <button
                           type="button"
                           [disabled]="wanted.wantedQuantity >= 999 || isWishlistBusy()"
-                          [attr.aria-label]="'Increase wanted quantity from ' + wanted.wantedQuantity"
+                          [attr.aria-label]="
+                            'Increase wanted quantity from ' + wanted.wantedQuantity
+                          "
                           (click)="increaseWishlistQuantity()"
-                        >+</button>
+                        >
+                          +
+                        </button>
                       </div>
                       <button
                         class="collector-inline-action collector-inline-action--muted"
                         type="button"
                         [disabled]="isWishlistBusy()"
                         (click)="removeFromWishlist()"
-                      >Remove from Wishlist</button>
+                      >
+                        Remove from Wishlist
+                      </button>
                     } @else {
                       <button
                         class="collector-inline-action"
                         type="button"
                         [disabled]="isWishlistBusy()"
                         (click)="addToWishlist()"
-                      >{{ isWishlistBusy() ? 'Adding…' : 'Add' }}</button>
+                      >
+                        {{ isWishlistBusy() ? 'Adding…' : 'Add' }}
+                      </button>
                     }
                   </div>
                 </div>

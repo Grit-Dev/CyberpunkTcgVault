@@ -1,13 +1,6 @@
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  provideRouter
-} from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -61,7 +54,7 @@ const card: Card = {
       isAltArt: false,
       isBoxTopper: false,
       isPromo: false,
-      isStarterDeckExclusive: false
+      isStarterDeckExclusive: false,
     },
     {
       id: 102,
@@ -79,9 +72,9 @@ const card: Card = {
       isAltArt: false,
       isBoxTopper: false,
       isPromo: false,
-      isStarterDeckExclusive: false
-    }
-  ]
+      isStarterDeckExclusive: false,
+    },
+  ],
 };
 
 describe('CardDetail', () => {
@@ -94,7 +87,7 @@ describe('CardDetail', () => {
       currentUser,
       isAuthenticated: signal(false),
       isInitialized: signal(true),
-      restoreSession: () => of(null)
+      restoreSession: () => of(null),
     };
 
     const ownedCardsServiceStub = {
@@ -102,7 +95,7 @@ describe('CardDetail', () => {
       load: () => of([]),
       addPrinting: () => of({}),
       updateQuantity: () => of({}),
-      remove: () => of(undefined)
+      remove: () => of(undefined),
     };
 
     const wishlistServiceStub = {
@@ -110,7 +103,7 @@ describe('CardDetail', () => {
       load: () => of([]),
       addPrinting: () => of({}),
       updateQuantity: () => of({}),
-      remove: () => of(undefined)
+      remove: () => of(undefined),
     };
 
     await TestBed.configureTestingModule({
@@ -123,31 +116,31 @@ describe('CardDetail', () => {
             paramMap: of(convertToParamMap({ id: '17' })),
             snapshot: {
               paramMap: convertToParamMap({ id: '17' }),
-              queryParamMap: convertToParamMap({})
-            }
-          }
+              queryParamMap: convertToParamMap({}),
+            },
+          },
         },
         {
           provide: CardsService,
           useValue: {
             getCardById: () => of(card),
-            getImageUrl: (path: string | null) => path ?? '/placeholder.png'
-          }
+            getImageUrl: (path: string | null) => path ?? '/placeholder.png',
+          },
         },
         {
           provide: AuthService,
-          useValue: authServiceStub
+          useValue: authServiceStub,
         },
         {
           provide: OwnedCardsService,
-          useValue: ownedCardsServiceStub
+          useValue: ownedCardsServiceStub,
         },
         {
           provide: WishlistService,
-          useValue: wishlistServiceStub
+          useValue: wishlistServiceStub,
         },
-        DynamicSeoService
-      ]
+        DynamicSeoService,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardDetail);
@@ -157,14 +150,20 @@ describe('CardDetail', () => {
 
   it('renders the public card record', () => {
     const heading = fixture.nativeElement.querySelector('h1') as HTMLElement;
+    const collectorHeading = fixture.nativeElement.querySelector(
+      '.collector-record__heading',
+    ) as HTMLElement;
 
     expect(heading.textContent?.trim()).toBe('V // StreetKid');
+    expect(collectorHeading.textContent?.trim()).toBe('Your record');
+    expect(fixture.nativeElement.textContent).toContain('Set Code WNC');
     expect(fixture.componentInstance.selectedPrinting()?.id).toBe(101);
   });
 
   it('describes genuine printing variants without inventing labels', () => {
-    expect(
-      fixture.componentInstance.printingVariants(card.printings[1])
-    ).toEqual(['Foil', 'Kickstarter']);
+    expect(fixture.componentInstance.printingVariants(card.printings[1])).toEqual([
+      'Foil',
+      'Kickstarter',
+    ]);
   });
 });

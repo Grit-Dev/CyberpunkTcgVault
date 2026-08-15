@@ -1,0 +1,417 @@
+<main class="collection-page">
+  <div class="collection-shell">
+    <header class="collection-intro" aria-labelledby="collection-title">
+      <div class="collection-intro__mark" aria-hidden="true"></div>
+      <div class="collection-intro__copy">
+        <p class="collection-intro__label">Collection</p>
+        <h1 id="collection-title">Your cards. Your printings.</h1>
+        <p>
+          Manage the exact physical printings archived to your private collection.
+        </p>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <section class="collection-loading" aria-label="Loading Collection" aria-busy="true">
+        <div class="collection-loading__heading">
+          <span></span>
+          <span></span>
+        </div>
+
+        @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+          <div class="collection-record collection-record--loading" aria-hidden="true">
+            <span class="collection-record__art-skeleton"></span>
+            <div class="collection-record__identity-skeleton">
+              <span></span>
+              <span></span>
+            </div>
+            <span class="collection-record__quantity-skeleton"></span>
+          </div>
+        }
+      </section>
+    } @else if (loadError()) {
+      <section class="collection-state" aria-labelledby="collection-error-title">
+        <p class="collection-state__label">Collection unavailable</p>
+        <h2 id="collection-error-title">We couldn't load your collection.</h2>
+        <p>Your existing records have not been changed.</p>
+        <button class="btn btn--secondary" type="button" (click)="retry()">
+          Try again
+        </button>
+      </section>
+    } @else if (ownedCardsService.items().length === 0) {
+      <section class="collection-state collection-state--empty" aria-labelledby="collection-empty-title">
+        <p class="collection-state__label">Private collection</p>
+        <h2 id="collection-empty-title">Your collection starts with a card.</h2>
+        <p>Add an exact physical printing from Card Detail to begin your collection.</p>
+        <a class="btn btn--primary" routerLink="/cards">Browse cards</a>
+      </section>
+    } @else {
+      <section class="collection-workspace" aria-label="Owned card printings">
+        <div class="collection-tools">
+          <div class="collection-search">
+            <label for="collection-search">Search collection</label>
+            <input
+              id="collection-search"
+              class="collection-control"
+              type="search"
+              [value]="searchQuery()"
+              placeholder="Card name, printing or set"
+              autocomplete="off"
+              (input)="updateSearch($event)"
+            />
+          </div>
+
+          <div class="collection-set-filter">
+            <label for="collection-set">Set</label>
+            <select
+              id="collection-set"
+              class="collection-control"
+              [value]="setFilter()"
+              (change)="updateSetFilter($event)"
+            >
+              <option value="">All sets</option>
+              @for (set of setOptions(); track set) {
+                <option [value]="set">{{ set }}</option>
+              }
+            </select>
+          </div>
+
+        </div>
+
+        <div class="collection-results-rail" aria-live="polite">
+          <div class="collection-results-rail__summary">
+            <span class="collection-results-rail__count">
+              {{ filteredItems().length }} {{ filteredItems().length === 1 ? 'printing' : 'printings' }}
+            </span>
+
+            @if (totalPages() > 1) {
+              <span class="collection-results-rail__separator" aria-hidden="true">·</span>
+              <span class="collection-results-rail__page">Page {{ activePage() }} of {{ totalPages() }}</span>
+            }
+          </div>
+
+          @if (hasFilters()) {
+            <button class="collection-results-rail__clear" type="button" (click)="clearFilters()">
+              Clear filters
+            </button>
+          }
+        </div>
+
+        @if (filteredItems().length === 0) {
+          <div class="collection-no-results">
+            <h2>No cards in your collection match these filters.</h2>
+            <button class="btn btn--secondary" type="button" (click)="clearFilters()">
+              Clear filters
+            </button>
+          </div>
+        } @else {
+          <div
+            id="collection-records"
+            class="collection-records"
+            [attr.aria-label]="
+              'Showing Collection printings ' +
+              firstVisibleRecord() +
+              ' to ' +
+              lastVisibleRecord() +
+              ' of ' +
+              filteredItems().length
+            "
+          >
+            @for (item of pagedItems(); track item.id) {
+              <article
+                class="collection-record"
+                [class.collection-record--editing]="editingRecordId() === item.id"
+              >
+                <a
+                  class="collection-record__artwork"
+                  [routerLink]="['/cards', item.cardId]"
+                  [queryParams]="{ printing: item.cardPrintingId }"
+                  [attr.aria-label]="
+                    'Inspect ' +
+                    item.cardName +
+                    ', printing ' +
+                    (item.cardNumber || 'selected printing')
+                  "
+                >
+                  <img
+                    [appCardArtwork]="item.imageUrl"
+                    [alt]="item.cardName + ' card artwork'"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+
+                <div class="collection-record__identity">
+                  <a
+                    class="collection-record__name"
+                    [routerLink]="['/cards', item.cardId]"
+                    [queryParams]="{ printing: item.cardPrintingId }"
+                  >
+                    {{ item.cardName }}
+                  </a>
+
+                  <div class="collection-record__printing" aria-label="Printing information">
+                    @if (hasMeaningfulValue(item.cardNumber)) {
+                      <strong>{{ item.cardNumber }}</strong>
+                    } @else {
+                      <strong>Physical printing</strong>
+                    }
+
+                    @if (hasMeaningfulValue(item.setName)) {
+                      <span>{{ item.setName }}</span>
+                    }
+
+                    @if (hasMeaningfulValue(item.rarity)) {
+                      <span>{{ item.rarity }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="collection-record__ownership">
+                  <div class="collection-record__quantity-unit">
+                    <span class="collection-record__ownership-label">Owned</span>
+
+                    <div class="quantity-control" aria-label="Owned quantity">
+                      <button
+                        type="button"
+                        [disabled]="item.quantityOwned <= 1 || isRecordBusy(item.id)"
+                        [attr.aria-label]="'Decrease owned quantity from ' + item.quantityOwned"
+                        (click)="decreaseQuantity(item)"
+                      >−</button>
+                      <span aria-live="polite">{{ item.quantityOwned }}</span>
+                      <button
+                        type="button"
+                        [disabled]="item.quantityOwned >= 999 || isRecordBusy(item.id)"
+                        [attr.aria-label]="'Increase owned quantity from ' + item.quantityOwned"
+                        (click)="increaseQuantity(item)"
+                      >+</button>
+                    </div>
+                  </div>
+
+                  <div class="collection-record__actions">
+                    <button
+                      class="collection-record__edit"
+                      type="button"
+                      [disabled]="isRecordBusy(item.id)"
+                      [attr.aria-expanded]="editingRecordId() === item.id"
+                      (click)="editingRecordId() === item.id ? cancelEdit() : beginEdit(item)"
+                    >
+                      {{ editingRecordId() === item.id ? 'Close edit' : 'Edit record' }}
+                    </button>
+
+                    @if (hasRecordDetails(item) && editingRecordId() !== item.id) {
+                      <span class="collection-record__details-state">Details added</span>
+                    }
+
+                    <button
+                      class="collection-record__remove"
+                      type="button"
+                      [disabled]="isRecordBusy(item.id)"
+                      (click)="removeFromCollection(item)"
+                    >
+                      {{ isRecordBusy(item.id) ? 'Updating…' : 'Remove from Collection' }}
+                    </button>
+                  </div>
+                </div>
+
+                @if (editingRecordId() === item.id) {
+                  <form
+                    class="record-editor"
+                    [formGroup]="recordForm"
+                    (ngSubmit)="saveEdit(item)"
+                    novalidate
+                  >
+                    <div class="record-editor__heading">
+                      <p>Collector record</p>
+                      <div class="record-editor__identity">
+                        <h3>{{ item.cardName }}</h3>
+                        <span>{{ item.cardNumber || 'Physical printing' }}</span>
+                      </div>
+                    </div>
+
+                    <div class="record-editor__fields">
+                      <div class="form-field">
+                        <label class="form-label" [attr.for]="'condition-' + item.id">Condition</label>
+                        <input
+                          class="form-control record-editor__control"
+                          [id]="'condition-' + item.id"
+                          type="text"
+                          formControlName="condition"
+                          maxlength="50"
+                          autocomplete="off"
+                          [attr.aria-invalid]="
+                            (recordForm.controls.condition.invalid &&
+                              recordForm.controls.condition.touched) ||
+                            !!conditionServerError()
+                          "
+                          [attr.aria-describedby]="
+                            conditionServerError()
+                              ? 'condition-server-error-' + item.id
+                              : null
+                          "
+                        />
+                        @if (recordForm.controls.condition.touched && recordForm.controls.condition.invalid) {
+                          <p class="form-error">Condition must be 50 characters or fewer.</p>
+                        } @else if (conditionServerError()) {
+                          <p
+                            class="form-error"
+                            [id]="'condition-server-error-' + item.id"
+                          >
+                            {{ conditionServerError() }}
+                          </p>
+                        }
+                      </div>
+
+                      <div class="form-field record-editor__notes-field">
+                        <label class="form-label" [attr.for]="'notes-' + item.id">Notes</label>
+                        <textarea
+                          class="form-control record-editor__notes"
+                          [id]="'notes-' + item.id"
+                          formControlName="notes"
+                          maxlength="2000"
+                          rows="3"
+                          [attr.aria-invalid]="
+                            (recordForm.controls.notes.invalid &&
+                              recordForm.controls.notes.touched) ||
+                            !!notesServerError()
+                          "
+                          [attr.aria-describedby]="
+                            notesServerError()
+                              ? 'notes-server-error-' + item.id
+                              : null
+                          "
+                        ></textarea>
+                        @if (recordForm.controls.notes.touched && recordForm.controls.notes.invalid) {
+                          <p class="form-error">Notes must be 2,000 characters or fewer.</p>
+                        } @else if (notesServerError()) {
+                          <p
+                            class="form-error"
+                            [id]="'notes-server-error-' + item.id"
+                          >
+                            {{ notesServerError() }}
+                          </p>
+                        }
+                      </div>
+                    </div>
+
+                    <fieldset class="record-editor__states">
+                      <legend>Collection state</legend>
+
+                      <label class="record-check">
+                        <input type="checkbox" formControlName="isInMasterCollection" />
+                        <span>Master collection</span>
+                      </label>
+
+                      <label class="record-check">
+                        <input type="checkbox" formControlName="isDuplicate" />
+                        <span>Duplicate</span>
+                      </label>
+
+                      <label class="record-check">
+                        <input type="checkbox" formControlName="isGradingCandidate" />
+                        <span>Grading candidate</span>
+                      </label>
+
+                      <label class="record-check">
+                        <input type="checkbox" formControlName="isOpenForTrade" />
+                        <span>Open for trade</span>
+                      </label>
+
+                      <label class="record-check">
+                        <input type="checkbox" formControlName="isOpenToMessages" />
+                        <span>Open to messages</span>
+                      </label>
+
+                      <label class="record-check">
+                        <input type="checkbox" formControlName="maySellLater" />
+                        <span>May sell later</span>
+                      </label>
+                    </fieldset>
+
+                    @if (saveError()) {
+                      <p class="record-editor__save-error" role="alert">
+                        {{ saveError() }}
+                      </p>
+                    }
+
+                    <div class="record-editor__actions">
+                      <button
+                        class="btn btn--primary"
+                        type="submit"
+                        [disabled]="
+                          recordForm.invalid ||
+                          isSavingRecord() ||
+                          isRecordBusy(item.id)
+                        "
+                      >
+                        {{ isSavingRecord() ? 'Saving…' : 'Save record' }}
+                      </button>
+
+                      <button
+                        class="btn btn--text"
+                        type="button"
+                        [disabled]="isSavingRecord()"
+                        (click)="cancelEdit()"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                }
+              </article>
+            }
+          </div>
+
+          @if (totalPages() > 1) {
+            <nav class="collection-pagination" aria-label="Collection pages">
+              <p class="collection-pagination__status">
+                Page {{ activePage() }} of {{ totalPages() }}
+              </p>
+
+              <div class="collection-pagination__controls">
+                <button
+                  class="collection-pagination__direction"
+                  type="button"
+                  [disabled]="activePage() === 1"
+                  aria-label="Previous Collection page"
+                  (click)="previousPage()"
+                >
+                  Previous
+                </button>
+
+                <div class="collection-pagination__pages" aria-label="Collection page numbers">
+                  @for (page of visiblePageNumbers(); track page) {
+                    <button
+                      class="collection-pagination__page"
+                      [class.collection-pagination__page--current]="page === activePage()"
+                      type="button"
+                      [attr.aria-current]="page === activePage() ? 'page' : null"
+                      [attr.aria-label]="'Collection page ' + page"
+                      (click)="goToPage(page)"
+                    >
+                      {{ page }}
+                    </button>
+                  }
+                </div>
+
+                <span class="collection-pagination__mobile-status">
+                  Page {{ activePage() }} of {{ totalPages() }}
+                </span>
+
+                <button
+                  class="collection-pagination__direction"
+                  type="button"
+                  [disabled]="activePage() === totalPages()"
+                  aria-label="Next Collection page"
+                  (click)="nextPage()"
+                >
+                  Next
+                </button>
+              </div>
+            </nav>
+          }
+        }
+      </section>
+    }
+  </div>
+</main>

@@ -14,6 +14,8 @@ const apiUrl = (path: string): string =>
 export const API_ENDPOINTS = {
   capabilities: apiUrl('/api/Capabilities'),
   cards: apiUrl('/api/Cards'),
+  cardsPaged: apiUrl('/api/Cards/paged'),
+  cardFilterOptions: apiUrl('/api/Cards/filter-options'),
   cardById: (id: number): string => apiUrl(`/api/Cards/${id}`),
   ownedCards: apiUrl('/api/OwnedCards'),
   ownedCardById: (id: number): string => apiUrl(`/api/OwnedCards/${id}`),

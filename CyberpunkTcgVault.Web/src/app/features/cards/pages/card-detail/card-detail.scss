@@ -73,7 +73,7 @@
   width: 70px;
   height: 2px;
   background: var(--colour-yellow);
-  content: "";
+  content: '';
 }
 
 .card-detail-artwork {
@@ -125,7 +125,7 @@
 .card-identity-line span + span::before {
   margin-inline: 11px;
   color: #626b77;
-  content: "·";
+  content: '·';
 }
 
 .gameplay-rail {
@@ -133,8 +133,8 @@
   flex-wrap: wrap;
   gap: 0;
   margin: clamp(26px, 3vw, 38px) 0 0;
-  padding: 17px 0;
-  border-block: 1px solid var(--colour-border);
+  padding: 18px 0 2px;
+  border-top: 1px solid var(--colour-border);
 }
 
 .gameplay-rail > div {
@@ -232,7 +232,7 @@
   left: 16px;
   height: 2px;
   background: transparent;
-  content: "";
+  content: '';
 }
 
 .printing-option:hover {
@@ -358,7 +358,7 @@
 .printing-record__line span + span::before {
   margin-inline: 10px;
   color: #626b77;
-  content: "·";
+  content: '·';
 }
 
 .printing-record__variants {
@@ -368,8 +368,16 @@
 /* Personal state is annotation, not ecommerce. */
 .collector-record {
   margin-top: clamp(28px, 3.2vw, 44px);
-  padding-top: 4px;
-  border-top: 1px solid var(--colour-border);
+}
+
+.collector-record__heading {
+  margin: 0 0 8px;
+  color: var(--colour-text);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .collector-row {
@@ -411,15 +419,22 @@
 }
 
 .collector-row__actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 126px 172px;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: end;
   gap: 12px;
+  width: 310px;
+  max-width: 100%;
+}
+
+.collector-row__actions > .collector-inline-action:only-child {
+  grid-column: 1 / -1;
+  justify-self: end;
 }
 
 .collector-inline-action {
-  min-height: 38px;
+  min-height: 44px;
   padding: 0 4px;
   color: var(--colour-text);
   background: transparent;
@@ -435,8 +450,10 @@
 }
 
 .collector-inline-action--muted {
+  width: 100%;
   color: var(--colour-text-muted);
   border-bottom-color: var(--colour-border-strong);
+  text-align: center;
 }
 
 .collector-inline-action:hover {
@@ -455,16 +472,18 @@
 
 .quantity-control {
   display: grid;
-  grid-template-columns: 36px minmax(34px, auto) 36px;
+  grid-template-columns: 44px 1fr 44px;
   align-items: center;
+  width: 126px;
+  box-sizing: border-box;
   border: 1px solid var(--colour-border-strong);
   background: rgba(255, 255, 255, 0.02);
 }
 
 .quantity-control button {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   padding: 0;
   color: var(--colour-text-muted);
@@ -486,6 +505,10 @@
   font-size: 0.9rem;
   font-weight: 800;
   text-align: center;
+}
+
+.collector-feedback-slot {
+  min-height: 36px;
 }
 
 .collector-feedback,
@@ -591,7 +614,6 @@
     grid-template-columns: minmax(350px, 0.82fr) minmax(0, 1.18fr);
     gap: 46px;
   }
-
 }
 
 @media (max-width: 900px) {
@@ -635,7 +657,7 @@
   }
 
   .gameplay-rail {
-    order: 3;
+    order: 5;
     width: 100%;
     margin-top: 36px;
   }
@@ -646,7 +668,7 @@
   }
 
   .printing-selector {
-    order: 5;
+    order: 3;
     width: 100%;
   }
 
@@ -698,6 +720,7 @@
   }
 
   .collector-row__actions {
+    width: 310px;
     justify-content: flex-start;
   }
 
@@ -712,6 +735,16 @@
 @media (max-width: 390px) {
   .card-detail-shell {
     width: min(100% - 36px, 100%);
+  }
+
+  .collector-row__actions {
+    grid-template-columns: 126px minmax(0, 1fr);
+    width: 100%;
+    gap: 10px;
+  }
+
+  .collector-inline-action--muted {
+    white-space: normal;
   }
 
   .card-record-header h1 {

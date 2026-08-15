@@ -126,10 +126,23 @@ export class OwnedCardsService {
       notes: item.notes
     };
 
+    return this.updateRecord(item, request);
+  }
+
+  /**
+   * Updates every editable field on an existing collector record.
+   *
+   * The API returns 204 No Content, so the updated record is reconstructed
+   * from the current item and the request before the local cache is replaced.
+   */
+  updateRecord(
+    item: OwnedCard,
+    request: UpdateOwnedCardRequest
+  ): Observable<OwnedCard> {
     return this.http
       .put<void>(API_ENDPOINTS.ownedCardById(item.id), request)
       .pipe(
-        map(() => ({ ...item, quantityOwned })),
+        map(() => ({ ...item, ...request })),
         tap(updated => {
           this.itemsState.update(items =>
             items.map(existing =>

@@ -46,8 +46,9 @@
 }
 
 /*
- * Registration is intentionally more open than Login. One quiet yellow index
- * implies the first personal record without drawing a literal account card.
+ * Registration is intentionally more open than Login. A quiet graphite spine
+ * and one yellow index establish the first record without drawing a literal
+ * account card.
  */
 .register-form-area {
   position: relative;
@@ -59,12 +60,27 @@
 
 .register-form-area::before {
   position: absolute;
-  top: 30px;
+  top: 0;
+  bottom: 0;
   left: 0;
-  width: 2px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.06) 78%,
+    transparent
+  );
+  content: '';
+}
+
+.register-form-area::after {
+  position: absolute;
+  top: 30px;
+  left: -1px;
+  width: 3px;
   height: 34px;
   background: var(--colour-yellow);
-  content: "";
+  content: '';
 }
 
 .register-form-heading h2 {
@@ -136,10 +152,25 @@
   }
 
   .register-form-area::before {
-    top: -3px;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.06) 78%,
+      transparent
+    );
+  }
+
+  .register-form-area::after {
+    top: -2px;
     left: 0;
     width: 42px;
-    height: 5px;
+    height: 4px;
   }
 }
 

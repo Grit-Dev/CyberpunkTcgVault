@@ -1,13 +1,15 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  provideRouter
-} from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ResetPassword } from './reset-password';
+
+@Component({
+  template: '',
+})
+class TestLoginRoute {}
 
 describe('ResetPassword', () => {
   let fixture: ComponentFixture<ResetPassword>;
@@ -19,17 +21,22 @@ describe('ResetPassword', () => {
     await TestBed.configureTestingModule({
       imports: [ResetPassword],
       providers: [
-        provideRouter([]),
+        provideRouter([
+          {
+            path: 'login',
+            component: TestLoginRoute,
+          },
+        ]),
         {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
               queryParamMap: convertToParamMap({
                 userId: 'user-id',
-                token: 'opaque-token'
-              })
-            }
-          }
+                token: 'opaque-token',
+              }),
+            },
+          },
         },
         {
           provide: AuthService,
@@ -37,10 +44,10 @@ describe('ResetPassword', () => {
             resetPassword: (request: unknown) => {
               resetRequest = request;
               return of(undefined);
-            }
-          }
-        }
-      ]
+            },
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResetPassword);
@@ -57,7 +64,7 @@ describe('ResetPassword', () => {
 
     component.resetPasswordForm.setValue({
       newPassword: 'new-password-123',
-      confirmPassword: 'new-password-123'
+      confirmPassword: 'new-password-123',
     });
 
     component.submit();
@@ -65,7 +72,7 @@ describe('ResetPassword', () => {
     expect(resetRequest).toEqual({
       userId: 'user-id',
       token: 'opaque-token',
-      newPassword: 'new-password-123'
+      newPassword: 'new-password-123',
     });
   });
 });

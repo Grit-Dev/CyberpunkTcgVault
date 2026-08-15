@@ -21,38 +21,35 @@
       <a routerLink="/cards" routerLinkActive="is-active" ariaCurrentWhenActive="page">
         Catalogue
       </a>
+
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/collection" routerLinkActive="is-active" ariaCurrentWhenActive="page">
+          Collection
+        </a>
+      }
     </nav>
 
     <div class="header-actions" aria-label="Account actions">
       @if (authService.isInitialized()) {
         @if (!authService.isAuthenticated()) {
-          <a
-            class="btn btn--text header-login"
-            routerLink="/login"
-            routerLinkActive="is-active"
-          >
+          <a class="btn btn--text header-login" routerLink="/login" routerLinkActive="is-active">
             Log in
           </a>
 
           @if (capabilitiesService.publicRegistrationEnabled()) {
-            <a
-              class="btn btn--primary header-register"
-              routerLink="/register"
-            >
-              Join the Vault
-            </a>
+            <a class="btn btn--primary header-register" routerLink="/register"> Join the Vault </a>
           }
         } @else {
           @if (authService.currentUser(); as user) {
             <div
               class="header-identity"
+              [class.header-identity--demo]="authService.isDemo()"
               [attr.aria-label]="'Signed in as ' + user.userName"
             >
+              <span class="header-username">{{ user.userName }}</span>
+
               @if (authService.isDemo()) {
                 <span class="header-demo-context">Demo Vault</span>
-              } @else {
-                <!-- Identity only until /account is implemented. -->
-                <span class="header-username">{{ user.userName }}</span>
               }
             </div>
           }

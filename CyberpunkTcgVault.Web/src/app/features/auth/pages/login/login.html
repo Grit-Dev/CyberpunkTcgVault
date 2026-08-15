@@ -6,17 +6,15 @@
       <h1 id="login-title">Return to your Vault.</h1>
 
       <p class="login-intro__copy">
-        The Vault Archive is open to browse. Your collection records remain
-        private to your account. Sign in to continue.
+        The Vault Archive is open to browse. Your collection records remain private to your account.
+        Sign in to continue.
       </p>
     </section>
 
     <section class="login-access" aria-labelledby="vault-access-title">
       <span class="login-access__index" aria-hidden="true"></span>
 
-      <p class="login-access__context">
-        Public Archive / Private Collection
-      </p>
+      <p class="login-access__context">Public Archive / Private Collection</p>
 
       @if (mfaMode() === null) {
         <div class="login-access__heading">
@@ -42,12 +40,7 @@
           </p>
         }
 
-        <form
-          class="form-stack"
-          [formGroup]="loginForm"
-          (ngSubmit)="submitLogin()"
-          novalidate
-        >
+        <form class="form-stack" [formGroup]="loginForm" (ngSubmit)="submitLogin()" novalidate>
           <div class="form-field">
             <label class="form-label" for="login-email">Email</label>
             <input
@@ -57,18 +50,18 @@
               formControlName="email"
               autocomplete="email"
               inputmode="email"
-              [attr.aria-invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+              [attr.aria-invalid]="
+                loginForm.controls.email.invalid && loginForm.controls.email.touched
+              "
               aria-describedby="login-email-error"
             />
 
-            @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
-              <p id="login-email-error" class="form-error">
-                Enter your email address.
-              </p>
+            @if (
+              loginForm.controls.email.touched && loginForm.controls.email.hasError('required')
+            ) {
+              <p id="login-email-error" class="form-error">Enter your email address.</p>
             } @else if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
-              <p id="login-email-error" class="form-error">
-                Enter a valid email address.
-              </p>
+              <p id="login-email-error" class="form-error">Enter a valid email address.</p>
             }
           </div>
 
@@ -80,15 +73,20 @@
               type="password"
               formControlName="password"
               autocomplete="current-password"
-              [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+              [attr.aria-invalid]="
+                loginForm.controls.password.invalid && loginForm.controls.password.touched
+              "
               aria-describedby="login-password-error"
             />
 
-            @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
-              <p id="login-password-error" class="form-error">
-                Enter your password.
-              </p>
-            } @else if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+            @if (
+              loginForm.controls.password.touched &&
+              loginForm.controls.password.hasError('required')
+            ) {
+              <p id="login-password-error" class="form-error">Enter your password.</p>
+            } @else if (
+              loginForm.controls.password.touched && loginForm.controls.password.invalid
+            ) {
               <p id="login-password-error" class="form-error">
                 Password must be at least 8 characters.
               </p>
@@ -111,15 +109,22 @@
 
         @if (capabilitiesService.demoAccessEnabled()) {
           <div class="login-demo">
-            <p>Want to explore without using a personal account?</p>
+            <p class="login-demo__label">Demo Access</p>
 
             <button
-              class="btn btn--secondary login-demo__action"
+              class="login-demo__action"
               type="button"
               [disabled]="isSubmitting() || isDemoSubmitting()"
               (click)="enterDemoVault()"
             >
-              {{ isDemoSubmitting() ? 'Opening Demo…' : 'Explore Demo Vault' }}
+              <span>
+                {{
+                  isDemoSubmitting()
+                    ? 'Opening prepared Vault…'
+                    : 'Explore a prepared collector Vault'
+                }}
+              </span>
+              <span aria-hidden="true">→</span>
             </button>
           </div>
         }
@@ -149,12 +154,7 @@
         }
 
         @if (mfaMode() === 'authenticator') {
-          <form
-            class="form-stack"
-            [formGroup]="mfaForm"
-            (ngSubmit)="submitMfa()"
-            novalidate
-          >
+          <form class="form-stack" [formGroup]="mfaForm" (ngSubmit)="submitMfa()" novalidate>
             <div class="form-field">
               <label class="form-label" for="mfa-code">Authenticator code</label>
               <input
@@ -169,26 +169,16 @@
               />
 
               @if (mfaForm.controls.code.touched && mfaForm.controls.code.invalid) {
-                <p id="mfa-code-error" class="form-error">
-                  Enter your authenticator code.
-                </p>
+                <p id="mfa-code-error" class="form-error">Enter your authenticator code.</p>
               }
             </div>
 
-            <button
-              class="btn btn--primary login-submit"
-              type="submit"
-              [disabled]="isSubmitting()"
-            >
+            <button class="btn btn--primary login-submit" type="submit" [disabled]="isSubmitting()">
               {{ isSubmitting() ? 'Verifying…' : 'Continue' }}
             </button>
           </form>
 
-          <button
-            class="text-action login-mfa-switch"
-            type="button"
-            (click)="useRecoveryCode()"
-          >
+          <button class="text-action login-mfa-switch" type="button" (click)="useRecoveryCode()">
             Use a recovery code
           </button>
         } @else {
@@ -206,22 +196,22 @@
                 type="text"
                 formControlName="recoveryCode"
                 autocomplete="off"
-                [attr.aria-invalid]="recoveryForm.controls.recoveryCode.invalid && recoveryForm.controls.recoveryCode.touched"
+                [attr.aria-invalid]="
+                  recoveryForm.controls.recoveryCode.invalid &&
+                  recoveryForm.controls.recoveryCode.touched
+                "
                 aria-describedby="recovery-code-error"
               />
 
-              @if (recoveryForm.controls.recoveryCode.touched && recoveryForm.controls.recoveryCode.invalid) {
-                <p id="recovery-code-error" class="form-error">
-                  Enter a recovery code.
-                </p>
+              @if (
+                recoveryForm.controls.recoveryCode.touched &&
+                recoveryForm.controls.recoveryCode.invalid
+              ) {
+                <p id="recovery-code-error" class="form-error">Enter a recovery code.</p>
               }
             </div>
 
-            <button
-              class="btn btn--primary login-submit"
-              type="submit"
-              [disabled]="isSubmitting()"
-            >
+            <button class="btn btn--primary login-submit" type="submit" [disabled]="isSubmitting()">
               {{ isSubmitting() ? 'Verifying…' : 'Continue' }}
             </button>
           </form>

@@ -214,7 +214,7 @@ export class Login implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.navigateAfterAuthentication();
+          this.navigateAfterAuthentication('/collection');
         },
         error: error => {
           this.authError.set(this.getDemoError(error));
@@ -232,17 +232,62 @@ export class Login implements OnInit {
     this.mfaMode.set('authenticator');
   }
 
-  private navigateAfterAuthentication(): void {
+  private navigateAfterAuthentication(
+    fallbackDestination = '/cards'
+  ): void {
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-
-    // Only permit an internal Choom Vault path as a return destination.
-    // This avoids creating an open redirect through a future returnUrl.
     const destination =
-      returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
-        ? returnUrl
-        : '/cards';
+      this.getValidAuthenticationReturnUrl(returnUrl) ?? fallbackDestination;
 
     void this.router.navigateByUrl(destination);
+  }
+
+  /**
+   * Authentication return URLs are intentionally limited to product journeys
+   * that currently exist and can legitimately lead through Login. This keeps a
+   * stale pre-MVP route (for example /my-vault) from authenticating correctly
+   * and then dropping the collector onto the global 404 page.
+   */
+  private getValidAuthenticationReturnUrl(
+    returnUrl: string | null
+  ): string | null {
+    if (
+      !returnUrl ||
+      !returnUrl.startsWith('/') ||
+      returnUrl.startsWith('//') ||
+      returnUrl.includes('\\')
+    ) {
+      return null;
+    }
+
+    try {
+      const urlTree = this.router.parseUrl(returnUrl);
+      const primarySegments =
+        urlTree.root.children['primary']?.segments.map(segment => segment.path) ?? [];
+
+      // /collection is the implemented private MVP destination. Query state is
+      // preserved so a guarded Collection URL can return to the same page/filter.
+      if (
+        primarySegments.length === 1 &&
+        primarySegments[0] === 'collection'
+      ) {
+        return returnUrl;
+      }
+
+      // Card Detail can legitimately send a signed-out collector to Login after
+      // they choose an exact Printing action. Preserve that inspection context.
+      if (
+        primarySegments.length === 2 &&
+        primarySegments[0] === 'cards' &&
+        primarySegments[1].length > 0
+      ) {
+        return returnUrl;
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
   }
 
   private getLoginError(error: unknown): string {

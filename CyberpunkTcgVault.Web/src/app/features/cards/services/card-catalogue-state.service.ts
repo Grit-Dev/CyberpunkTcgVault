@@ -11,9 +11,6 @@ import { CardFilters } from '../models/card-filters';
 export interface CardCatalogueState {
   filters: CardFilters;
   currentPage: number;
-  rarityOptions: string[];
-  classificationOptions: string[];
-  cardTypeOptions: string[];
 }
 
 @Injectable({
@@ -74,33 +71,47 @@ export class CardCatalogueStateService {
       return {
         filters: {
           name: parsedState.filters.name ?? '',
+          setCode: parsedState.filters.setCode ?? '',
+          cardType: parsedState.filters.cardType ?? '',
           rarity: parsedState.filters.rarity ?? '',
+          colour: parsedState.filters.colour ?? '',
           classification:
             parsedState.filters.classification ?? '',
-          cardType: parsedState.filters.cardType ?? ''
+          tags: parsedState.filters.tags ?? '',
+          cost: this.normaliseNumber(
+            parsedState.filters.cost
+          ),
+          power: this.normaliseNumber(
+            parsedState.filters.power
+          ),
+          ram: this.normaliseNumber(
+            parsedState.filters.ram
+          ),
+          eddies: this.normaliseNumber(
+            parsedState.filters.eddies
+          ),
+          sortBy:
+            parsedState.filters.sortBy === 'name'
+              ? 'name'
+              : 'setOrder',
+          sortDirection:
+            parsedState.filters.sortDirection === 'desc'
+              ? 'desc'
+              : 'asc'
         },
-        currentPage,
-        rarityOptions:
-          this.normaliseOptions(parsedState.rarityOptions),
-        classificationOptions:
-          this.normaliseOptions(parsedState.classificationOptions),
-        cardTypeOptions:
-          this.normaliseOptions(parsedState.cardTypeOptions)
+        currentPage
       };
     } catch {
       return null;
     }
   }
 
-  private normaliseOptions(
-    values: string[] | undefined
-  ): string[] {
-    if (!Array.isArray(values)) {
-      return [];
-    }
-
-    return values.filter(
-      value => typeof value === 'string'
-    );
+  private normaliseNumber(
+    value: number | null | undefined
+  ): number | null {
+    return typeof value === 'number' &&
+      Number.isFinite(value)
+      ? value
+      : null;
   }
 }

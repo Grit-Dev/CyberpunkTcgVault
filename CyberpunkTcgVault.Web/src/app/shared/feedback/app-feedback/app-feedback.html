@@ -1,0 +1,11 @@
+@if (feedbackService.message(); as message) {
+  <div
+    class="app-feedback"
+    [class.app-feedback--error]="message.tone === 'error'"
+    [attr.role]="message.tone === 'error' ? 'alert' : 'status'"
+    [attr.aria-live]="message.tone === 'error' ? 'assertive' : 'polite'"
+  >
+    <span class="app-feedback__mark" aria-hidden="true"></span>
+    <p>{{ message.text }}</p>
+  </div>
+}

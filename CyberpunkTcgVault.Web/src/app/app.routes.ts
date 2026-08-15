@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/auth/auth.guard';
 import { ForgotPassword } from './features/auth/pages/forgot-password/forgot-password';
 import { Login } from './features/auth/pages/login/login';
 import { Register } from './features/auth/pages/register/register';
 import { ResetPassword } from './features/auth/pages/reset-password/reset-password';
 import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalogue';
 import { CardDetail } from './features/cards/pages/card-detail/card-detail';
+import { Collection } from './features/collection/pages/collection/collection';
 import { About } from './pages/about/about';
 import { Contact } from './pages/contact/contact';
 import { Home } from './pages/home/home';
@@ -46,6 +48,17 @@ export const routes: Routes = [
     data: {
       description: 'Inspect a Cyberpunk TCG card and its available physical printings in the public Choom Vault Archive.',
       robots: 'index, follow'
+    }
+  },
+  {
+    path: 'collection',
+    title: 'My Collection | Choom Vault',
+    component: Collection,
+    canActivate: [authGuard],
+    data: {
+      description:
+        'Manage the exact Cyberpunk TCG card printings in your private Choom Vault collection.',
+      robots: 'noindex, nofollow'
     }
   },
   {
