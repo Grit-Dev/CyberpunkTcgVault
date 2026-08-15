@@ -31,6 +31,58 @@ namespace CyberpunkTcgVault.Api.Data
             builder.Entity<AppUser>()
                 .ToTable("Users");
 
+            // Identity's default EmailIndex is non-unique. Public
+            // registration requires one account per normalized email, so the
+            // database is the final concurrency guard if two registrations
+            // race past UserManager's friendly duplicate check.
+            builder.Entity<AppUser>()
+                .HasIndex(user => user.NormalizedEmail)
+                .HasDatabaseName("EmailIndex")
+                .IsUnique()
+                .HasFilter("[NormalizedEmail] IS NOT NULL");
+
+            // Keep catalogue text columns bounded so exact-match filters can
+            // use ordinary SQL Server indexes rather than nvarchar(max) scans.
+            builder.Entity<Card>()
+                .Property(card => card.Name)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            builder.Entity<Card>()
+                .Property(card => card.Colour)
+                .HasMaxLength(50);
+
+            builder.Entity<Card>()
+                .Property(card => card.CardType)
+                .HasMaxLength(50);
+
+            builder.Entity<Card>()
+                .Property(card => card.Classification)
+                .HasMaxLength(100);
+
+            builder.Entity<Card>()
+                .Property(card => card.Keywords)
+                .HasMaxLength(250);
+
+            builder.Entity<Card>()
+                .Property(card => card.Notes)
+                .HasMaxLength(2000);
+
+            // Targeted catalogue indexes only. Do not index every possible
+            // filter blindly; these support the common exact string filters
+            // and printing-level set/rarity lookup paths.
+            builder.Entity<Card>()
+                .HasIndex(card => card.Name);
+
+            builder.Entity<Card>()
+                .HasIndex(card => card.Colour);
+
+            builder.Entity<Card>()
+                .HasIndex(card => card.CardType);
+
+            builder.Entity<Card>()
+                .HasIndex(card => card.Classification);
+
             // One Card can have many physical printings.
             builder.Entity<CardPrinting>()
                 .HasOne(cardPrinting => cardPrinting.Card)
@@ -54,6 +106,9 @@ namespace CyberpunkTcgVault.Api.Data
                 .Property(cardSet => cardSet.Code)
                 .HasMaxLength(50);
 
+            builder.Entity<CardSet>()
+                .HasIndex(cardSet => cardSet.Code);
+
             builder.Entity<CardPrinting>()
                 .Property(cardPrinting => cardPrinting.CardNumber)
                 .HasMaxLength(50)
@@ -70,6 +125,25 @@ namespace CyberpunkTcgVault.Api.Data
             builder.Entity<CardPrinting>()
                 .Property(cardPrinting => cardPrinting.LanguageCode)
                 .HasMaxLength(10);
+
+            builder.Entity<CardPrinting>()
+                .HasIndex(cardPrinting => cardPrinting.Rarity);
+
+            builder.Entity<CardPrinting>()
+                .HasIndex(cardPrinting => new
+                {
+                    cardPrinting.CardSetId,
+                    cardPrinting.Rarity,
+                    cardPrinting.CardId
+                });
+
+            builder.Entity<CardPrinting>()
+                .HasIndex(cardPrinting => new
+                {
+                    cardPrinting.CardSetId,
+                    cardPrinting.CardNumber,
+                    cardPrinting.CardId
+                });
 
             builder.Entity<OwnedCard>()
                 .HasOne(ownedCard => ownedCard.CardPrinting)

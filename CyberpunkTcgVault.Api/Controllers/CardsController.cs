@@ -11,6 +11,9 @@ namespace CyberpunkTcgVault.Api.Controllers
     [Route("api/[controller]")]
     public class CardsController : ControllerBase
     {
+        private const int DefaultPageSize = 24;
+        private const int MaximumPageSize = 100;
+
         private readonly ICardService _cardService;
 
         public CardsController(ICardService cardService)
@@ -18,22 +21,89 @@ namespace CyberpunkTcgVault.Api.Controllers
             _cardService = cardService;
         }
 
+        // Legacy/current Angular catalogue contract. This remains an array so
+        // the existing public catalogue is not broken while the frontend moves
+        // to the paged endpoint below.
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CardResponse>>> GetCards(
-            string? name,
-            string? rarity,
-            string? classification,
-            string? cardType,
+            [FromQuery] CardCatalogueQuery query,
             CancellationToken cancellationToken)
         {
+            var sortValidation = ValidateSort(query);
+
+            if (sortValidation is not null)
+            {
+                return sortValidation;
+            }
+
             var cards = await _cardService.GetCardsAsync(
-                name,
-                rarity,
-                classification,
-                cardType,
+                query,
                 cancellationToken);
 
             return Ok(cards);
+        }
+
+        // Non-breaking server-side pagination path. Angular can migrate to this
+        // endpoint deliberately instead of changing the JSON shape of GET
+        // /api/Cards underneath the currently deployed catalogue.
+        [AllowAnonymous]
+        [HttpGet("paged")]
+        public async Task<ActionResult<PagedResponse<CardResponse>>> GetCardsPaged(
+            [FromQuery] CardCatalogueQuery query,
+            int page = 1,
+            int pageSize = DefaultPageSize,
+            CancellationToken cancellationToken = default)
+        {
+            var sortValidation = ValidateSort(query);
+
+            if (sortValidation is not null)
+            {
+                return sortValidation;
+            }
+
+            if (page < 1)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid page.",
+                    detail: "Page must be greater than or equal to 1.");
+            }
+
+            if (pageSize < 1 || pageSize > MaximumPageSize)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid page size.",
+                    detail: $"PageSize must be between 1 and {MaximumPageSize}.");
+            }
+
+            if ((long)(page - 1) * pageSize > int.MaxValue)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid page.",
+                    detail: "The requested page is outside the supported catalogue range.");
+            }
+
+            var response = await _cardService.GetCardsPageAsync(
+                query,
+                page,
+                pageSize,
+                cancellationToken);
+
+            return Ok(response);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("filter-options")]
+        public async Task<ActionResult<CardFilterOptionsResponse>> GetFilterOptions(
+            CancellationToken cancellationToken)
+        {
+            var options = await _cardService.GetFilterOptionsAsync(
+                cancellationToken);
+
+            return Ok(options);
         }
 
         [HttpGet("{id}")]
@@ -135,6 +205,27 @@ namespace CyberpunkTcgVault.Api.Controllers
                     statusCode: StatusCodes.Status500InternalServerError,
                     title: "Unable to delete card.")
             };
+        }
+
+        private ObjectResult? ValidateSort(CardCatalogueQuery query)
+        {
+            if (!CardCatalogueSortOptions.IsSupportedSortBy(query.SortBy))
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid catalogue sort.",
+                    detail: $"Supported sortBy values are '{CardCatalogueSortOptions.SetOrder}' and '{CardCatalogueSortOptions.Name}'.");
+            }
+
+            if (!CardCatalogueSortOptions.IsSupportedDirection(query.SortDirection))
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid catalogue sort direction.",
+                    detail: $"Supported sortDirection values are '{CardCatalogueSortOptions.Ascending}' and '{CardCatalogueSortOptions.Descending}'.");
+            }
+
+            return null;
         }
     }
 }

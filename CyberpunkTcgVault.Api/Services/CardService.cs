@@ -21,49 +21,166 @@ namespace CyberpunkTcgVault.Api.Services
         }
 
         public async Task<IReadOnlyList<CardResponse>> GetCardsAsync(
-            string? name,
-            string? rarity,
-            string? classification,
-            string? cardType,
+            CardCatalogueQuery filters,
             CancellationToken cancellationToken)
         {
-            var query = _context.Cards
-                .AsNoTracking()
-                .AsQueryable();
+            var query = BuildCatalogueQuery(filters);
+            var orderedQuery = ApplySorting(query, filters);
 
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                query = query.Where(card => card.Name.Contains(name));
-            }
-
-            if (!string.IsNullOrWhiteSpace(rarity))
-            {
-                query = query.Where(card =>
-                    card.CardPrintings.Any(printing =>
-                        printing.Rarity == rarity));
-            }
-
-            if (!string.IsNullOrWhiteSpace(classification))
-            {
-                query = query.Where(card =>
-                    card.Classification == classification);
-            }
-
-            if (!string.IsNullOrWhiteSpace(cardType))
-            {
-                query = query.Where(card =>
-                    card.CardType == cardType);
-            }
-
-            var cards = await ProjectCards(query)
-                .OrderBy(card => card.Name)
+            var cards = await ProjectCards(orderedQuery)
                 .ToListAsync(cancellationToken);
 
             _logger.LogInformation(
-                "Retrieved {Count} cards from the database.",
+                "Retrieved {Count} catalogue cards.",
                 cards.Count);
 
             return cards;
+        }
+
+        public async Task<PagedResponse<CardResponse>> GetCardsPageAsync(
+            CardCatalogueQuery filters,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken)
+        {
+            var query = BuildCatalogueQuery(filters);
+            var totalCount = await query.CountAsync(cancellationToken);
+            var orderedQuery = ApplySorting(query, filters);
+            var skip = (page - 1) * pageSize;
+
+            var items = await ProjectCards(orderedQuery)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return new PagedResponse<CardResponse>
+            {
+                Items = items,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalCount == 0
+                    ? 0
+                    : (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+        }
+
+        public async Task<CardFilterOptionsResponse> GetFilterOptionsAsync(
+            CancellationToken cancellationToken)
+        {
+            // Keep the inexpensive scalar distinct work in SQL. Tags are the
+            // only exception because the current MVP stores them in the
+            // compatibility Keywords string rather than a normalized tag table.
+            var colours = await _context.Cards
+                .AsNoTracking()
+                .Where(card => card.Colour != null && card.Colour != "")
+                .Select(card => card.Colour!)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            var cardTypes = await _context.Cards
+                .AsNoTracking()
+                .Where(card => card.CardType != null && card.CardType != "")
+                .Select(card => card.CardType!)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            var keywordValues = await _context.Cards
+                .AsNoTracking()
+                .Where(card => card.Keywords != null && card.Keywords != "")
+                .Select(card => card.Keywords!)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            var costs = await _context.Cards
+                .AsNoTracking()
+                .Where(card => card.Cost.HasValue)
+                .Select(card => card.Cost!.Value)
+                .Distinct()
+                .OrderBy(value => value)
+                .ToListAsync(cancellationToken);
+
+            var powers = await _context.Cards
+                .AsNoTracking()
+                .Where(card => card.Power.HasValue)
+                .Select(card => card.Power!.Value)
+                .Distinct()
+                .OrderBy(value => value)
+                .ToListAsync(cancellationToken);
+
+            var ramValues = await _context.Cards
+                .AsNoTracking()
+                .Where(card => card.RamCost.HasValue)
+                .Select(card => card.RamCost!.Value)
+                .Distinct()
+                .OrderBy(value => value)
+                .ToListAsync(cancellationToken);
+
+            var eddiesValues = await _context.Cards
+                .AsNoTracking()
+                .Where(card => card.Eddies.HasValue)
+                .Select(card => card.Eddies!.Value)
+                .Distinct()
+                .OrderBy(value => value)
+                .ToListAsync(cancellationToken);
+
+            var sets = await _context.CardPrintings
+                .AsNoTracking()
+                .Where(printing =>
+                    printing.CardSet.Code != null &&
+                    printing.CardSet.Code != "")
+                .Select(printing => new
+                {
+                    Code = printing.CardSet.Code!,
+                    printing.CardSet.Name
+                })
+                .Distinct()
+                .OrderBy(set => set.Code)
+                .ThenBy(set => set.Name)
+                .ToListAsync(cancellationToken);
+
+            var rarities = await _context.CardPrintings
+                .AsNoTracking()
+                .Where(printing =>
+                    printing.Rarity != null &&
+                    printing.Rarity != "")
+                .Select(printing => printing.Rarity!)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            return new CardFilterOptionsResponse
+            {
+                Colours = NormalizeDistinctStrings(colours),
+                CardTypes = NormalizeDistinctStrings(cardTypes),
+                Tags = ParseDistinctTags(keywordValues),
+                Costs = costs,
+                Powers = powers,
+                RamValues = ramValues,
+                EddiesValues = eddiesValues,
+                Sets = sets
+                    .Select(set => new CardSetFilterOptionResponse
+                    {
+                        Code = set.Code.Trim(),
+                        Name = set.Name.Trim()
+                    })
+                    .Where(set =>
+                        !set.Code.Equals(
+                            "Unknown",
+                            StringComparison.OrdinalIgnoreCase) &&
+                        !set.Name.Equals(
+                            "Unknown",
+                            StringComparison.OrdinalIgnoreCase))
+                    .GroupBy(
+                        set => set.Code,
+                        StringComparer.OrdinalIgnoreCase)
+                    .Select(group => group
+                        .OrderBy(set => set.Name, StringComparer.OrdinalIgnoreCase)
+                        .First())
+                    .OrderBy(set => set.Code, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(set => set.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
+                Rarities = NormalizeDistinctStrings(rarities)
+            };
         }
 
         public async Task<CardResponse?> GetCardByIdAsync(
@@ -91,6 +208,7 @@ namespace CyberpunkTcgVault.Api.Services
                 Cost = request.Cost,
                 Power = request.Power,
                 RamCost = request.RamCost,
+                Eddies = request.Eddies,
                 IsLegend = request.IsLegend,
                 Notes = request.Notes?.Trim()
             };
@@ -169,6 +287,7 @@ namespace CyberpunkTcgVault.Api.Services
             card.Cost = request.Cost;
             card.Power = request.Power;
             card.RamCost = request.RamCost;
+            card.Eddies = request.Eddies;
             card.IsLegend = request.IsLegend;
             card.Notes = request.Notes?.Trim();
 
@@ -324,6 +443,216 @@ namespace CyberpunkTcgVault.Api.Services
             return CardDeleteResult.Success;
         }
 
+        private IQueryable<Card> BuildCatalogueQuery(
+            CardCatalogueQuery filters)
+        {
+            var query = _context.Cards
+                .AsNoTracking()
+                .AsQueryable();
+
+            var name = NormalizeFilter(filters.Name);
+            var colour = NormalizeFilter(filters.Colour);
+            var cardType = NormalizeFilter(filters.EffectiveCardType);
+            var classification = NormalizeFilter(filters.Classification);
+            var tag = NormalizeFilter(filters.EffectiveTag);
+            var setCode = NormalizeFilter(filters.SetCode);
+            var rarity = NormalizeFilter(filters.Rarity);
+
+            if (name is not null)
+            {
+                // Preserve the existing partial-name semantics. SQL Server's
+                // configured collation determines case sensitivity without
+                // wrapping the indexed column in ToLower/ToUpper.
+                query = query.Where(card => card.Name.Contains(name));
+            }
+
+            if (colour is not null)
+            {
+                query = query.Where(card => card.Colour == colour);
+            }
+
+            if (cardType is not null)
+            {
+                query = query.Where(card => card.CardType == cardType);
+            }
+
+            if (classification is not null)
+            {
+                query = query.Where(card =>
+                    card.Classification == classification);
+            }
+
+            if (tag is not null)
+            {
+                var tagToken = "," + tag + ",";
+
+                // Keywords is the current compatibility storage for source
+                // tags. Padding with delimiters prevents `Solo` matching
+                // `Soloist`. Replace handles the common comma/semicolon forms
+                // without loading Cards into memory.
+                query = query.Where(card =>
+                    card.Keywords != null &&
+                    ("," + card.Keywords
+                        .Replace(";", ",")
+                        .Replace(", ", ",")
+                        .Replace(" ,", ",") + ",")
+                        .Contains(tagToken));
+            }
+
+            if (filters.Cost.HasValue)
+            {
+                query = query.Where(card => card.Cost == filters.Cost.Value);
+            }
+
+            if (filters.Power.HasValue)
+            {
+                query = query.Where(card => card.Power == filters.Power.Value);
+            }
+
+            if (filters.Ram.HasValue)
+            {
+                query = query.Where(card =>
+                    card.RamCost == filters.Ram.Value);
+            }
+
+            if (filters.Eddies.HasValue)
+            {
+                query = query.Where(card =>
+                    card.Eddies == filters.Eddies.Value);
+            }
+
+            if (setCode is not null || rarity is not null)
+            {
+                // Printing-level filters intentionally live inside one Any.
+                // This guarantees setCode + rarity are satisfied by the SAME
+                // physical printing rather than two unrelated printings.
+                query = query.Where(card =>
+                    card.CardPrintings.Any(printing =>
+                        (setCode == null || printing.CardSet.Code == setCode) &&
+                        (rarity == null || printing.Rarity == rarity)));
+            }
+
+            return query;
+        }
+
+        private static IOrderedQueryable<Card> ApplySorting(
+            IQueryable<Card> query,
+            CardCatalogueQuery filters)
+        {
+            var sortBy = string.IsNullOrWhiteSpace(filters.SortBy)
+                ? CardCatalogueSortOptions.SetOrder
+                : filters.SortBy.Trim();
+
+            var descending = string.Equals(
+                filters.SortDirection,
+                CardCatalogueSortOptions.Descending,
+                StringComparison.OrdinalIgnoreCase);
+
+            if (sortBy.Equals(
+                    CardCatalogueSortOptions.Name,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return descending
+                    ? query.OrderByDescending(card => card.Name)
+                        .ThenByDescending(card => card.Id)
+                    : query.OrderBy(card => card.Name)
+                        .ThenBy(card => card.Id);
+            }
+
+            var setCode = NormalizeFilter(filters.SetCode);
+            var rarity = NormalizeFilter(filters.Rarity);
+
+            // The domain does not yet contain an authoritative source-provided
+            // release-order field. `setOrder` therefore means a stable
+            // server-owned order by set code, then card number, then card name
+            // and ID. An approved provider can later supply a true set rank
+            // without changing the public sortBy value.
+            if (descending)
+            {
+                return query
+                    .OrderByDescending(card => card.CardPrintings
+                        .Where(printing =>
+                            (setCode == null || printing.CardSet.Code == setCode) &&
+                            (rarity == null || printing.Rarity == rarity))
+                        .OrderBy(printing => printing.CardSet.Code)
+                        .ThenBy(printing => printing.CardNumber)
+                        .Select(printing =>
+                            printing.CardSet.Code ?? printing.CardSet.Name)
+                        .FirstOrDefault())
+                    .ThenByDescending(card => card.CardPrintings
+                        .Where(printing =>
+                            (setCode == null || printing.CardSet.Code == setCode) &&
+                            (rarity == null || printing.Rarity == rarity))
+                        .OrderBy(printing => printing.CardSet.Code)
+                        .ThenBy(printing => printing.CardNumber)
+                        .Select(printing => printing.CardNumber)
+                        .FirstOrDefault())
+                    .ThenByDescending(card => card.Name)
+                    .ThenByDescending(card => card.Id);
+            }
+
+            return query
+                .OrderBy(card => card.CardPrintings
+                    .Where(printing =>
+                        (setCode == null || printing.CardSet.Code == setCode) &&
+                        (rarity == null || printing.Rarity == rarity))
+                    .OrderBy(printing => printing.CardSet.Code)
+                    .ThenBy(printing => printing.CardNumber)
+                    .Select(printing =>
+                        printing.CardSet.Code ?? printing.CardSet.Name)
+                    .FirstOrDefault())
+                .ThenBy(card => card.CardPrintings
+                    .Where(printing =>
+                        (setCode == null || printing.CardSet.Code == setCode) &&
+                        (rarity == null || printing.Rarity == rarity))
+                    .OrderBy(printing => printing.CardSet.Code)
+                    .ThenBy(printing => printing.CardNumber)
+                    .Select(printing => printing.CardNumber)
+                    .FirstOrDefault())
+                .ThenBy(card => card.Name)
+                .ThenBy(card => card.Id);
+        }
+
+        private static string? NormalizeFilter(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? null
+                : value.Trim();
+        }
+
+        private static IReadOnlyList<string> NormalizeDistinctStrings(
+            IEnumerable<string> values)
+        {
+            return values
+                .Select(value => value.Trim())
+                .Where(value =>
+                    value.Length > 0 &&
+                    !value.Equals(
+                        "Unknown",
+                        StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static IReadOnlyList<string> ParseDistinctTags(
+            IEnumerable<string> keywordValues)
+        {
+            return keywordValues
+                .SelectMany(value => value.Split(
+                    [',', ';'],
+                    StringSplitOptions.RemoveEmptyEntries |
+                    StringSplitOptions.TrimEntries))
+                .Where(tag =>
+                    tag.Length > 0 &&
+                    !tag.Equals(
+                        "Unknown",
+                        StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(tag => tag, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
         private async Task<CardSet> GetOrCreateCardSetAsync(
             string setName,
             CancellationToken cancellationToken)
@@ -353,6 +682,7 @@ namespace CyberpunkTcgVault.Api.Services
                 Cost = card.Cost,
                 Power = card.Power,
                 RamCost = card.RamCost,
+                Eddies = card.Eddies,
                 IsLegend = card.IsLegend,
                 Notes = card.Notes,
 

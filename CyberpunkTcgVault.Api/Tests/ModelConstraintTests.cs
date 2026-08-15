@@ -14,6 +14,25 @@ public class ModelConstraintTests
         AssertUniqueUserPrintingIndex<WishListItem>(db.Context.Model);
     }
 
+    [Fact]
+    public async Task AppUser_NormalizedEmailIndexIsUnique()
+    {
+        await using var db = await TestDb.CreateAsync();
+
+        var entityType =
+            db.Context.Model.FindEntityType(typeof(AppUser));
+
+        Assert.NotNull(entityType);
+
+        var uniqueEmailIndex = entityType!.GetIndexes()
+            .SingleOrDefault(index =>
+                index.IsUnique &&
+                index.Properties.Select(property => property.Name)
+                    .SequenceEqual(new[] { "NormalizedEmail" }));
+
+        Assert.NotNull(uniqueEmailIndex);
+    }
+
     private static void AssertUniqueUserPrintingIndex<TEntity>(
         Microsoft.EntityFrameworkCore.Metadata.IModel model)
     {

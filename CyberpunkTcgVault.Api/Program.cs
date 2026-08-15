@@ -57,6 +57,12 @@ builder.Services
 
         options.User.RequireUniqueEmail = true;
 
+        // Public account handles are deliberately separate from email
+        // addresses. Keep Identity's validator aligned with the explicit
+        // registration rule enforced by AuthController.
+        options.User.AllowedUserNameCharacters =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._+";
+
         options.Password.RequiredLength = 8;
         options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;

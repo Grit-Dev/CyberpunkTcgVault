@@ -6,6 +6,7 @@ import {
 } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
+  Observable,
   of,
   throwError
 } from 'rxjs';
@@ -16,7 +17,7 @@ import { Register } from './register';
 
 describe('Register', () => {
   let fixture: ComponentFixture<Register>;
-  let registerSpy: jasmine.Spy;
+  let registerResult$: Observable<unknown>;
 
   const publicRegistrationEnabled = signal(false);
 
@@ -29,11 +30,15 @@ describe('Register', () => {
     })
   };
 
+  const authServiceStub = {
+    register: () => registerResult$
+  };
+
   beforeEach(async () => {
     publicRegistrationEnabled.set(false);
-    registerSpy = jasmine.createSpy('register').and.returnValue(of({
+    registerResult$ = of({
       message: 'User registered successfully.'
-    }));
+    });
 
     await TestBed.configureTestingModule({
       imports: [Register],
@@ -41,9 +46,7 @@ describe('Register', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: {
-            register: registerSpy
-          }
+          useValue: authServiceStub
         },
         {
           provide: CapabilitiesService,
@@ -77,15 +80,16 @@ describe('Register', () => {
     userName.setValue('collector@example.com');
     userName.markAsTouched();
 
-    expect(userName.hasError('pattern')).toBeTrue();
-    expect(fixture.componentInstance.registerForm.invalid).toBeTrue();
+    expect(userName.hasError('pattern')).toBe(true);
+    expect(fixture.componentInstance.registerForm.invalid).toBe(true);
   });
 
   it('should restore the submit state and show a safe message after a 409 conflict', () => {
     publicRegistrationEnabled.set(true);
-    registerSpy.and.returnValue(throwError(() => new HttpErrorResponse({
+
+    registerResult$ = throwError(() => new HttpErrorResponse({
       status: 409
-    })));
+    }));
 
     const component = fixture.componentInstance;
     component.registerForm.setValue({
@@ -96,7 +100,9 @@ describe('Register', () => {
 
     component.submitRegistration();
 
-    expect(component.isSubmitting()).toBeFalse();
-    expect(component.registrationError()).toContain('Try a different username or email');
+    expect(component.isSubmitting()).toBe(false);
+    expect(component.registrationError()).toContain(
+      'Try a different username or email'
+    );
   });
 });

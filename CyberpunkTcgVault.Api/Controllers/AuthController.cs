@@ -3,11 +3,13 @@ using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Options;
 using CyberpunkTcgVault.Api.Security;
 using CyberpunkTcgVault.Api.Services.Interfaces;
+using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace CyberpunkTcgVault.Api.Controllers
@@ -86,15 +88,46 @@ namespace CyberpunkTcgVault.Api.Controllers
                     title: "Public registration is not available.");
             }
 
+            var userName = request.UserName?.Trim() ?? string.Empty;
+
+            var userNameValidation = ValidateRegistrationUserName(userName);
+
+            if (userNameValidation is not null)
+            {
+                return BadRequest(new ValidationProblemDetails(
+                    new Dictionary<string, string[]>
+                    {
+                        [nameof(RegisterUserRequest.UserName)] =
+                            [userNameValidation]
+                    })
+                {
+                    Title = "Registration validation failed.",
+                    Status = StatusCodes.Status400BadRequest
+                });
+            }
+
             var user = new AppUser
             {
-                UserName = request.UserName.Trim(),
-                Email = request.Email.Trim()
+                UserName = userName,
+                Email = request.Email?.Trim()
             };
 
-            var result = await _userManager.CreateAsync(
-                user,
-                request.Password);
+            IdentityResult result;
+
+            try
+            {
+                result = await _userManager.CreateAsync(
+                    user,
+                    request.Password);
+            }
+            catch (DbUpdateException exception)
+                when (IsUniqueAccountConstraintViolation(exception))
+            {
+                // UserManager performs friendly duplicate validation, but a
+                // database unique index is still required for concurrent
+                // requests. Map that race to the same deliberate 409 contract.
+                return AccountAlreadyExists();
+            }
 
             if (!result.Succeeded)
             {
@@ -104,10 +137,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
                 if (duplicateAccount)
                 {
-                    return Problem(
-                        statusCode: StatusCodes.Status409Conflict,
-                        title: "Account already exists.",
-                        detail: "An account with those details already exists.");
+                    return AccountAlreadyExists();
                 }
 
                 return BadRequest(new ValidationProblemDetails(
@@ -303,6 +333,46 @@ namespace CyberpunkTcgVault.Api.Controllers
         {
             await _signInManager.SignOutAsync();
             return NoContent();
+        }
+
+        private ObjectResult AccountAlreadyExists()
+        {
+            return Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Account already exists.",
+                detail: "An account with those details already exists.");
+        }
+
+        private static string? ValidateRegistrationUserName(string userName)
+        {
+            if (userName.Length == 0)
+            {
+                return "Username is required.";
+            }
+
+            if (userName.Length > 50)
+            {
+                return "Username must be 50 characters or fewer.";
+            }
+
+            if (userName.Contains('@'))
+            {
+                return "Username must be separate from the email address and cannot contain '@'.";
+            }
+
+            if (userName.Any(char.IsWhiteSpace))
+            {
+                return "Username cannot contain whitespace.";
+            }
+
+            return null;
+        }
+
+        private static bool IsUniqueAccountConstraintViolation(
+            DbUpdateException exception)
+        {
+            return exception.GetBaseException() is SqlException sqlException
+                && sqlException.Number is 2601 or 2627;
         }
 
         private UnauthorizedObjectResult InvalidLogin()

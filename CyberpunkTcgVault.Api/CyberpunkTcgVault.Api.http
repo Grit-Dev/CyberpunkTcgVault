@@ -1,10 +1,18 @@
-﻿@CyberpunkTcgVault.Api_HostAddress = https://localhost:7258
+@CyberpunkTcgVault.Api_HostAddress = https://localhost:7258
 
-GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards
+### Public catalogue - current non-paged Angular contract
+GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards?colour=Red&cardType=Character&setCode=NCL&rarity=Rare&sortBy=setOrder&sortDirection=asc
 Accept: application/json
 
-###
+### Public catalogue filter values
+GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards/filter-options
+Accept: application/json
 
+### Non-breaking server-side pagination contract
+GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards/paged?page=1&pageSize=24&name=kai&sortBy=name&sortDirection=asc
+Accept: application/json
+
+### Card detail - current backend contract
 GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards/1
 Accept: application/json
 

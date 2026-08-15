@@ -78,6 +78,175 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
         }
 
         [Fact]
+        public async Task Register_WhenUserNameIsAnEmailAddress_ReturnsBadRequest()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var request = new RegisterUserRequest
+            {
+                UserName = "paul@example.com",
+                Email = "paul@example.com",
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            var badRequest =
+                Assert.IsType<BadRequestObjectResult>(result);
+
+            var problem =
+                Assert.IsType<ValidationProblemDetails>(badRequest.Value);
+
+            Assert.Equal(
+                StatusCodes.Status400BadRequest,
+                problem.Status);
+
+            Assert.True(problem.Errors.ContainsKey("UserName"));
+            Assert.Null(
+                await environment.UserManager
+                    .FindByEmailAsync("paul@example.com"));
+        }
+
+        [Fact]
+        public async Task Register_WhenUserNameIsWhitespaceOnly_ReturnsBadRequest()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var request = new RegisterUserRequest
+            {
+                UserName = "   ",
+                Email = "paul@example.com",
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            var badRequest =
+                Assert.IsType<BadRequestObjectResult>(result);
+
+            var problem =
+                Assert.IsType<ValidationProblemDetails>(badRequest.Value);
+
+            Assert.Equal(
+                StatusCodes.Status400BadRequest,
+                problem.Status);
+
+            Assert.True(problem.Errors.ContainsKey("UserName"));
+            Assert.Null(
+                await environment.UserManager
+                    .FindByEmailAsync("paul@example.com"));
+        }
+
+        [Fact]
+        public async Task Register_WhenUserNameContainsWhitespace_ReturnsBadRequest()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var request = new RegisterUserRequest
+            {
+                UserName = "paul mcginley",
+                Email = "paul@example.com",
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            var badRequest =
+                Assert.IsType<BadRequestObjectResult>(result);
+
+            var problem =
+                Assert.IsType<ValidationProblemDetails>(badRequest.Value);
+
+            Assert.True(problem.Errors.ContainsKey("UserName"));
+        }
+
+        [Fact]
+        public async Task Register_WhenUserNameAlreadyExists_ReturnsConflict()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var existingUser = new AppUser
+            {
+                UserName = "paul",
+                Email = "first@example.com"
+            };
+
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    existingUser,
+                    "Password123!");
+
+            Assert.True(createResult.Succeeded);
+
+            var request = new RegisterUserRequest
+            {
+                UserName = "paul",
+                Email = "second@example.com",
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            ProblemDetailsAssert.IsProblem(
+                result,
+                StatusCodes.Status409Conflict,
+                "Account already exists.",
+                "An account with those details already exists.");
+
+            Assert.Null(
+                await environment.UserManager
+                    .FindByEmailAsync("second@example.com"));
+        }
+
+        [Fact]
+        public async Task Register_WhenEmailAlreadyExists_ReturnsConflict()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var existingUser = new AppUser
+            {
+                UserName = "paul-one",
+                Email = "paul@example.com"
+            };
+
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    existingUser,
+                    "Password123!");
+
+            Assert.True(createResult.Succeeded);
+
+            var request = new RegisterUserRequest
+            {
+                UserName = "paul-two",
+                Email = "paul@example.com",
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            ProblemDetailsAssert.IsProblem(
+                result,
+                StatusCodes.Status409Conflict,
+                "Account already exists.",
+                "An account with those details already exists.");
+
+            Assert.Null(
+                await environment.UserManager
+                    .FindByNameAsync("paul-two"));
+        }
+
+        [Fact]
         public async Task Register_WhenAccountAlreadyExists_ReturnsConflict()
         {
             // Arrange
@@ -440,6 +609,8 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                             options.SignIn.RequireConfirmedEmail = false;
 
                             options.User.RequireUniqueEmail = true;
+                            options.User.AllowedUserNameCharacters =
+                                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._+";
 
                             options.Password.RequiredLength = 8;
                             options.Password.RequireDigit = false;
