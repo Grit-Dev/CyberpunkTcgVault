@@ -293,20 +293,6 @@ namespace CyberpunkTcgVault.Api.Data
                 },
                 new()
                 {
-                    Name = "V For Vendetta",
-                    Colour = "Unknown",
-                    CardType = "Unknown",
-                    Classification = "Unknown",
-                },
-                new()
-                {
-                    Name = "V For Vendetta Alt Rose",
-                    Colour = "Unknown",
-                    CardType = "Unknown",
-                    Classification = "Unknown",
-                },
-                new()
-                {
                     Name = "Viktor The Architect Malvek",
                     Colour = "Unknown",
                     CardType = "Unknown",
@@ -328,10 +314,10 @@ namespace CyberpunkTcgVault.Api.Data
                 },
                 new()
                 {
-                    Name = "Weirdco Industries",
-                    Colour = "Unknown",
-                    CardType = "Unknown",
-                    Classification = "Unknown",
+                    Name = "Lucia Serrano Say It Again",
+                    Colour = "Yellow",
+                    CardType = "Character",
+                    Classification = "Solo",
                 },
                 new()
                 {
@@ -507,6 +493,27 @@ namespace CyberpunkTcgVault.Api.Data
                     Colour = "Unknown",
                     CardType = "Unknown",
                     Classification = "Unknown",
+                },
+                new()
+                {
+                    Name = "Nova Vale",
+                    Colour = "Yellow",
+                    CardType = "Character",
+                    Classification = "Nomad",
+                    Keywords = "Courier",
+                    IsLegend = true,
+                },
+                new()
+                {
+                    Name = "Mara Velez",
+                    Colour = "Yellow",
+                    CardType = "Unit",
+                    Classification = "Tech",
+                    Keywords = "Medic",
+                    Cost = 5,
+                    Power = 6,
+                    RamCost = 2,
+                    IsLegend = false,
                 },
                 new()
                 {
