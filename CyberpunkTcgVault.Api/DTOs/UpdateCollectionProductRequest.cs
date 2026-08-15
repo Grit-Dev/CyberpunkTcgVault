@@ -14,7 +14,7 @@ namespace CyberpunkTcgVault.Api.DTOs
         [StringLength(100)]
         public string? Edition { get; set; }
 
-        [Range(0, 9999)]
+        [Range(1, 9999)]
         public int Quantity { get; set; }
 
         public bool IsSealed { get; set; }
@@ -27,7 +27,6 @@ namespace CyberpunkTcgVault.Api.DTOs
 
         public bool IsPledgeItem { get; set; }
 
-        //PMG TODO: This may need to be changed later own
         [Range(typeof(decimal), "0", "999999.99")]
         public decimal? PurchaseCost { get; set; }
 

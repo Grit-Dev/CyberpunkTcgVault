@@ -1,4 +1,4 @@
-﻿namespace CyberpunkTcgVault.Api.Models
+namespace CyberpunkTcgVault.Api.Models
 {
     public class WishListItem
     {
@@ -8,7 +8,7 @@
 
         public CardPrinting CardPrinting { get; set; } = null!;
 
-        // Foriegn Key to the User Who owns this WishListItem
+        // Foreign key to the user who owns this wishlist item.
         public Guid UserId { get; set; }
 
         // Navigation property back to the owning user.

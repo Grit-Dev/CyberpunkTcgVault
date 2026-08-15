@@ -4,8 +4,8 @@ namespace CyberpunkTcgVault.Api.Security
 {
     /// <summary>
     /// Stable event IDs for security-relevant application logs.
-    /// These make it easier to search/filter security events in hosted logs
-    /// without logging passwords, cookies, tokens, request bodies or secrets.
+    /// These make it easier to search/filter hosted logs without recording
+    /// passwords, cookies, tokens, request bodies or secrets.
     /// </summary>
     public static class SecurityLogEvents
     {
@@ -15,13 +15,28 @@ namespace CyberpunkTcgVault.Api.Security
         public static readonly EventId LoginFailed =
             new(1002, nameof(LoginFailed));
 
-        public static readonly EventId LoginSucceeded =
-            new(1003, nameof(LoginSucceeded));
-
         public static readonly EventId RegistrationSucceeded =
             new(1004, nameof(RegistrationSucceeded));
 
         public static readonly EventId AuthorizationDenied =
             new(1005, nameof(AuthorizationDenied));
+
+        public static readonly EventId DemoLoginSucceeded =
+            new(1006, nameof(DemoLoginSucceeded));
+
+        public static readonly EventId AccountDeleted =
+            new(1007, nameof(AccountDeleted));
+
+        public static readonly EventId DemoVaultReset =
+            new(1008, nameof(DemoVaultReset));
+
+        public static readonly EventId LoginPasswordAccepted =
+            new(1009, nameof(LoginPasswordAccepted));
+
+        public static readonly EventId MfaLoginSucceeded =
+            new(1010, nameof(MfaLoginSucceeded));
+
+        public static readonly EventId MfaLoginFailed =
+            new(1011, nameof(MfaLoginFailed));
     }
 }

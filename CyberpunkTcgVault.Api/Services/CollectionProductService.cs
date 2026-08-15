@@ -53,11 +53,19 @@ namespace CyberpunkTcgVault.Api.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<CollectionProductResponse> CreateProductAsync(
+        public async Task<CollectionProductCreateResult> CreateProductAsync(
             Guid userId,
             CreateCollectionProductRequest request,
             CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.ProductName))
+            {
+                return new CollectionProductCreateResult
+                {
+                    Status = CollectionProductCreateStatus.InvalidProductName
+                };
+            }
+
             var product = new CollectionProduct
             {
                 UserId = userId,
@@ -94,7 +102,11 @@ namespace CyberpunkTcgVault.Api.Services
                 product.Id,
                 userId);
 
-            return MapProduct(product);
+            return new CollectionProductCreateResult
+            {
+                Status = CollectionProductCreateStatus.Created,
+                Item = MapProduct(product)
+            };
         }
 
         public async Task<CollectionProductUpdateResult> UpdateProductAsync(

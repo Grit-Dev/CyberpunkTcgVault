@@ -1,6 +1,7 @@
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Services.Interfaces;
 using CyberpunkTcgVault.Api.Services.Results;
+using CyberpunkTcgVault.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,9 @@ namespace CyberpunkTcgVault.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [ResponseCache(
+        NoStore = true,
+        Location = ResponseCacheLocation.None)]
     public class WishListItemController : ControllerBase
     {
         private readonly IWishListItemService _wishListItemService;
@@ -55,6 +59,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             return Ok(item);
         }
 
+        [Authorize(Policy = AuthorizationPolicies.CollectorWrite)]
         [HttpPost]
         public async Task<ActionResult<WishListItemResponse>> CreateWishListItem(
             CreateWishListItemRequest request,
@@ -70,15 +75,18 @@ namespace CyberpunkTcgVault.Api.Controllers
             if (result.Status ==
                 WishListItemCreateStatus.CardPrintingNotFound)
             {
-                return BadRequest(
-                    "Card printing does not exist");
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Card printing does not exist.");
             }
 
             if (result.Status ==
                 WishListItemCreateStatus.Duplicate)
             {
-                return Conflict(
-                    "This card printing is already on your wishlist.");
+                return Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Wishlist item already exists.",
+                    detail: "This card printing is already on your wishlist.");
             }
 
             var response = result.Item!;
@@ -89,6 +97,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                 response);
         }
 
+        [Authorize(Policy = AuthorizationPolicies.CollectorWrite)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateWishListItem(
             int id,
@@ -108,6 +117,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                 : NotFound();
         }
 
+        [Authorize(Policy = AuthorizationPolicies.CollectorWrite)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWishListItem(
             int id,

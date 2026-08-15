@@ -3,6 +3,7 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Tests.TestHelpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using CyberpunkTcgVault.Api.Services;
@@ -22,9 +23,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var currentUserService =
                 new TestCurrentUserService(userId);
 
-            return new CollectionProductsController(
-                collectionProductService,
-                currentUserService);
+            return ControllerTestContext.Configure(
+                new CollectionProductsController(
+                    collectionProductService,
+                    currentUserService));
         }
 
         private static AppUser CreateTestUser()
@@ -240,7 +242,11 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var result = await controller.CreateCollectionProduct(request, CancellationToken.None);
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result.Result);
+            ProblemDetailsAssert.IsProblem(
+                result.Result!,
+                StatusCodes.Status400BadRequest,
+                "Invalid product name.",
+                "Product name is required.");
         }
 
         [Fact]
@@ -390,7 +396,11 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var result = await controller.UpdateCollectionProduct(product.Id, request, CancellationToken.None);
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            ProblemDetailsAssert.IsProblem(
+                result,
+                StatusCodes.Status400BadRequest,
+                "Invalid product name.",
+                "Product name is required.");
         }
 
         [Fact]

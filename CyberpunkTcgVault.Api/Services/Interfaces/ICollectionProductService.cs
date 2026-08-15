@@ -14,7 +14,7 @@ namespace CyberpunkTcgVault.Api.Services.Interfaces
             int id,
             CancellationToken cancellationToken);
 
-        Task<CollectionProductResponse> CreateProductAsync(
+        Task<CollectionProductCreateResult> CreateProductAsync(
             Guid userId,
             CreateCollectionProductRequest request,
             CancellationToken cancellationToken);

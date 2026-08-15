@@ -18,6 +18,8 @@ namespace CyberpunkTcgVault.Api.DTOs
 
         public string? Colour { get; set; }
 
+        public string? ImageUrl { get; set; }
+
         public int WantedQuantity { get; set; }
 
         public string? Priority { get; set; }

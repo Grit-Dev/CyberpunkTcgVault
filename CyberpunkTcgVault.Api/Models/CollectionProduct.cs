@@ -38,7 +38,7 @@
 
         public decimal? MinimumSellPrice { get; set; }
 
-        // PMG TODO: Internal use later on
+        // Optional collector-owned storage label.
         public string? StorageLocation { get; set; }
 
         public bool IsLongTermHold { get; set; }

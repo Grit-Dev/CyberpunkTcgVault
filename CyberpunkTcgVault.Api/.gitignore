@@ -1,0 +1,16 @@
+# Build output
+bin/
+obj/
+Tests/bin/
+Tests/obj/
+
+# Visual Studio user state
+*.user
+.vs/
+
+# Local secrets/config overrides
+appsettings.Local.json
+
+# Test output
+TestResults/
+coverage/

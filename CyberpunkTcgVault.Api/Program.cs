@@ -9,6 +9,7 @@ using CyberpunkTcgVault.Api.Options;
 using CyberpunkTcgVault.Api.Security;
 using CyberpunkTcgVault.Api.Services;
 using CyberpunkTcgVault.Api.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,24 +33,30 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Bind product capability flags once and inject them through IOptions<T>.
+// Bind product capability flags and Demo account configuration once.
 builder.Services.Configure<ProductCapabilitiesOptions>(
     builder.Configuration.GetSection(
         ProductCapabilitiesOptions.SectionName));
 
+builder.Services.Configure<DemoUserOptions>(
+    builder.Configuration.GetSection(
+        DemoUserOptions.SectionName));
+
+builder.Services.Configure<MfaOptions>(
+    builder.Configuration.GetSection(
+        MfaOptions.SectionName));
+
 // Registers ASP.NET Core Identity.
-// AppUser is the user type.
-// IdentityRole<Guid> gives us User / Demo / Admin roles.
-// Identity stores its data through AppDbContext.
 builder.Services
     .AddIdentity<AppUser, IdentityRole<Guid>>(options =>
     {
-        // TODO: Introduce email confirmation before open public accounts.
+        // MVP registration does not yet include an email-delivery/confirmation
+        // flow. Require confirmed email when public production registration is
+        // opened with a real mail provider.
         options.SignIn.RequireConfirmedEmail = false;
 
         options.User.RequireUniqueEmail = true;
 
-        // Prefer long passwords/passphrases.
         options.Password.RequiredLength = 8;
         options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;
@@ -66,8 +73,77 @@ builder.Services
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+// Browser authentication uses the Identity application cookie. The cookie
+// itself is never readable by Angular/JavaScript.
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "__Host-ChoomVault.Auth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite =
+    Microsoft.AspNetCore.Http.SameSiteMode.None;
+    options.Cookie.Path = "/";
+
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+
+    // APIs must return status codes, not HTML redirect responses. This keeps
+    // Angular's 401/403 handling stable regardless of framework defaults.
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
+});
+
+// The first password step of an MFA login uses Identity's temporary
+// two-factor cookie. Configure it for the same credentialed browser flow as
+// the application cookie so Angular can complete MFA across the API origin.
+builder.Services.Configure<CookieAuthenticationOptions>(
+    IdentityConstants.TwoFactorUserIdScheme,
+    options =>
+    {
+        options.Cookie.Name = "__Host-ChoomVault.TwoFactor";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite =
+            Microsoft.AspNetCore.Http.SameSiteMode.None;
+        options.Cookie.Path = "/";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.SlidingExpiration = false;
+    });
+
+// Double-submit-style browser protection. The antiforgery cookie remains
+// HttpOnly; Angular receives only the request token from GET /api/Auth/csrf
+// and sends that value back in the X-XSRF-TOKEN header.
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-XSRF-TOKEN";
+    options.Cookie.Name = "__Host-ChoomVault.Antiforgery";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite =
+    Microsoft.AspNetCore.Http.SameSiteMode.None;
+    options.Cookie.Path = "/";
+});
+
+builder.Services.AddAuthorization(AuthorizationConfiguration.Configure);
+
+// Validate antiforgery tokens automatically for every unsafe MVC method
+// (POST / PUT / PATCH / DELETE). GET/HEAD/OPTIONS/TRACE remain safe-method
+// requests and don't require a token.
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(
+        new AutoValidateAntiforgeryTokenAttribute());
+});
+
 builder.Services.AddHttpContextAccessor();
 
 // Application services are scoped because they use the scoped AppDbContext.
@@ -76,6 +152,7 @@ builder.Services.AddScoped<IOwnedCardService, OwnedCardService>();
 builder.Services.AddScoped<IWishListItemService, WishListItemService>();
 builder.Services.AddScoped<ICollectionProductService, CollectionProductService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IDemoVaultService, DemoVaultService>();
 
 // Standard API error responses. Only a trace identifier is added to help
 // match a client-side failure to server-side logs. Exception messages,
@@ -160,6 +237,36 @@ builder.Services.AddRateLimiter(options =>
                     AutoReplenishment = true
                 }));
 
+    options.AddPolicy(
+        RateLimitPolicyNames.Demo,
+        httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                $"demo:{GetClientIp(httpContext)}",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0,
+                    QueueProcessingOrder =
+                        QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+    options.AddPolicy(
+        RateLimitPolicyNames.Mfa,
+        httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                $"mfa:{GetClientIp(httpContext)}",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(5),
+                    QueueLimit = 0,
+                    QueueProcessingOrder =
+                        QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
     options.OnRejected = async (context, cancellationToken) =>
     {
         if (context.Lease.TryGetMetadata(
@@ -232,7 +339,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Creates a service scope for startup-only work such as seeding.
+// Creates a service scope for startup-only role/reference/demo seeding.
 using (var scope = app.Services.CreateScope())
 {
     var dbContext =
@@ -242,9 +349,42 @@ using (var scope = app.Services.CreateScope())
         scope.ServiceProvider
             .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
-    DbSeeder.Seed(dbContext);
+    var userManager =
+        scope.ServiceProvider
+            .GetRequiredService<UserManager<AppUser>>();
+
+    var capabilities = builder.Configuration
+        .GetSection(ProductCapabilitiesOptions.SectionName)
+        .Get<ProductCapabilitiesOptions>() ?? new();
+
+    var demoUserOptions = builder.Configuration
+        .GetSection(DemoUserOptions.SectionName)
+        .Get<DemoUserOptions>() ?? new();
+
+    // Local development should be immediately usable by Angular: apply the
+    // checked-in EF migrations and seed the small reference catalogue.
+    // Production migrations/data loading remain an explicit deployment step.
+    if (app.Environment.IsDevelopment())
+    {
+        await dbContext.Database.MigrateAsync();
+        DbSeeder.Seed(dbContext);
+    }
 
     await IdentitySeeder.SeedRolesAsync(roleManager);
+
+    var demoUser = await IdentitySeeder.SeedDemoUserAsync(
+        userManager,
+        capabilities,
+        demoUserOptions);
+
+    if (demoUser is not null)
+    {
+        var demoVaultService =
+            scope.ServiceProvider.GetRequiredService<IDemoVaultService>();
+
+        // Every application start begins with a known Demo Vault baseline.
+        await demoVaultService.ResetDemoCollectorDataAsync(demoUser.Id);
+    }
 }
 
 // Central safe handling for unexpected exceptions.
@@ -260,7 +400,6 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // Tell supporting browsers to use HTTPS for subsequent requests.
     app.UseHsts();
 }
 
@@ -272,13 +411,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Credentialed browser access is allowed only from explicitly configured
+// frontend origins. Production starts with no allowed cross-origin frontend
+// until deployment configuration supplies the real origin.
 app.UseCors("Frontend");
 
 // Authentication runs first so the global limiter can partition signed-in
 // requests by user ID instead of only by IP address.
 app.UseAuthentication();
 
-// Security observability wraps the rate limiter/authorization middleware so
+// Security observability wraps the limiter/authorization middleware so
 // blocked requests and important auth outcomes can be recorded server-side.
 app.UseMiddleware<SecurityEventLoggingMiddleware>();
 
@@ -289,7 +431,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Liveness: if this responds Healthy, the ASP.NET Core process is alive.
-// No dependency checks are executed here.
 app.MapHealthChecks(
         "/health",
         new HealthCheckOptions
@@ -316,3 +457,6 @@ static string GetClientIp(HttpContext httpContext)
     return httpContext.Connection.RemoteIpAddress?.ToString()
         ?? "unknown";
 }
+
+// Exposed for integration tests. Top-level application behaviour is unchanged.
+public partial class Program { }

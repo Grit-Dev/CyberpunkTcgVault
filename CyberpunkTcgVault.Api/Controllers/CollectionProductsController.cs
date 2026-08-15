@@ -1,4 +1,5 @@
 using CyberpunkTcgVault.Api.DTOs;
+using CyberpunkTcgVault.Api.Security;
 using CyberpunkTcgVault.Api.Services.Interfaces;
 using CyberpunkTcgVault.Api.Services.Results;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,9 @@ namespace CyberpunkTcgVault.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [ResponseCache(
+        NoStore = true,
+        Location = ResponseCacheLocation.None)]
     public class CollectionProductsController : ControllerBase
     {
         private readonly ICollectionProductService _collectionProductService;
@@ -47,37 +51,43 @@ namespace CyberpunkTcgVault.Api.Controllers
                 id,
                 cancellationToken);
 
-            if (product is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(product);
+            return product is null
+                ? NotFound()
+                : Ok(product);
         }
 
+        // Demo can edit its seeded sealed products but cannot create/delete
+        // sealed-product records under the currently approved product rule.
+        [Authorize(Policy = AuthorizationPolicies.CollectorProductCreateDelete)]
         [HttpPost]
         public async Task<ActionResult<CollectionProductResponse>> CreateCollectionProduct(
             CreateCollectionProductRequest request,
             CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.ProductName))
-            {
-                return BadRequest("Product Name is required");
-            }
-
             var userId = _currentUserService.GetUserId();
 
-            var response = await _collectionProductService.CreateProductAsync(
+            var result = await _collectionProductService.CreateProductAsync(
                 userId,
                 request,
                 cancellationToken);
 
-            return CreatedAtAction(
-                nameof(GetCollectionProductById),
-                new { id = response.Id },
-                response);
+            return result.Status switch
+            {
+                CollectionProductCreateStatus.Created => CreatedAtAction(
+                    nameof(GetCollectionProductById),
+                    new { id = result.Item!.Id },
+                    result.Item),
+                CollectionProductCreateStatus.InvalidProductName => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid product name.",
+                    detail: "Product name is required."),
+                _ => Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Unable to create collection product.")
+            };
         }
 
+        [Authorize(Policy = AuthorizationPolicies.CollectorWrite)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCollectionProduct(
             int id,
@@ -96,12 +106,17 @@ namespace CyberpunkTcgVault.Api.Controllers
             {
                 CollectionProductUpdateResult.Success => NoContent(),
                 CollectionProductUpdateResult.NotFound => NotFound(),
-                CollectionProductUpdateResult.InvalidProductName =>
-                    BadRequest("Product Name is required"),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
+                CollectionProductUpdateResult.InvalidProductName => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid product name.",
+                    detail: "Product name is required."),
+                _ => Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Unable to update collection product.")
             };
         }
 
+        [Authorize(Policy = AuthorizationPolicies.CollectorProductCreateDelete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCollectionProduct(
             int id,

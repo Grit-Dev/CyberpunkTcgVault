@@ -8,7 +8,7 @@ namespace CyberpunkTcgVault.Api.DTOs
         [StringLength(200)]
         public string Name { get; set; } = string.Empty;
 
-        [StringLength(200)]
+        [StringLength(150)]
         public string? SetName { get; set; }
 
         [StringLength(50)]
@@ -26,7 +26,7 @@ namespace CyberpunkTcgVault.Api.DTOs
         [StringLength(250)]
         public string? Keywords { get; set; }
 
-        // PMG TODO: Will come back to this.
+        [Range(0, 50)]
         public int? Cost { get; set; }
 
         [Range(0, 50)]
@@ -53,8 +53,7 @@ namespace CyberpunkTcgVault.Api.DTOs
 
         public bool IsStarterDeckExclusive { get; set; }
 
-        // PMG TODO: Need to consider next new sets that come out
-        [StringLength(200)]
+        [StringLength(50)]
         public string? CardNumber { get; set; }
 
         [StringLength(500)]

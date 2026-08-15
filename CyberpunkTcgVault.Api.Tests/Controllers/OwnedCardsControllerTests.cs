@@ -3,6 +3,7 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Tests.TestHelpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using CyberpunkTcgVault.Api.Services;
@@ -22,9 +23,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var currentUserService =
                 new TestCurrentUserService(userId);
 
-            return new OwnedCardsController(
-                ownedCardService,
-                currentUserService);
+            return ControllerTestContext.Configure(
+                new OwnedCardsController(
+                    ownedCardService,
+                    currentUserService));
         }
 
         private static AppUser CreateTestUser()
@@ -327,7 +329,11 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 request,
                 CancellationToken.None);
 
-            Assert.IsType<BadRequestObjectResult>(result.Result);
+            ProblemDetailsAssert.IsProblem(
+                result.Result!,
+                StatusCodes.Status400BadRequest,
+                "Invalid card printing.",
+                "The requested card printing does not exist.");
         }
 
         [Fact]

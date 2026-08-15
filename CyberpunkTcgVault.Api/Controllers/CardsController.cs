@@ -1,4 +1,5 @@
 using CyberpunkTcgVault.Api.DTOs;
+using CyberpunkTcgVault.Api.Security;
 using CyberpunkTcgVault.Api.Services.Interfaces;
 using CyberpunkTcgVault.Api.Services.Results;
 using Microsoft.AspNetCore.Authorization;
@@ -52,7 +53,7 @@ namespace CyberpunkTcgVault.Api.Controllers
             return Ok(card);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = AuthorizationPolicies.AdminWithMfa)]
         [HttpPost]
         public async Task<ActionResult<CardResponse>> CreateCard(
             CreateCardRequest request,
@@ -66,11 +67,10 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             if (hasSetName != hasCardNumber)
             {
-                return BadRequest(new
-                {
-                    message =
-                        "SetName and CardNumber must be supplied together when creating a printing."
-                });
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid printing data.",
+                    detail: "SetName and CardNumber must be supplied together when creating a printing.");
             }
 
             var response = await _cardService.CreateCardAsync(
@@ -83,7 +83,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                 response);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = AuthorizationPolicies.AdminWithMfa)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCard(
             int id,
@@ -99,21 +99,21 @@ namespace CyberpunkTcgVault.Api.Controllers
             {
                 CardUpdateResult.Success => NoContent(),
                 CardUpdateResult.NotFound => NotFound(),
-                CardUpdateResult.PrintingNotFound => BadRequest(new
-                {
-                    message =
-                        "The requested card printing does not belong to this card."
-                }),
-                CardUpdateResult.InvalidPrintingData => BadRequest(new
-                {
-                    message =
-                        "SetName and CardNumber must be supplied together when creating a printing."
-                }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
+                CardUpdateResult.PrintingNotFound => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid card printing.",
+                    detail: "The requested card printing does not belong to this card."),
+                CardUpdateResult.InvalidPrintingData => Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid printing data.",
+                    detail: "SetName and CardNumber must be supplied together when creating a printing."),
+                _ => Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Unable to update card.")
             };
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = AuthorizationPolicies.AdminWithMfa)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCard(
             int id,
@@ -127,12 +127,13 @@ namespace CyberpunkTcgVault.Api.Controllers
             {
                 CardDeleteResult.Success => NoContent(),
                 CardDeleteResult.NotFound => NotFound(),
-                CardDeleteResult.ReferencedByCollectorData => Conflict(new
-                {
-                    message =
-                        "This card cannot be deleted while one of its printings is referenced by collection or wishlist data."
-                }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
+                CardDeleteResult.ReferencedByCollectorData => Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Card is referenced by collector data.",
+                    detail: "This card cannot be deleted while one of its printings is referenced by collection or wishlist data."),
+                _ => Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Unable to delete card.")
             };
         }
     }

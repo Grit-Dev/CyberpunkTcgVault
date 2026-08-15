@@ -22,4 +22,9 @@
 		<Folder Include="wwwroot\images\cards\" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<!-- The test project lives under /Tests but is compiled separately. -->
+		<Compile Remove="Tests/**/*.cs" />
+	</ItemGroup>
+
 </Project>
