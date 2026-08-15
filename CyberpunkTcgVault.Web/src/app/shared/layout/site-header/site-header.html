@@ -1,36 +1,77 @@
 <header class="site-header">
-    <div class="container header-inner">
+  <div
+    class="container header-inner"
+    [class.header-inner--authenticated]="authService.isAuthenticated()"
+  >
+    <!-- Brand / Home -->
+    <a class="brand" routerLink="/" aria-label="Choom Vault — Home">
+      <span class="brand-symbol">
+        <span>CV</span>
+        <small>01</small>
+      </span>
 
-        <!-- Brand / Home -->
-        <a class="brand" routerLink="/" aria-label="Choom Vault — Home">
-            <span class="brand-symbol">
-                <span>CV</span>
-                <small>01</small>
-            </span>
+      <span class="brand-name">
+        <strong>Choom Vault</strong>
+        <small>Collection Vault</small>
+      </span>
+    </a>
 
-            <span class="brand-name">
-                <strong>Choom Vault</strong>
-                <small>Collection Vault</small>
-            </span>
-        </a>
+    <!-- Only real, implemented destinations belong in primary navigation. -->
+    <nav class="site-navigation" aria-label="Primary navigation">
+      <a routerLink="/cards" routerLinkActive="is-active" ariaCurrentWhenActive="page">
+        Catalogue
+      </a>
+    </nav>
 
-        <!-- Primary product navigation -->
-        <nav class="site-navigation" aria-label="Primary navigation">
-            <a routerLink="/cards" routerLinkActive="is-active" ariaCurrentWhenActive="page">
-                Catalogue
+    <div class="header-actions" aria-label="Account actions">
+      @if (authService.isInitialized()) {
+        @if (!authService.isAuthenticated()) {
+          <a
+            class="btn btn--text header-login"
+            routerLink="/login"
+            routerLinkActive="is-active"
+          >
+            Log in
+          </a>
+
+          @if (capabilitiesService.publicRegistrationEnabled()) {
+            <a
+              class="btn btn--primary header-register"
+              routerLink="/register"
+            >
+              Join the Vault
             </a>
-        </nav>
+          }
+        } @else {
+          @if (authService.currentUser(); as user) {
+            <div
+              class="header-identity"
+              [attr.aria-label]="'Signed in as ' + user.userName"
+            >
+              @if (authService.isDemo()) {
+                <span class="header-demo-context">Demo Vault</span>
+              }
 
-        <div class="header-actions" aria-label="Account actions">
-            <button class="btn btn--text header-login" type="button" disabled aria-label="Log in — not available yet">
-                Log in
-            </button>
+              <!--
+                Identity only for now. Creative direction requires this to become
+                the Account link only after /account actually exists.
+              -->
+              <span class="header-username">{{ user.userName }}</span>
+            </div>
+          }
 
-            <button class="btn btn--primary header-register" type="button" disabled
-                aria-label="Join the Vault — not available yet">
-                Join the Vault
-            </button>
-        </div>
+          <span class="header-private-seam" aria-hidden="true"></span>
 
+          <button
+            class="btn btn--text header-login header-logout"
+            type="button"
+            [disabled]="isLoggingOut()"
+            (click)="logout()"
+          >
+            {{ isLoggingOut() ? 'Logging out…' : 'Log out' }}
+          </button>
+        }
+      }
     </div>
+  </div>
 </header>

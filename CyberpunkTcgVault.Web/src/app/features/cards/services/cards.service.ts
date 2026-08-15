@@ -2,7 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
+import {
+  API_ENDPOINTS,
+  toApiUrl
+} from '../../../core/http/api-endpoints';
 import { Card } from '../models/card';
 import { CardFilters } from '../models/card-filters';
 
@@ -20,7 +23,7 @@ export class CardsService {
    * The base URL comes from environment configuration so the
    * application can use different API locations per environment.
    */
-  private readonly cardsUrl = `${environment.apiUrl}/api/Cards`;
+  private readonly cardsUrl = API_ENDPOINTS.cards;
 
   /**
    * Angular injects HttpClient when this service is created.
@@ -72,22 +75,24 @@ export class CardsService {
   }
 
   /**
+   * Retrieves one public logical Card together with its authoritative
+   * CardPrinting collection.
+   */
+  getCardById(id: number): Observable<Card> {
+    return this.http.get<Card>(
+      API_ENDPOINTS.cardById(id)
+    );
+  }
+
+  /**
    * Converts a stored card image path into a URL that the
    * Angular application can display.
    */
   getImageUrl(imagePath: string | null): string {
     if (!imagePath) {
-      return `${environment.apiUrl}/images/cards/placeholder.png`;
+      return toApiUrl('/images/cards/placeholder.png');
     }
 
-    // Allow externally hosted artwork without prefixing the API URL.
-    if (
-      imagePath.startsWith('http://') ||
-      imagePath.startsWith('https://')
-    ) {
-      return imagePath;
-    }
-
-    return `${environment.apiUrl}${imagePath}`;
+    return toApiUrl(imagePath);
   }
 }

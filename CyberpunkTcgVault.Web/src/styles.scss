@@ -442,3 +442,109 @@ svg {
     transform: none;
   }
 }
+/*
+ * Shared form primitives.
+ *
+ * Authentication introduces the first real application forms. These rules are
+ * deliberately global so Login, Register and later Account controls reuse one
+ * accessible input/error language instead of duplicating component SCSS.
+ */
+.form-stack {
+  display: grid;
+  gap: 22px;
+}
+
+.form-field {
+  display: grid;
+  gap: 9px;
+}
+
+.form-label {
+  color: var(--colour-text);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.form-control {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 15px;
+  color: var(--colour-text);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--colour-border-strong);
+  border-radius: 0;
+  outline: 0;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.form-control:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.form-control:focus-visible {
+  border-color: var(--colour-cyan);
+  outline: 3px solid var(--colour-cyan);
+  outline-offset: 3px;
+}
+
+.form-control[aria-invalid="true"] {
+  border-color: var(--colour-red);
+}
+
+.form-control--code {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.form-help,
+.form-error,
+.form-message {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.form-help {
+  color: var(--colour-text-muted);
+}
+
+.form-error {
+  color: #ff8a99;
+}
+
+.form-message {
+  margin-top: 24px;
+  padding: 13px 15px;
+  color: var(--colour-text);
+  border-left: 3px solid var(--colour-border-strong);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.form-message--error {
+  border-left-color: var(--colour-red);
+}
+
+.text-action {
+  padding: 0;
+  color: var(--colour-text-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.text-action:hover {
+  color: var(--colour-text);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+  transform: none;
+  box-shadow: none;
+}

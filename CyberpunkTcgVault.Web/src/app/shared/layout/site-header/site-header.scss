@@ -69,21 +69,70 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 12px;
+  min-width: 0;
 }
 
-.header-actions button:disabled {
-  cursor: default;
-  opacity: 1;
+.header-login.is-active {
+  color: var(--colour-text);
 }
 
-.header-login:disabled {
-  color: var(--colour-text-muted);
+/*
+ * Authenticated identity is deliberately part of the header architecture,
+ * not a generic account pill/card. It contains only server-provided public
+ * account data that the collector already owns: username and Demo context.
+ */
+.header-identity {
+  position: relative;
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  min-width: 0;
+  padding-left: 14px;
 }
 
-.header-register:disabled {
-  color: #06080d;
+.header-identity::before {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: 2px;
   background: var(--colour-yellow);
+  content: "";
+}
+
+.header-username {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--colour-text);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.header-demo-context {
+  color: var(--colour-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.header-private-seam {
+  width: 1px;
+  height: 24px;
+  background: var(--colour-border-strong);
+}
+
+.header-logout {
+  flex: 0 0 auto;
 }
 
 /*
@@ -92,6 +141,10 @@
 @media (max-width: 1000px) {
   .header-inner {
     gap: 22px;
+  }
+
+  .header-username {
+    max-width: 130px;
   }
 }
 
@@ -114,13 +167,24 @@
   .header-register {
     display: none;
   }
+
+  .header-identity {
+    padding-left: 10px;
+  }
+
+  .header-username {
+    max-width: 100px;
+    font-size: 0.72rem;
+  }
 }
 
 /*
  * Mobile.
  *
- * The global brand rules already collapse the long wordmark at compact
- * widths, leaving room for Catalogue and the quieter Login control.
+ * Signed-out navigation keeps the established compact public shell. Once a
+ * collector is authenticated, identity/utility stay together on the top row
+ * and the real product navigation receives its own row. This avoids squeezing
+ * private navigation into a desktop-shaped strip as more destinations ship.
  */
 @media (max-width: 560px) {
   .header-inner {
@@ -142,6 +206,41 @@
     padding-inline: 10px;
     font-size: 0.76rem;
   }
+
+  .header-inner--authenticated {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "brand actions"
+      "navigation navigation";
+    gap: 0 16px;
+    padding-top: 12px;
+  }
+
+  .header-inner--authenticated .brand {
+    grid-area: brand;
+  }
+
+  .header-inner--authenticated .header-actions {
+    grid-area: actions;
+  }
+
+  .header-inner--authenticated .site-navigation {
+    grid-area: navigation;
+    justify-content: flex-start;
+    border-top: 1px solid var(--colour-border);
+  }
+
+  .header-inner--authenticated .site-navigation a {
+    padding-block: 16px 18px;
+  }
+
+  .header-inner--authenticated .site-navigation a::after {
+    bottom: 10px;
+  }
+
+  .header-private-seam {
+    height: 20px;
+  }
 }
 
 @media (max-width: 390px) {
@@ -157,5 +256,32 @@
   .header-login {
     padding-inline: 6px;
     font-size: 0.72rem;
+  }
+
+  .header-inner--authenticated {
+    gap: 0 10px;
+  }
+
+  .header-inner--authenticated .header-actions {
+    gap: 8px;
+  }
+
+  .header-identity {
+    padding-left: 9px;
+  }
+
+  .header-username {
+    max-width: 86px;
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+  }
+
+  .header-demo-context {
+    font-size: 0.52rem;
+    letter-spacing: 0.11em;
+  }
+
+  .header-private-seam {
+    display: none;
   }
 }
