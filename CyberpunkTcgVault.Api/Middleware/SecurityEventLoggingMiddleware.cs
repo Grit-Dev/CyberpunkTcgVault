@@ -69,12 +69,12 @@ namespace CyberpunkTcgVault.Api.Middleware
                 }
                 else if (statusCode == StatusCodes.Status200OK)
                 {
-                    // A 200 can either be a completed password-only sign-in
-                    // or the accepted password step of an MFA login. Do not
-                    // claim final MFA completion at this point.
+                    // A 200 can either be a completed single-factor sign-in
+                    // or the accepted primary authentication step of an MFA login.
+                    // Do not claim final MFA completion at this point.
                     _logger.LogInformation(
-                        SecurityLogEvents.LoginPasswordAccepted,
-                        "Security event: login password step accepted. ClientIp: {ClientIp}. TraceId: {TraceId}.",
+                        SecurityLogEvents.LoginPrimaryAuthenticationAccepted,
+                        "Security event: primary authentication accepted. ClientIp: {ClientIp}. TraceId: {TraceId}.",
                         clientIp,
                         traceId);
                 }

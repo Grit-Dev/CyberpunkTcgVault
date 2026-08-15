@@ -30,8 +30,8 @@ namespace CyberpunkTcgVault.Api.Security
         public static readonly EventId DemoVaultReset =
             new(1008, nameof(DemoVaultReset));
 
-        public static readonly EventId LoginPasswordAccepted =
-            new(1009, nameof(LoginPasswordAccepted));
+        public static readonly EventId LoginPrimaryAuthenticationAccepted =
+            new(1009, nameof(LoginPrimaryAuthenticationAccepted));
 
         public static readonly EventId MfaLoginSucceeded =
             new(1010, nameof(MfaLoginSucceeded));
