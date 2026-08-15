@@ -113,7 +113,7 @@ describe('Account', () => {
 
     expect(dialog.open).toBe(true);
     expect(password.getAttribute('autocomplete')).toBe('current-password');
-    expect(dialog.textContent).toContain('DELETE YOUR ACCOUNT?');
+    expect(dialog.textContent).toContain('Account lifecycleDelete your account? This permanently removes your Choom Vault account and private collector records. This cannot be undone. Current password Cancel  Delete account');
     expect(dialog.textContent).toContain('This cannot be undone.');
   });
 
