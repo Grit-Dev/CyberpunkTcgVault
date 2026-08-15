@@ -1,9 +1,12 @@
 <main class="wishlist-page">
   <div class="wishlist-shell">
     <header class="wishlist-intro" aria-labelledby="wishlist-title">
-      <p class="wishlist-intro__eyebrow">Wishlist</p>
-      <h1 id="wishlist-title">Still chasing.</h1>
-      <p>Track the exact physical printings you are still looking for.</p>
+      <span class="wishlist-intro__mark" aria-hidden="true"></span>
+      <div class="wishlist-intro__copy">
+        <p class="wishlist-intro__eyebrow">Wishlist</p>
+        <h1 id="wishlist-title">Still chasing.</h1>
+        <p>Track the exact physical printings you are still looking for.</p>
+      </div>
     </header>
 
     @if (isLoading()) {

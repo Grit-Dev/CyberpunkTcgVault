@@ -13,8 +13,19 @@
 }
 
 .wishlist-intro {
+  display: grid;
   max-width: 1280px;
+  grid-template-columns: 3px minmax(0, 1fr);
+  align-items: start;
+  gap: 19px;
   padding-bottom: clamp(24px, 3vw, 34px);
+}
+
+.wishlist-intro__mark {
+  width: 3px;
+  height: 42px;
+  margin-top: 4px;
+  background: var(--colour-yellow);
 }
 
 .wishlist-intro h1,
@@ -606,6 +617,14 @@
 @media (max-width: 720px) {
   .wishlist-page {
     padding-top: 38px;
+  }
+
+  .wishlist-intro {
+    gap: 15px;
+  }
+
+  .wishlist-intro__mark {
+    height: 38px;
   }
 
   .wishlist-tools,

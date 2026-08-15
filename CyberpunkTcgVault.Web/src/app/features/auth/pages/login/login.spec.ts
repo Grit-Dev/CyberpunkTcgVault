@@ -134,6 +134,21 @@ describe('Login', () => {
     );
   });
 
+  it('preserves a valid implemented Sealed return destination for Demo', () => {
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
+      key === 'returnUrl' ? '/sealed?page=2&q=display' : null
+    );
+    const navigateByUrl = vi
+      .spyOn(router, 'navigateByUrl')
+      .mockResolvedValue(true);
+
+    fixture.componentInstance.enterDemoVault();
+
+    expect(navigateByUrl).toHaveBeenCalledWith(
+      '/sealed?page=2&q=display'
+    );
+  });
+
   it('falls back to Collection when Demo receives a stale return destination', () => {
     vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
       key === 'returnUrl' ? '/my-vault' : null
