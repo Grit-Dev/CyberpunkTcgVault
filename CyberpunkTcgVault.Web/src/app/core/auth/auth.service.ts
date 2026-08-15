@@ -183,11 +183,18 @@ export class AuthService {
     return this.http
       .post<void>(API_ENDPOINTS.auth.logout, {})
       .pipe(
-        tap(() => {
-          this.csrfService.invalidate();
-          this.authState.clearUser();
-        })
+        tap(() => this.clearAuthenticatedSession())
       );
+  }
+
+  /**
+   * Clears Angular's public authenticated-user state after the backend has
+   * already ended the Identity session (for example successful account
+   * deletion). Logout uses the same cleanup path after its API call.
+   */
+  clearAuthenticatedSession(): void {
+    this.csrfService.invalidate();
+    this.authState.clearUser();
   }
 
   hasRole(role: string): boolean {

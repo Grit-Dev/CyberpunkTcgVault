@@ -66,17 +66,19 @@
           }
         } @else {
           @if (authService.currentUser(); as user) {
-            <div
+            <a
               class="header-identity"
               [class.header-identity--demo]="authService.isDemo()"
-              [attr.aria-label]="'Signed in as ' + user.userName"
+              routerLink="/account"
+              routerLinkActive="is-active"
+              [attr.aria-label]="'Account for ' + user.userName"
             >
               <span class="header-username">{{ user.userName }}</span>
 
               @if (authService.isDemo()) {
                 <span class="header-demo-context">Demo Vault</span>
               }
-            </div>
+            </a>
           }
 
           <span class="header-private-seam" aria-hidden="true"></span>

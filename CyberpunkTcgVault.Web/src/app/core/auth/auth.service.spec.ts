@@ -140,4 +140,21 @@ describe('AuthService', () => {
     });
   });
 
+  it('clears local authenticated state after a server-side account deletion', () => {
+    service.loginDemo().subscribe();
+
+    const csrfRequest = httpTesting.expectOne(API_ENDPOINTS.auth.csrf);
+    csrfRequest.flush({ requestToken: 'csrf-token' });
+
+    const demoRequest = httpTesting.expectOne(API_ENDPOINTS.auth.demo);
+    demoRequest.flush(demoUser);
+
+    expect(service.isAuthenticated()).toBe(true);
+
+    service.clearAuthenticatedSession();
+
+    expect(service.isAuthenticated()).toBe(false);
+    expect(service.currentUser()).toBeNull();
+  });
+
 });

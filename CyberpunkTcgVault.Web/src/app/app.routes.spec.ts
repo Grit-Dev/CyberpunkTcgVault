@@ -1,4 +1,5 @@
 import { authGuard } from './core/auth/auth.guard';
+import { Account } from './features/account/pages/account/account';
 import { Collection } from './features/collection/pages/collection/collection';
 import { Wishlist } from './features/wishlist/pages/wishlist/wishlist';
 import { Sealed } from './features/sealed/pages/sealed/sealed';
@@ -30,6 +31,15 @@ describe('application routes', () => {
     expect(sealedRoute?.component).toBe(Sealed);
     expect(sealedRoute?.canActivate).toEqual([authGuard]);
     expect(sealedRoute?.data?.['robots']).toBe('noindex, nofollow');
+  });
+
+  it('protects the private Account route with the shared auth guard', () => {
+    const accountRoute = routes.find(route => route.path === 'account');
+
+    expect(accountRoute).toBeTruthy();
+    expect(accountRoute?.component).toBe(Account);
+    expect(accountRoute?.canActivate).toEqual([authGuard]);
+    expect(accountRoute?.data?.['robots']).toBe('noindex, nofollow');
   });
 
 });
