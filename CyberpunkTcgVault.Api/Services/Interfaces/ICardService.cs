@@ -6,10 +6,16 @@ namespace CyberpunkTcgVault.Api.Services.Interfaces
     public interface ICardService
     {
         Task<IReadOnlyList<CardResponse>> GetCardsAsync(
-            string? name,
-            string? rarity,
-            string? classification,
-            string? cardType,
+            CardCatalogueQuery query,
+            CancellationToken cancellationToken);
+
+        Task<PagedResponse<CardResponse>> GetCardsPageAsync(
+            CardCatalogueQuery query,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken);
+
+        Task<CardFilterOptionsResponse> GetFilterOptionsAsync(
             CancellationToken cancellationToken);
 
         Task<CardResponse?> GetCardByIdAsync(

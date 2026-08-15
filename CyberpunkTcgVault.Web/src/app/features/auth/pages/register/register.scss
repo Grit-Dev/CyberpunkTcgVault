@@ -1,0 +1,195 @@
+:host {
+  display: flex;
+  flex: 1;
+}
+
+.register-page {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  background: var(--colour-background);
+}
+
+.register-layout {
+  display: grid;
+  width: min(100% - (var(--page-padding) * 2), 1440px);
+  grid-template-columns: minmax(0, 1.1fr) minmax(380px, 0.74fr);
+  gap: clamp(54px, 7vw, 112px);
+  align-items: start;
+  margin-inline: auto;
+  padding-block: clamp(68px, 9vh, 112px);
+}
+
+.register-intro {
+  padding-top: 18px;
+}
+
+.register-intro h1,
+.register-status h1 {
+  max-width: 780px;
+  margin: 26px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(4.4rem, 7.6vw, 8rem);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.024em;
+  text-transform: uppercase;
+}
+
+.register-intro > p:last-child,
+.register-status > p:last-of-type {
+  max-width: 580px;
+  margin: 30px 0 0;
+  color: var(--colour-text-muted);
+  font-size: clamp(1rem, 1.1vw, 1.08rem);
+  line-height: 1.8;
+}
+
+/*
+ * Registration is intentionally more open than Login. A quiet graphite spine
+ * and one yellow index establish the first record without drawing a literal
+ * account card.
+ */
+.register-form-area {
+  position: relative;
+  max-width: 500px;
+  justify-self: end;
+  padding: 20px 0 0 clamp(28px, 3.2vw, 48px);
+  --form-control-background: #090d13;
+}
+
+.register-form-area::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.06) 78%,
+    transparent
+  );
+  content: '';
+}
+
+.register-form-area::after {
+  position: absolute;
+  top: 30px;
+  left: -1px;
+  width: 3px;
+  height: 34px;
+  background: var(--colour-yellow);
+  content: '';
+}
+
+.register-form-heading h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 2.7vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.register-form-heading p {
+  max-width: 420px;
+  margin: 12px 0 0;
+  color: var(--colour-text-muted);
+  line-height: 1.65;
+}
+
+.register-form-area .form-stack {
+  margin-top: 30px;
+}
+
+.register-submit {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.register-login-link {
+  margin: 24px 0 0;
+  color: var(--colour-text-muted);
+  font-size: 0.9rem;
+}
+
+.register-login-link a {
+  color: var(--colour-text);
+}
+
+.register-login-link a:hover {
+  color: var(--colour-yellow);
+}
+
+.register-status {
+  grid-column: 1 / -1;
+  max-width: 820px;
+  padding-block: 36px 80px;
+}
+
+.register-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+@media (max-width: 820px) {
+  .register-layout {
+    display: block;
+    padding-block: 54px 70px;
+  }
+
+  .register-intro {
+    padding-bottom: 46px;
+  }
+
+  .register-form-area {
+    max-width: 620px;
+    padding: 40px 0 0;
+    border-top: 1px solid var(--colour-border);
+  }
+
+  .register-form-area::before {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.06) 78%,
+      transparent
+    );
+  }
+
+  .register-form-area::after {
+    top: -2px;
+    left: 0;
+    width: 42px;
+    height: 4px;
+  }
+}
+
+@media (max-width: 390px) {
+  .register-layout {
+    padding-block: 42px 54px;
+  }
+
+  .register-intro {
+    padding-bottom: 38px;
+  }
+
+  .register-intro h1,
+  .register-status h1 {
+    font-size: clamp(3.7rem, 18vw, 4.8rem);
+  }
+
+  .register-status__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

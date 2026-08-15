@@ -20,6 +20,9 @@ namespace CyberpunkTcgVault.Api.Models
 
         public int? RamCost { get; set; }
 
+        // Source-backed Eddie/sell value. Nullable until approved catalogue data supplies it.
+        public int? Eddies { get; set; }
+
         public bool IsLegend { get; set; }
 
         public string? Notes { get; set; }

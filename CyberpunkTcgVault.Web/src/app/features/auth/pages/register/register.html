@@ -1,0 +1,152 @@
+<main class="register-page">
+  <div class="container register-layout">
+    @if (!capabilitiesService.isLoaded()) {
+      <section class="register-status" aria-live="polite">
+        <p class="eyebrow">Collector Registration</p>
+        <h1>Checking registration.</h1>
+      </section>
+    } @else if (!capabilitiesService.publicRegistrationEnabled()) {
+      <section class="register-status" aria-labelledby="registration-closed-title">
+        <p class="eyebrow">Public Registration</p>
+        <h1 id="registration-closed-title">Registration is not open.</h1>
+        <p>
+          Choom Vault is not accepting public account registrations at this
+          time. The public Vault Archive remains available to browse.
+        </p>
+
+        <div class="register-status__actions">
+          <a class="btn btn--primary" routerLink="/cards">Browse the Archive</a>
+          <a class="btn btn--text" routerLink="/login">Log in</a>
+        </div>
+      </section>
+    } @else {
+      <section class="register-intro" aria-labelledby="register-title">
+        <p class="eyebrow">Collector Registration</p>
+        <h1 id="register-title">Make the Vault yours.</h1>
+        <p>
+          Create the account that will hold your private collection records.
+          You can start adding exact printings once you sign in.
+        </p>
+      </section>
+
+      <section class="register-form-area" aria-labelledby="register-form-title">
+        <div class="register-form-heading">
+          <h2 id="register-form-title">Collector Details</h2>
+          <p>Use details you will recognise when returning to your Vault.</p>
+        </div>
+
+        @if (registrationError()) {
+          <p class="form-message form-message--error" role="alert">
+            {{ registrationError() }}
+          </p>
+        }
+
+        <form
+          class="form-stack"
+          [formGroup]="registerForm"
+          (ngSubmit)="submitRegistration()"
+          novalidate
+        >
+          <div class="form-field">
+            <label class="form-label" for="register-username">Username</label>
+            <input
+              id="register-username"
+              class="form-control"
+              type="text"
+              formControlName="userName"
+              autocomplete="username"
+              autocapitalize="none"
+              spellcheck="false"
+              [attr.aria-invalid]="registerForm.controls.userName.invalid && registerForm.controls.userName.touched"
+              aria-describedby="register-username-help register-username-error"
+            />
+
+            <p id="register-username-help" class="form-help">
+              This is your collector name. Use a username, not your email address.
+            </p>
+
+            @if (registerForm.controls.userName.touched && registerForm.controls.userName.hasError('required')) {
+              <p id="register-username-error" class="form-error">
+                Enter a username.
+              </p>
+            } @else if (registerForm.controls.userName.touched && registerForm.controls.userName.hasError('pattern')) {
+              <p id="register-username-error" class="form-error">
+                Username cannot contain spaces or an @ symbol.
+              </p>
+            } @else if (registerForm.controls.userName.touched && registerForm.controls.userName.hasError('maxlength')) {
+              <p id="register-username-error" class="form-error">
+                Username must be 50 characters or fewer.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="register-email">Email</label>
+            <input
+              id="register-email"
+              class="form-control"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              inputmode="email"
+              autocapitalize="none"
+              spellcheck="false"
+              [attr.aria-invalid]="registerForm.controls.email.invalid && registerForm.controls.email.touched"
+              aria-describedby="register-email-error"
+            />
+
+            @if (registerForm.controls.email.touched && registerForm.controls.email.hasError('required')) {
+              <p id="register-email-error" class="form-error">
+                Enter your email address.
+              </p>
+            } @else if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+              <p id="register-email-error" class="form-error">
+                Enter a valid email address.
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="register-password">Password</label>
+            <input
+              id="register-password"
+              class="form-control"
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
+              [attr.aria-invalid]="registerForm.controls.password.invalid && registerForm.controls.password.touched"
+              aria-describedby="register-password-help register-password-error"
+            />
+
+            <p id="register-password-help" class="form-help">
+              Use at least 8 characters.
+            </p>
+
+            @if (registerForm.controls.password.touched && registerForm.controls.password.hasError('required')) {
+              <p id="register-password-error" class="form-error">
+                Enter a password.
+              </p>
+            } @else if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+              <p id="register-password-error" class="form-error">
+                Password must be between 8 and 128 characters.
+              </p>
+            }
+          </div>
+
+          <button
+            class="btn btn--primary register-submit"
+            type="submit"
+            [disabled]="isSubmitting()"
+          >
+            {{ isSubmitting() ? 'Creating account…' : 'Create account' }}
+          </button>
+        </form>
+
+        <p class="register-login-link">
+          Already have an account?
+          <a routerLink="/login">Log in</a>
+        </p>
+      </section>
+    }
+  </div>
+</main>

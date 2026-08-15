@@ -28,20 +28,34 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             string name,
             string rarity = "Rare",
             string setName = "Beta",
-            string cardNumber = "B-001")
+            string cardNumber = "B-001",
+            string setCode = "TEST",
+            string colour = "Red",
+            string cardType = "Legend",
+            string classification = "Character",
+            string? keywords = null,
+            int? cost = null,
+            int? power = null,
+            int? ram = null,
+            int? eddies = null)
         {
             var card = new Card
             {
                 Name = name,
-                Colour = "Red",
-                CardType = "Legend",
-                Classification = "Character"
+                Colour = colour,
+                CardType = cardType,
+                Classification = classification,
+                Keywords = keywords,
+                Cost = cost,
+                Power = power,
+                RamCost = ram,
+                Eddies = eddies
             };
 
             var cardSet = new CardSet
             {
                 Name = setName,
-                Code = "TEST"
+                Code = setCode
             };
 
             var printing = new CardPrinting
@@ -74,10 +88,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateCardsController(context);
 
             var result = await controller.GetCards(
-                null,
-                null,
-                null,
-                null,
+                new CardCatalogueQuery(),
                 CancellationToken.None);
 
             var okResult =
@@ -117,10 +128,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateCardsController(context);
 
             var result = await controller.GetCards(
-                null,
-                "Legendary",
-                null,
-                null,
+                new CardCatalogueQuery
+                {
+                    Rarity = "Legendary"
+                },
                 CancellationToken.None);
 
             var okResult =
@@ -157,10 +168,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var controller = CreateCardsController(context);
 
             var result = await controller.GetCards(
-                "Kai",
-                null,
-                null,
-                null,
+                new CardCatalogueQuery
+                {
+                    Name = "Kai"
+                },
                 CancellationToken.None);
 
             var okResult =
@@ -174,6 +185,585 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 Assert.Single(cards);
 
             Assert.Equal("Kai Blackwire Sato", returnedCard.Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByColour_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Red Card",
+                colour: "Red");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Blue Card",
+                cardNumber: "B-002",
+                colour: "Blue");
+
+            var controller = CreateCardsController(context);
+
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Colour = "Blue" },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+            var card = Assert.Single(cards);
+
+            Assert.Equal("Blue Card", card.Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByCardType_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Legend Card",
+                cardType: "Legend");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Gear Card",
+                cardNumber: "B-002",
+                cardType: "Gear");
+
+            var controller = CreateCardsController(context);
+
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { CardType = "Gear" },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Gear Card", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByTypeAlias_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Action Card",
+                cardType: "Action");
+
+            var controller = CreateCardsController(context);
+
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Type = "Action" },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Action Card", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByClassification_PreservesCompatibility()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Character Card",
+                classification: "Character");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Location Card",
+                cardNumber: "B-002",
+                classification: "Location");
+
+            var controller = CreateCardsController(context);
+
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Classification = "Location" },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Location Card", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByCompleteTag_DoesNotMatchSubstring()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Solo Card",
+                keywords: "Solo, Netrunner");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Soloist Card",
+                cardNumber: "B-002",
+                keywords: "Soloist, Tech");
+
+            var controller = CreateCardsController(context);
+
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Tags = "Solo" },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value).ToList();
+
+            Assert.Single(cards);
+            Assert.Equal("Solo Card", cards[0].Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByCost_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(context, "Cost Two", cost: 2);
+            await CreateCardWithPrintingAsync(context, "Cost Three", cardNumber: "B-002", cost: 3);
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Cost = 3 },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Cost Three", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByPower_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(context, "Power One", power: 1);
+            await CreateCardWithPrintingAsync(context, "Power Five", cardNumber: "B-002", power: 5);
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Power = 5 },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Power Five", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByRam_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(context, "RAM Two", ram: 2);
+            await CreateCardWithPrintingAsync(context, "RAM Four", cardNumber: "B-002", ram: 4);
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Ram = 4 },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("RAM Four", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringByEddies_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(context, "Eddies Two", eddies: 2);
+            await CreateCardWithPrintingAsync(context, "Eddies Six", cardNumber: "B-002", eddies: 6);
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Eddies = 6 },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Eddies Six", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenMultipleCardFiltersAreSupplied_UsesAndSemantics()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Exact Match",
+                colour: "Yellow",
+                cardType: "Character",
+                cost: 3,
+                power: 4);
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Wrong Power",
+                cardNumber: "B-002",
+                colour: "Yellow",
+                cardType: "Character",
+                cost: 3,
+                power: 2);
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery
+                {
+                    Colour = "Yellow",
+                    CardType = "Character",
+                    Cost = 3,
+                    Power = 4
+                },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Exact Match", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenCardAndPrintingFiltersAreSupplied_UsesAndSemantics()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Exact Match",
+                rarity: "Rare",
+                setName: "Night City Legends",
+                setCode: "NCL",
+                colour: "Blue");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Wrong Colour",
+                rarity: "Rare",
+                setName: "Night City Legends",
+                cardNumber: "NCL-002",
+                setCode: "NCL",
+                colour: "Red");
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery
+                {
+                    Colour = "Blue",
+                    SetCode = "NCL",
+                    Rarity = "Rare"
+                },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Exact Match", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilteringBySetCode_ReturnsMatchingCards()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "NCL Card",
+                setName: "Night City Legends",
+                setCode: "NCL");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Other Set",
+                setName: "Beta",
+                cardNumber: "B-002",
+                setCode: "BET");
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { SetCode = "NCL" },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("NCL Card", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenSetAndRarityAreOnDifferentPrintings_DoesNotMatch()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            var card = new Card
+            {
+                Name = "Multi Printing",
+                Colour = "Red",
+                CardType = "Character"
+            };
+
+            card.CardPrintings.Add(new CardPrinting
+            {
+                CardSet = new CardSet
+                {
+                    Name = "Night City Legends",
+                    Code = "NCL"
+                },
+                CardNumber = "NCL-001",
+                Rarity = "Common",
+                LanguageCode = "en"
+            });
+
+            card.CardPrintings.Add(new CardPrinting
+            {
+                CardSet = new CardSet
+                {
+                    Name = "Promo",
+                    Code = "PRO"
+                },
+                CardNumber = "PRO-001",
+                Rarity = "Rare",
+                LanguageCode = "en"
+            });
+
+            context.Cards.Add(card);
+            await context.SaveChangesAsync();
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery
+                {
+                    SetCode = "NCL",
+                    Rarity = "Rare"
+                },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Empty(cards);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenNumericValueIsNull_DoesNotMatchNumericFilter()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(context, "Unknown Cost", cost: null);
+            await CreateCardWithPrintingAsync(context, "Known Cost", cardNumber: "B-002", cost: 2);
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Cost = 2 },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Equal("Known Cost", Assert.Single(cards).Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenFilterValueDoesNotExist_ReturnsEmptyCollection()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(context, "Existing Card");
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery { Colour = "Impossible Colour" },
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value);
+
+            Assert.Empty(cards);
+        }
+
+        [Fact]
+        public async Task GetCards_DefaultSetOrder_IsDeterministic()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Zulu",
+                setName: "Second",
+                cardNumber: "002",
+                setCode: "BBB");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Alpha",
+                setName: "First",
+                cardNumber: "010",
+                setCode: "AAA");
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Beta",
+                setName: "First",
+                cardNumber: "001",
+                setCode: "AAA");
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCards(
+                new CardCatalogueQuery(),
+                CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var cards = Assert.IsAssignableFrom<IEnumerable<CardResponse>>(ok.Value).ToList();
+
+            Assert.Equal(
+                new[] { "Beta", "Alpha", "Zulu" },
+                cards.Select(card => card.Name).ToArray());
+        }
+
+        [Fact]
+        public async Task GetFilterOptions_ReturnsOnlyDistinctValuesThatExist()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "First",
+                rarity: "Rare",
+                setName: "Night City Legends",
+                setCode: "NCL",
+                colour: "Blue",
+                cardType: "Character",
+                keywords: "Solo, Netrunner",
+                cost: 2,
+                power: 3,
+                ram: 4,
+                eddies: 5);
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Second",
+                rarity: "Rare",
+                setName: "Night City Legends",
+                cardNumber: "NCL-002",
+                setCode: "NCL",
+                colour: "Blue",
+                cardType: "Gear",
+                keywords: "Solo; Tech",
+                cost: 2,
+                power: null,
+                ram: 1,
+                eddies: null);
+
+            await CreateCardWithPrintingAsync(
+                context,
+                "Placeholder",
+                rarity: "Unknown",
+                setName: "Unknown",
+                cardNumber: "UNK-001",
+                setCode: "Unknown",
+                colour: "Unknown",
+                cardType: "Unknown",
+                keywords: "Unknown");
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetFilterOptions(CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var options = Assert.IsType<CardFilterOptionsResponse>(ok.Value);
+
+            Assert.Equal(new[] { "Blue" }, options.Colours);
+            Assert.Equal(new[] { "Character", "Gear" }, options.CardTypes);
+            Assert.Equal(new[] { "Netrunner", "Solo", "Tech" }, options.Tags);
+            Assert.Equal(new[] { 2 }, options.Costs);
+            Assert.Equal(new[] { 3 }, options.Powers);
+            Assert.Equal(new[] { 1, 4 }, options.RamValues);
+            Assert.Equal(new[] { 5 }, options.EddiesValues);
+            Assert.Single(options.Sets);
+            Assert.Equal("NCL", options.Sets[0].Code);
+            Assert.Equal("Night City Legends", options.Sets[0].Name);
+            Assert.Equal(new[] { "Rare" }, options.Rarities);
+        }
+
+        [Fact]
+        public async Task GetCardsPaged_ReturnsCountAndRequestedPage()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            await CreateCardWithPrintingAsync(context, "A", cardNumber: "001", setCode: "AAA");
+            await CreateCardWithPrintingAsync(context, "B", cardNumber: "002", setCode: "AAA");
+            await CreateCardWithPrintingAsync(context, "C", cardNumber: "003", setCode: "AAA");
+
+            var controller = CreateCardsController(context);
+            var result = await controller.GetCardsPaged(
+                new CardCatalogueQuery { SortBy = "name" },
+                page: 2,
+                pageSize: 2,
+                cancellationToken: CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result.Result);
+            var page = Assert.IsType<PagedResponse<CardResponse>>(ok.Value);
+
+            Assert.Equal(2, page.Page);
+            Assert.Equal(2, page.PageSize);
+            Assert.Equal(3, page.TotalCount);
+            Assert.Equal(2, page.TotalPages);
+            Assert.Single(page.Items);
+            Assert.Equal("C", page.Items[0].Name);
+        }
+
+        [Fact]
+        public async Task GetCards_WhenSortByIsNotSupported_ReturnsBadRequest()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            var controller = CreateCardsController(context);
+
+            var result = await controller.GetCards(
+                new CardCatalogueQuery
+                {
+                    SortBy = "arbitraryDatabaseColumn"
+                },
+                CancellationToken.None);
+
+            ProblemDetailsAssert.IsProblem(
+                result.Result!,
+                StatusCodes.Status400BadRequest,
+                "Invalid catalogue sort.");
+        }
+
+        [Fact]
+        public async Task GetCardsPaged_WhenPageSizeExceedsMaximum_ReturnsBadRequest()
+        {
+            using var context = TestDbContextFactory.Create();
+
+            var controller = CreateCardsController(context);
+
+            var result = await controller.GetCardsPaged(
+                new CardCatalogueQuery(),
+                page: 1,
+                pageSize: 101,
+                cancellationToken: CancellationToken.None);
+
+            ProblemDetailsAssert.IsProblem(
+                result.Result!,
+                StatusCodes.Status400BadRequest,
+                "Invalid page size.",
+                "PageSize must be between 1 and 100.");
         }
 
         [Fact]

@@ -1,8 +1,15 @@
+import { CardPrinting } from './card-printing';
+
+/**
+ * Logical Cyberpunk TCG card record returned by the Choom Vault catalogue API.
+ *
+ * The flattened printing fields remain for the existing public Archive while
+ * `printings` is the authoritative multi-printing collection for Card Detail
+ * and collector ownership actions.
+ */
 export interface Card {
   id: number;
   name: string;
-  setName: string | null;
-  rarity: string | null;
   colour: string | null;
   cardType: string | null;
   classification: string | null;
@@ -10,7 +17,14 @@ export interface Card {
   cost: number | null;
   power: number | null;
   ramCost: number | null;
+  eddies: number | null;
   isLegend: boolean;
+  notes: string | null;
+
+  // Flattened primary-printing compatibility fields.
+  cardPrintingId: number | null;
+  setName: string | null;
+  rarity: string | null;
   hasBetaSymbol: boolean;
   isKickstarterVersion: boolean;
   isRetailVersion: boolean;
@@ -21,5 +35,7 @@ export interface Card {
   isStarterDeckExclusive: boolean;
   cardNumber: string | null;
   imageUrl: string | null;
-  notes: string | null;
+
+  // Source of truth when one logical card has multiple physical printings.
+  printings: CardPrinting[];
 }

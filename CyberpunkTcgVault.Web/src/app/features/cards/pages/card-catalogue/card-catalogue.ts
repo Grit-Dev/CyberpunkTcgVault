@@ -5,76 +5,118 @@ import {
   OnInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {
+  ActivatedRoute,
+  ParamMap,
+  Router,
+  RouterLink
+} from '@angular/router';
+import { Subscription } from 'rxjs';
+
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
-import { CardFilters } from '../../models/card-filters';
+import {
+  CardFilterOptions,
+  CardSetFilterOption
+} from '../../models/card-filter-options';
+import {
+  CardFilterKey,
+  CardFilters,
+  CardSortBy,
+  CardSortDirection
+} from '../../models/card-filters';
 import { Card } from '../../models/card';
+import { CardCatalogueStateService } from '../../services/card-catalogue-state.service';
 import { CardsService } from '../../services/cards.service';
 
+interface ActiveArchiveFilter {
+  key: CardFilterKey;
+  label: string;
+  value: string;
+}
+
+type ArchiveSortValue =
+  'setOrder-asc' |
+  'name-asc' |
+  'name-desc';
+
 /**
- * Public Vault Archive for browsing Choom Vault cards.
+ * Public Vault Archive for fast, artwork-first card discovery.
  *
- * The homepage remains the curated discovery surface while this page owns
- * the searchable, filterable and paginated card-browsing experience.
+ * Angular owns presentation and URL state. The Cards API remains authoritative
+ * for supported filter values, combined filtering, sorting and pagination.
  */
 @Component({
   selector: 'app-card-catalogue',
   standalone: true,
   imports: [
     FormsModule,
+    RouterLink,
     CardArtworkDirective
   ],
   templateUrl: './card-catalogue.html',
   styleUrl: './card-catalogue.scss'
 })
 export class CardCatalogue implements OnInit, OnDestroy {
-  // Cards displayed on the current Archive page.
   cards: Card[] = [];
-
-  // Complete result returned for the current API filters.
-  // This can be removed when pagination moves fully to the backend.
-  private matchingCards: Card[] = [];
-
-  // Current search and filter state.
   filters: CardFilters = this.createEmptyFilters();
+  filterOptions: CardFilterOptions =
+    this.createEmptyFilterOptions();
 
-  // Stable filter options captured from the initial full Archive response.
-  rarityOptions: string[] = [];
-  classificationOptions: string[] = [];
-  cardTypeOptions: string[] = [];
-
-  // Pagination state.
   currentPage = 1;
   readonly pageSize = 24;
   totalCount = 0;
   totalPages = 0;
 
-  // Request state.
   isLoading = true;
+  isRefreshing = false;
+  hasLoadedOnce = false;
+  isFilterOptionsLoading = true;
+  filterOptionsUnavailable = false;
   errorMessage = '';
+  filtersExpanded = false;
 
-  // Prevents an API request for every individual search keystroke.
   private searchDebounceTimer:
     ReturnType<typeof setTimeout> | null = null;
+  private cardRequest?: Subscription;
+  private filterOptionsRequest?: Subscription;
 
   constructor(
     private readonly cardsService: CardsService,
+    private readonly catalogueStateService: CardCatalogueStateService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly changeDetectorRef: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadCards(true);
+    const queryParams =
+      this.route.snapshot.queryParamMap;
+    const restoredState =
+      this.catalogueStateService.consume();
+
+    if (this.hasArchiveQueryState(queryParams)) {
+      this.filters =
+        this.readFiltersFromQuery(queryParams);
+      this.currentPage =
+        this.readPositiveInteger(
+          queryParams.get('page')
+        ) ?? 1;
+    } else if (restoredState) {
+      this.filters = restoredState.filters;
+      this.currentPage = restoredState.currentPage;
+      this.syncUrlState();
+    }
+
+    this.loadFilterOptions();
+    this.loadCards();
   }
 
   ngOnDestroy(): void {
     this.clearSearchDebounce();
+    this.cardRequest?.unsubscribe();
+    this.filterOptionsRequest?.unsubscribe();
   }
 
-  /**
-   * Returns a small window of page numbers around the current page.
-   *
-   * This prevents hundreds of pagination controls being rendered
-   * if the Archive eventually contains a much larger card library.
-   */
   get visiblePageNumbers(): number[] {
     const maximumVisiblePages = 5;
 
@@ -106,39 +148,130 @@ export class CardCatalogue implements OnInit, OnDestroy {
     }
 
     return Array.from(
-      {
-        length: endPage - startPage + 1
-      },
+      { length: endPage - startPage + 1 },
       (_, index) => startPage + index
     );
   }
 
-  /**
-   * Indicates whether the card-name search contains a value.
-   */
   get hasSearchQuery(): boolean {
     return Boolean(
       this.filters.name?.trim()
     );
   }
 
-  /**
-   * Indicates whether any Archive search or filter is active.
-   */
+  get activeFilters(): ActiveArchiveFilter[] {
+    const activeFilters: ActiveArchiveFilter[] = [];
+
+    this.addStringFilter(
+      activeFilters,
+      'setCode',
+      'Set',
+      this.filters.setCode,
+      this.getSetLabel(this.filters.setCode)
+    );
+    this.addStringFilter(
+      activeFilters,
+      'cardType',
+      'Type',
+      this.filters.cardType
+    );
+    this.addStringFilter(
+      activeFilters,
+      'rarity',
+      'Rarity',
+      this.filters.rarity
+    );
+    this.addStringFilter(
+      activeFilters,
+      'colour',
+      'Colour',
+      this.filters.colour
+    );
+    this.addStringFilter(
+      activeFilters,
+      'classification',
+      'Classification',
+      this.filters.classification
+    );
+    this.addStringFilter(
+      activeFilters,
+      'tags',
+      'Tag',
+      this.filters.tags
+    );
+    this.addNumericFilter(
+      activeFilters,
+      'cost',
+      'Cost',
+      this.filters.cost
+    );
+    this.addNumericFilter(
+      activeFilters,
+      'power',
+      'Power',
+      this.filters.power
+    );
+    this.addNumericFilter(
+      activeFilters,
+      'ram',
+      'RAM',
+      this.filters.ram
+    );
+    this.addNumericFilter(
+      activeFilters,
+      'eddies',
+      'Eddies',
+      this.filters.eddies
+    );
+
+    return activeFilters;
+  }
+
+  get activeFilterCount(): number {
+    return this.activeFilters.length;
+  }
+
+  get hasSelectedFilters(): boolean {
+    return this.activeFilterCount > 0;
+  }
+
   get hasActiveFilters(): boolean {
+    return this.hasSearchQuery ||
+      this.hasSelectedFilters;
+  }
+
+  get hasMoreFiltersActive(): boolean {
     return Boolean(
-      this.filters.name?.trim() ||
-      this.filters.rarity?.trim() ||
+      this.filters.colour?.trim() ||
       this.filters.classification?.trim() ||
-      this.filters.cardType?.trim()
+      this.filters.tags?.trim() ||
+      this.filters.cost !== null ||
+      this.filters.power !== null ||
+      this.filters.ram !== null ||
+      this.filters.eddies !== null
     );
   }
 
-  /**
-   * Returns true when metadata contains a useful collector-facing value.
-   *
-   * Placeholder values stored in seed data are deliberately hidden.
-   */
+  get activeMoreFilterCount(): number {
+    return this.activeFilters.filter(
+      filter => ![
+        'setCode',
+        'cardType',
+        'rarity'
+      ].includes(filter.key)
+    ).length;
+  }
+
+  get sortValue(): ArchiveSortValue {
+    if (this.filters.sortBy === 'name') {
+      return this.filters.sortDirection === 'desc'
+        ? 'name-desc'
+        : 'name-asc';
+    }
+
+    return 'setOrder-asc';
+  }
+
   hasMeaningfulValue(
     value: string | null | undefined
   ): boolean {
@@ -149,132 +282,146 @@ export class CardCatalogue implements OnInit, OnDestroy {
     const normalisedValue =
       value.trim().toLowerCase();
 
-    const placeholderValues = [
+    return ![
       'unknown',
       'n/a',
       'null',
       'none',
       '-',
       '—'
-    ];
-
-    return !placeholderValues.includes(
-      normalisedValue
-    );
+    ].includes(normalisedValue);
   }
 
-  /**
-   * Runs when the user types into the card-name search.
-   *
-   * The API request waits briefly until the user stops typing.
-   */
   onSearchChange(value: string): void {
     this.filters = {
       ...this.filters,
       name: value
     };
-
     this.currentPage = 1;
-
     this.clearSearchDebounce();
 
     this.searchDebounceTimer = setTimeout(
       () => {
         this.searchDebounceTimer = null;
-
+        this.syncUrlState();
         this.loadCards();
       },
       300
     );
   }
 
-  /**
-   * Applies a dropdown filter immediately.
-   */
   onFilterChange(
-    filter: keyof CardFilters,
-    value: string
+    filter: CardFilterKey,
+    value: string | number | null
   ): void {
     this.filters = {
       ...this.filters,
       [filter]: value
     };
-
     this.currentPage = 1;
-
     this.clearSearchDebounce();
-
+    this.syncUrlState();
     this.loadCards();
   }
 
-  /**
-   * Allows Enter or the Search button to run
-   * the current search immediately.
-   */
+  onClassificationChange(value: string): void {
+    this.onFilterChange(
+      'classification',
+      value.trim()
+    );
+  }
+
+  onSortChange(value: ArchiveSortValue): void {
+    const [sortBy, sortDirection] =
+      value.split('-') as [
+        CardSortBy,
+        CardSortDirection
+      ];
+
+    this.filters = {
+      ...this.filters,
+      sortBy,
+      sortDirection
+    };
+    this.currentPage = 1;
+    this.syncUrlState();
+    this.loadCards();
+  }
+
   applyFilters(): void {
     this.clearSearchDebounce();
-
     this.currentPage = 1;
-
+    this.syncUrlState();
     this.loadCards();
   }
 
-  /**
-   * Clears only the card-name search.
-   *
-   * Secondary filters remain active.
-   */
   clearSearch(): void {
     if (!this.hasSearchQuery) {
       return;
     }
 
     this.clearSearchDebounce();
-
     this.filters = {
       ...this.filters,
       name: ''
     };
-
     this.currentPage = 1;
-
+    this.syncUrlState();
     this.loadCards();
   }
 
-  /**
-   * Clears every search/filter value and restores page one.
-   */
-  clearFilters(): void {
-    this.clearSearchDebounce();
+  removeFilter(filter: CardFilterKey): void {
+    const emptyValue = [
+      'cost',
+      'power',
+      'ram',
+      'eddies'
+    ].includes(filter)
+      ? null
+      : '';
 
-    this.filters =
-      this.createEmptyFilters();
-
-    this.currentPage = 1;
-
-    this.loadCards();
-  }
-
-  /**
-   * Retries the current Archive request after an error.
-   *
-   * If the initial request failed, filter options are captured
-   * when the retry succeeds.
-   */
-  retryLoad(): void {
-    const shouldCaptureFilterOptions =
-      this.rarityOptions.length === 0 &&
-      this.classificationOptions.length === 0 &&
-      this.cardTypeOptions.length === 0;
-
-    this.loadCards(
-      shouldCaptureFilterOptions
+    this.onFilterChange(
+      filter,
+      emptyValue
     );
   }
 
-  /**
-   * Moves directly to an Archive page.
-   */
+  clearFilters(): void {
+    this.clearSearchDebounce();
+    const sortBy = this.filters.sortBy;
+    const sortDirection =
+      this.filters.sortDirection;
+    this.filters =
+      {
+        ...this.createEmptyFilters(),
+        sortBy,
+        sortDirection
+      };
+    this.currentPage = 1;
+    this.syncUrlState();
+    this.loadCards();
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded =
+      !this.filtersExpanded;
+  }
+
+  retryLoad(): void {
+    this.loadCards();
+
+    if (this.filterOptionsUnavailable) {
+      this.loadFilterOptions();
+    }
+  }
+
+  rememberArchiveState(): void {
+    this.catalogueStateService.save({
+      filters: { ...this.filters },
+      currentPage: this.currentPage
+    });
+  }
+
   goToPage(page: number): void {
     if (
       page < 1 ||
@@ -285,205 +432,386 @@ export class CardCatalogue implements OnInit, OnDestroy {
     }
 
     this.currentPage = page;
-
-    this.applyCurrentPage();
+    this.syncUrlState();
+    this.loadCards();
   }
 
-  /**
-   * Moves backwards one Archive page.
-   */
   previousPage(): void {
     this.goToPage(
       this.currentPage - 1
     );
   }
 
-  /**
-   * Moves forwards one Archive page.
-   */
   nextPage(): void {
     this.goToPage(
       this.currentPage + 1
     );
   }
 
-  /**
-   * Requests cards from the API using the current filters.
-   *
-   * The API currently returns the complete matching result.
-   * Angular displays the current 24-card page from that result.
-   *
-   * When server-side pagination is introduced, this method can consume
-   * the paged response without redesigning the Archive UI.
-   */
-  private loadCards(
-    captureFilterOptions = false
-  ): void {
-    this.isLoading = true;
+  formatSetOption(
+    set: CardSetFilterOption
+  ): string {
+    return set.name && set.name !== set.code
+      ? `${set.code} — ${set.name}`
+      : set.code;
+  }
+
+  private loadFilterOptions(): void {
+    this.filterOptionsRequest?.unsubscribe();
+    this.isFilterOptionsLoading = true;
+    this.filterOptionsUnavailable = false;
+
+    this.filterOptionsRequest =
+      this.cardsService
+        .getFilterOptions()
+        .subscribe({
+          next: options => {
+            this.filterOptions =
+              this.normaliseFilterOptions(options);
+            this.mergeVisibleRarities(this.cards);
+            this.isFilterOptionsLoading = false;
+            this.changeDetectorRef.markForCheck();
+          },
+          error: () => {
+            this.filterOptions =
+              this.createEmptyFilterOptions();
+            this.filterOptionsUnavailable = true;
+            this.isFilterOptionsLoading = false;
+            this.changeDetectorRef.markForCheck();
+          }
+        });
+  }
+
+  private loadCards(): void {
+    this.cardRequest?.unsubscribe();
     this.errorMessage = '';
 
-    this.cardsService
-      .getCards(this.filters)
-      .subscribe({
-        next: cards => {
-          this.matchingCards = cards;
+    if (this.hasLoadedOnce) {
+      this.isRefreshing = true;
+    } else {
+      this.isLoading = true;
+    }
 
-          this.totalCount =
-            this.matchingCards.length;
+    this.cardRequest =
+      this.cardsService
+        .getCardsPage(
+          this.filters,
+          this.currentPage,
+          this.pageSize
+        )
+        .subscribe({
+          next: response => {
+            if (
+              response.totalPages > 0 &&
+              this.currentPage > response.totalPages
+            ) {
+              this.currentPage = response.totalPages;
+              this.syncUrlState();
+              this.loadCards();
+              return;
+            }
 
-          this.totalPages =
-            Math.ceil(
-              this.totalCount /
-              this.pageSize
-            );
+            const requestedPage = this.currentPage;
 
-          if (this.totalPages === 0) {
+            this.cards = response.items;
+            this.mergeVisibleRarities(response.items);
+            this.totalCount = response.totalCount;
+            this.totalPages = response.totalPages;
+            this.currentPage = response.totalCount === 0
+              ? 1
+              : response.page;
+
+            if (requestedPage !== this.currentPage) {
+              this.syncUrlState();
+            }
+
+            this.isLoading = false;
+            this.isRefreshing = false;
+            this.hasLoadedOnce = true;
+            this.changeDetectorRef.markForCheck();
+          },
+          error: () => {
+            this.cards = [];
+            this.totalCount = 0;
+            this.totalPages = 0;
             this.currentPage = 1;
-          } else if (
-            this.currentPage >
-            this.totalPages
-          ) {
-            this.currentPage =
-              this.totalPages;
+            this.errorMessage =
+              'The Vault Archive could not be loaded.';
+            this.isLoading = false;
+            this.isRefreshing = false;
+            this.hasLoadedOnce = true;
+            this.changeDetectorRef.markForCheck();
           }
-
-          if (captureFilterOptions) {
-            this.captureFilterOptions(
-              cards
-            );
-          }
-
-          this.applyCurrentPage();
-
-          this.isLoading = false;
-
-          this.changeDetectorRef
-            .markForCheck();
-        },
-
-        error: () => {
-          this.cards = [];
-          this.matchingCards = [];
-
-          this.totalCount = 0;
-          this.totalPages = 0;
-          this.currentPage = 1;
-
-          this.errorMessage =
-            'The Vault Archive could not be loaded.';
-
-          this.isLoading = false;
-
-          this.changeDetectorRef
-            .markForCheck();
-        }
-      });
+        });
   }
 
-  /**
-   * Selects only the cards belonging to the current page.
-   *
-   * This stays isolated so it can be removed when the API
-   * becomes responsible for Skip/Take pagination.
-   */
-  private applyCurrentPage(): void {
-    const startIndex =
-      (this.currentPage - 1) *
-      this.pageSize;
+  private syncUrlState(): void {
+    const queryParams: Record<
+      string,
+      string | number
+    > = {};
 
-    const endIndex =
-      startIndex +
-      this.pageSize;
+    this.setStringQuery(queryParams, 'q', this.filters.name);
+    this.setStringQuery(queryParams, 'set', this.filters.setCode);
+    this.setStringQuery(queryParams, 'type', this.filters.cardType);
+    this.setStringQuery(queryParams, 'rarity', this.filters.rarity);
+    this.setStringQuery(queryParams, 'colour', this.filters.colour);
+    this.setStringQuery(
+      queryParams,
+      'classification',
+      this.filters.classification
+    );
+    this.setStringQuery(queryParams, 'tag', this.filters.tags);
+    this.setNumberQuery(queryParams, 'cost', this.filters.cost);
+    this.setNumberQuery(queryParams, 'power', this.filters.power);
+    this.setNumberQuery(queryParams, 'ram', this.filters.ram);
+    this.setNumberQuery(queryParams, 'eddies', this.filters.eddies);
 
-    this.cards =
-      this.matchingCards.slice(
-        startIndex,
-        endIndex
-      );
+    if (this.sortValue !== 'setOrder-asc') {
+      queryParams['sort'] = this.sortValue;
+    }
 
-    this.changeDetectorRef
-      .markForCheck();
+    if (this.currentPage > 1) {
+      queryParams['page'] = this.currentPage;
+    }
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      replaceUrl: true
+    });
   }
 
-  /**
-   * Builds stable filters from the complete initial Archive response.
-   */
-  private captureFilterOptions(
-    cards: Card[]
-  ): void {
-    this.rarityOptions =
-      this.uniqueValues(
-        cards.map(
-          card => card.rarity
-        )
-      );
+  private readFiltersFromQuery(
+    queryParams: ParamMap
+  ): CardFilters {
+    const sort = queryParams.get('sort');
+    let sortBy: CardSortBy = 'setOrder';
+    let sortDirection: CardSortDirection = 'asc';
 
-    this.classificationOptions =
-      this.uniqueValues(
-        cards.map(
-          card => card.classification
-        )
-      );
+    if (sort === 'name-asc') {
+      sortBy = 'name';
+    } else if (sort === 'name-desc') {
+      sortBy = 'name';
+      sortDirection = 'desc';
+    }
 
-    this.cardTypeOptions =
-      this.uniqueValues(
-        cards.map(
-          card => card.cardType
-        )
-      );
+    return {
+      name: queryParams.get('q') ?? '',
+      setCode: queryParams.get('set') ?? '',
+      cardType: queryParams.get('type') ?? '',
+      rarity: queryParams.get('rarity') ?? '',
+      colour: queryParams.get('colour') ?? '',
+      classification:
+        queryParams.get('classification') ?? '',
+      tags: queryParams.get('tag') ?? '',
+      cost: this.readInteger(queryParams.get('cost')),
+      power: this.readInteger(queryParams.get('power')),
+      ram: this.readInteger(queryParams.get('ram')),
+      eddies: this.readInteger(queryParams.get('eddies')),
+      sortBy,
+      sortDirection
+    };
   }
 
-  /**
-   * Removes placeholder values and duplicates before
-   * sorting filter options alphabetically.
-   */
-  private uniqueValues(
-    values: Array<string | null | undefined>
-  ): string[] {
-    const meaningfulValues =
-      values
-        .map(
-          value => value?.trim()
-        )
-        .filter(
-          (value): value is string =>
-            this.hasMeaningfulValue(value)
-        );
+  private hasArchiveQueryState(
+    queryParams: ParamMap
+  ): boolean {
+    const archiveQueryKeys = [
+      'q',
+      'set',
+      'type',
+      'rarity',
+      'colour',
+      'classification',
+      'tag',
+      'cost',
+      'power',
+      'ram',
+      'eddies',
+      'sort',
+      'page'
+    ];
 
-    return [
-      ...new Set(meaningfulValues)
-    ].sort(
-      (left, right) =>
-        left.localeCompare(right)
+    return archiveQueryKeys.some(
+      key => queryParams.has(key)
     );
   }
 
-  /**
-   * Cancels a pending automatic name search.
-   */
+  private getSetLabel(
+    setCode: string | undefined
+  ): string | undefined {
+    if (!setCode) {
+      return undefined;
+    }
+
+    const set = this.filterOptions.sets.find(
+      option => option.code === setCode
+    );
+
+    return set
+      ? this.formatSetOption(set)
+      : setCode;
+  }
+
+  private addStringFilter(
+    activeFilters: ActiveArchiveFilter[],
+    key: CardFilterKey,
+    label: string,
+    value: string | undefined,
+    displayValue = value
+  ): void {
+    if (value?.trim() && displayValue) {
+      activeFilters.push({
+        key,
+        label,
+        value: displayValue
+      });
+    }
+  }
+
+  private addNumericFilter(
+    activeFilters: ActiveArchiveFilter[],
+    key: CardFilterKey,
+    label: string,
+    value: number | null | undefined
+  ): void {
+    if (value !== null && value !== undefined) {
+      activeFilters.push({
+        key,
+        label,
+        value: String(value)
+      });
+    }
+  }
+
+  private setStringQuery(
+    queryParams: Record<string, string | number>,
+    key: string,
+    value: string | undefined
+  ): void {
+    if (value?.trim()) {
+      queryParams[key] = value.trim();
+    }
+  }
+
+  private setNumberQuery(
+    queryParams: Record<string, string | number>,
+    key: string,
+    value: number | null | undefined
+  ): void {
+    if (value !== null && value !== undefined) {
+      queryParams[key] = value;
+    }
+  }
+
+  private readInteger(
+    value: string | null
+  ): number | null {
+    if (value === null || value.trim() === '') {
+      return null;
+    }
+
+    const numberValue = Number(value);
+
+    return Number.isInteger(numberValue)
+      ? numberValue
+      : null;
+  }
+
+  private readPositiveInteger(
+    value: string | null
+  ): number | null {
+    const numberValue = this.readInteger(value);
+
+    return numberValue !== null && numberValue > 0
+      ? numberValue
+      : null;
+  }
+
   private clearSearchDebounce(): void {
-    if (
-      this.searchDebounceTimer === null
-    ) {
+    if (this.searchDebounceTimer === null) {
       return;
     }
 
-    clearTimeout(
-      this.searchDebounceTimer
-    );
-
+    clearTimeout(this.searchDebounceTimer);
     this.searchDebounceTimer = null;
   }
 
-  /**
-   * Creates the default empty Archive filter state.
-   */
   private createEmptyFilters(): CardFilters {
     return {
       name: '',
+      setCode: '',
+      cardType: '',
       rarity: '',
+      colour: '',
       classification: '',
-      cardType: ''
+      tags: '',
+      cost: null,
+      power: null,
+      ram: null,
+      eddies: null,
+      sortBy: 'setOrder',
+      sortDirection: 'asc'
+    };
+  }
+
+  private createEmptyFilterOptions(): CardFilterOptions {
+    return {
+      colours: [],
+      cardTypes: [],
+      tags: [],
+      costs: [],
+      powers: [],
+      ramValues: [],
+      eddiesValues: [],
+      sets: [],
+      rarities: []
+    };
+  }
+
+  /**
+   * Keeps the Archive usable when an older API response omits one of the
+   * newer option arrays. No choices are invented.
+   */
+  private normaliseFilterOptions(
+    options: CardFilterOptions
+  ): CardFilterOptions {
+    return {
+      colours: options.colours ?? [],
+      cardTypes: options.cardTypes ?? [],
+      tags: options.tags ?? [],
+      costs: options.costs ?? [],
+      powers: options.powers ?? [],
+      ramValues: options.ramValues ?? [],
+      eddiesValues: options.eddiesValues ?? [],
+      sets: options.sets ?? [],
+      rarities: options.rarities ?? []
+    };
+  }
+
+  /**
+   * Rarity belongs to a genuine CardPrinting. If the options response does
+   * not yet include rarities, retain meaningful values already returned by
+   * the Cards API instead of hard-coding game data or disabling the field.
+   */
+  private mergeVisibleRarities(cards: Card[]): void {
+    const rarities = cards
+      .map(card => card.rarity?.trim() ?? '')
+      .filter(rarity => this.hasMeaningfulValue(rarity));
+
+    if (rarities.length === 0) {
+      return;
+    }
+
+    this.filterOptions = {
+      ...this.filterOptions,
+      rarities: [
+        ...new Set([
+          ...this.filterOptions.rarities,
+          ...rarities
+        ])
+      ].sort((left, right) => left.localeCompare(right))
     };
   }
 }

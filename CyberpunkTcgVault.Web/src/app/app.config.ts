@@ -2,7 +2,10 @@ import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners
 } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptors
+} from '@angular/common/http';
 import {
   provideRouter,
   TitleStrategy,
@@ -10,12 +13,15 @@ import {
 } from '@angular/router';
 
 import { routes } from './app.routes';
+import { apiSecurityInterceptor } from './core/http/api-security.interceptor';
 import { SeoTitleStrategy } from './core/seo/seo-title-strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(),
+    provideHttpClient(
+      withInterceptors([apiSecurityInterceptor])
+    ),
     provideRouter(
       routes,
       withInMemoryScrolling({

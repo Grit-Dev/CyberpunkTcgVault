@@ -40,6 +40,9 @@ namespace CyberpunkTcgVault.Api.DTOs
         [Range(0, 50)]
         public int? RamCost { get; set; }
 
+        [Range(0, int.MaxValue)]
+        public int? Eddies { get; set; }
+
         public bool IsLegend { get; set; }
 
         public bool HasBetaSymbol { get; set; }

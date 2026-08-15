@@ -20,6 +20,8 @@ namespace CyberpunkTcgVault.Api.DTOs
 
         public int? RamCost { get; set; }
 
+        public int? Eddies { get; set; }
+
         public bool IsLegend { get; set; }
 
         public string? Notes { get; set; }

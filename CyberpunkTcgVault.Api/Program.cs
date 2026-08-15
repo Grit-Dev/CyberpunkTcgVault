@@ -46,6 +46,10 @@ builder.Services.Configure<MfaOptions>(
     builder.Configuration.GetSection(
         MfaOptions.SectionName));
 
+builder.Services.Configure<PasswordResetOptions>(
+    builder.Configuration.GetSection(
+        PasswordResetOptions.SectionName));
+
 // Registers ASP.NET Core Identity.
 builder.Services
     .AddIdentity<AppUser, IdentityRole<Guid>>(options =>
@@ -56,6 +60,12 @@ builder.Services
         options.SignIn.RequireConfirmedEmail = false;
 
         options.User.RequireUniqueEmail = true;
+
+        // Public account handles are deliberately separate from email
+        // addresses. Keep Identity's validator aligned with the explicit
+        // registration rule enforced by AuthController.
+        options.User.AllowedUserNameCharacters =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._+";
 
         options.Password.RequiredLength = 8;
         options.Password.RequireDigit = false;
@@ -72,6 +82,13 @@ builder.Services
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+// Password-reset links are deliberately short-lived. This applies to the
+// built-in ASP.NET Core Identity data-protection token provider.
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromMinutes(30);
+});
 
 // Browser authentication uses the Identity application cookie. The cookie
 // itself is never readable by Angular/JavaScript.
@@ -154,6 +171,10 @@ builder.Services.AddScoped<ICollectionProductService, CollectionProductService>(
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IDemoVaultService, DemoVaultService>();
 
+builder.Services.AddHttpClient<
+    IPasswordResetEmailSender,
+    ResendPasswordResetEmailSender>();
+
 // Standard API error responses. Only a trace identifier is added to help
 // match a client-side failure to server-side logs. Exception messages,
 // stack traces and database details are never placed in the response.
@@ -231,6 +252,21 @@ builder.Services.AddRateLimiter(options =>
                 {
                     PermitLimit = 5,
                     Window = TimeSpan.FromMinutes(10),
+                    QueueLimit = 0,
+                    QueueProcessingOrder =
+                        QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                }));
+
+    options.AddPolicy(
+        RateLimitPolicyNames.PasswordReset,
+        httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                $"password-reset:{GetClientIp(httpContext)}",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(15),
                     QueueLimit = 0,
                     QueueProcessingOrder =
                         QueueProcessingOrder.OldestFirst,

@@ -13,7 +13,10 @@
 .header-inner {
   display: grid;
   min-height: 88px;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(220px, auto)
+    minmax(0, 1fr);
   align-items: center;
   gap: 30px;
 }
@@ -24,8 +27,10 @@
 
 .site-navigation {
   display: flex;
+  min-width: 220px;
   align-items: center;
   justify-content: center;
+  gap: 34px;
 }
 
 .site-navigation a {
@@ -48,7 +53,7 @@
   left: 0;
   height: 3px;
   background: var(--colour-yellow);
-  content: "";
+  content: '';
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 160ms ease;
@@ -67,23 +72,90 @@
 
 .header-actions {
   display: flex;
+  min-width: 0;
+  min-height: 48px;
   align-items: center;
+  justify-self: end;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 14px;
+  white-space: nowrap;
 }
 
-.header-actions button:disabled {
-  cursor: default;
-  opacity: 1;
+.header-login.is-active {
+  color: var(--colour-text);
 }
 
-.header-login:disabled {
-  color: var(--colour-text-muted);
+/*
+ * Authenticated identity is deliberately just a quiet recognition mark.
+ * It is not an account widget, role badge or gamer profile treatment.
+ *
+ * Demo context sits beneath the real username rather than competing with it
+ * horizontally. This gives the account area enough breathing room while the
+ * shared brand and centred primary navigation stay in exactly the same shell.
+ */
+.header-identity {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 3px minmax(0, auto);
+  align-items: center;
+  column-gap: 10px;
+  white-space: nowrap;
 }
 
-.header-register:disabled {
-  color: #06080d;
+.header-identity::before {
+  width: 3px;
+  height: 10px;
+  grid-column: 1;
+  grid-row: 1;
   background: var(--colour-yellow);
+  content: '';
+}
+
+.header-identity--demo::before {
+  height: 24px;
+  grid-row: 1 / span 2;
+}
+
+.header-username {
+  grid-column: 2;
+  max-width: 240px;
+  overflow: hidden;
+  color: var(--colour-text);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.header-demo-context {
+  grid-column: 2;
+  margin-top: 4px;
+  color: var(--colour-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.header-private-seam {
+  width: 1px;
+  height: 24px;
+  margin-inline: 3px;
+  background: var(--colour-border-strong);
+}
+
+.header-logout {
+  flex: 0 0 auto;
+  color: #7d8693;
+  font-weight: 700;
 }
 
 /*
@@ -91,7 +163,23 @@
  */
 @media (max-width: 1000px) {
   .header-inner {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(200px, auto)
+      minmax(0, 1fr);
     gap: 22px;
+  }
+
+  .site-navigation {
+    min-width: 200px;
+  }
+
+  .header-actions {
+    gap: 10px;
+  }
+
+  .header-username {
+    max-width: 170px;
   }
 }
 
@@ -108,19 +196,35 @@
   }
 
   .site-navigation {
+    min-width: 0;
+  }
+
+  .header-actions {
+    width: auto;
+    min-width: 0;
+  }
+
+  .site-navigation {
     justify-content: center;
   }
 
   .header-register {
     display: none;
   }
+
+  .header-username {
+    max-width: 100px;
+    font-size: 0.72rem;
+  }
 }
 
 /*
  * Mobile.
  *
- * The global brand rules already collapse the long wordmark at compact
- * widths, leaving room for Catalogue and the quieter Login control.
+ * Signed-out navigation keeps the established compact public shell. Once a
+ * collector is authenticated, identity/utility stay together on the top row
+ * and the real product navigation receives its own row. This avoids squeezing
+ * private navigation into a desktop-shaped strip as more destinations ship.
  */
 @media (max-width: 560px) {
   .header-inner {
@@ -142,6 +246,43 @@
     padding-inline: 10px;
     font-size: 0.76rem;
   }
+
+  .header-inner--authenticated {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 74px auto;
+    grid-template-areas:
+      'brand actions'
+      'navigation navigation';
+    gap: 0 16px;
+    padding-top: 0;
+  }
+
+  .header-inner--authenticated .brand {
+    grid-area: brand;
+  }
+
+  .header-inner--authenticated .header-actions {
+    grid-area: actions;
+  }
+
+  .header-inner--authenticated .site-navigation {
+    grid-area: navigation;
+    justify-content: flex-start;
+    gap: 24px;
+    border-top: 1px solid var(--colour-border);
+  }
+
+  .header-inner--authenticated .site-navigation a {
+    padding-block: 16px 18px;
+  }
+
+  .header-inner--authenticated .site-navigation a::after {
+    bottom: 10px;
+  }
+
+  .header-private-seam {
+    height: 20px;
+  }
 }
 
 @media (max-width: 390px) {
@@ -157,5 +298,28 @@
   .header-login {
     padding-inline: 6px;
     font-size: 0.72rem;
+  }
+
+  .header-inner--authenticated {
+    gap: 0 10px;
+  }
+
+  .header-inner--authenticated .header-actions {
+    gap: 8px;
+  }
+
+  .header-username {
+    max-width: 86px;
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+  }
+
+  .header-demo-context {
+    font-size: 0.52rem;
+    letter-spacing: 0.11em;
+  }
+
+  .header-private-seam {
+    display: none;
   }
 }
