@@ -7,63 +7,53 @@ import {
   signal
 } from '@angular/core';
 import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {
   ActivatedRoute,
   Router,
   RouterLink
 } from '@angular/router';
-import { finalize } from 'rxjs';
+import {
+  catchError,
+  finalize,
+  forkJoin,
+  of,
+  throwError
+} from 'rxjs';
 
 import { FeedbackService } from '../../../../core/feedback/feedback.service';
 import { CardArtworkDirective } from '../../../cards/directives/card-artwork.directive';
 import { CardDetailReturnService } from '../../../cards/services/card-detail-return.service';
-import { OwnedCard } from '../../models/owned-card';
-import { OwnedCardsService } from '../../services/owned-cards.service';
-
-interface ValidationProblemDetails {
-  errors?: Record<string, string[]>;
-}
+import { OwnedCardsService } from '../../../collection/services/owned-cards.service';
+import { WishlistItem } from '../../models/wishlist-item';
+import { WishlistService } from '../../services/wishlist.service';
 
 /**
- * Private Collection / Working Archive.
+ * Private Wishlist / acquisition record.
  *
- * One row represents one exact CardPrinting owned by the authenticated
- * collector. Quantity and collector metadata belong to that OwnedCard record;
- * the shared Card/CardPrinting catalogue is never mutated here.
+ * Every row represents one exact physical CardPrinting that the authenticated
+ * collector still wants. A Printing can be both owned and wanted at the same
+ * time; ownership is shown only as a quiet secondary reference.
  */
 @Component({
-  selector: 'app-collection',
+  selector: 'app-wishlist',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     RouterLink,
     CardArtworkDirective
   ],
-  templateUrl: './collection.html',
-  styleUrl: './collection.scss'
+  templateUrl: './wishlist.html',
+  styleUrl: './wishlist.scss'
 })
-export class Collection implements OnInit {
+export class Wishlist implements OnInit {
   readonly isLoading = signal(true);
   readonly loadError = signal(false);
   readonly searchQuery = signal('');
   readonly setFilter = signal('');
   readonly currentPage = signal(1);
   readonly pageSize = 10;
-  readonly editingRecordId = signal<number | null>(null);
-  readonly isSavingRecord = signal(false);
   readonly busyRecordIds = signal<ReadonlySet<number>>(new Set<number>());
-  readonly saveError = signal<string | null>(null);
-  readonly conditionServerError = signal<string | null>(null);
-  readonly notesServerError = signal<string | null>(null);
-
-  readonly recordForm;
 
   readonly setOptions = computed(() => {
-    const options = this.ownedCardsService
+    const options = this.wishlistService
       .items()
       .map(item => item.setName?.trim() ?? '')
       .filter(value => this.hasMeaningfulValue(value));
@@ -75,7 +65,7 @@ export class Collection implements OnInit {
     const query = this.searchQuery().trim().toLowerCase();
     const set = this.setFilter();
 
-    return this.ownedCardsService.items().filter(item => {
+    return this.wishlistService.items().filter(item => {
       const matchesSearch = !query || [
         item.cardName,
         item.cardNumber,
@@ -162,32 +152,25 @@ export class Collection implements OnInit {
     () => Boolean(this.searchQuery().trim() || this.setFilter())
   );
 
+  readonly ownedQuantityByPrinting = computed(() => {
+    const quantities = new Map<number, number>();
+
+    for (const item of this.ownedCardsService.items()) {
+      quantities.set(item.cardPrintingId, item.quantityOwned);
+    }
+
+    return quantities;
+  });
+
   constructor(
-    private readonly formBuilder: FormBuilder,
-    readonly ownedCardsService: OwnedCardsService,
+    readonly wishlistService: WishlistService,
+    private readonly ownedCardsService: OwnedCardsService,
     private readonly feedback: FeedbackService,
     private readonly cardDetailReturnService: CardDetailReturnService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly viewportScroller: ViewportScroller
-  ) {
-    this.recordForm = this.formBuilder.nonNullable.group({
-      condition: [
-        '',
-        [Validators.maxLength(50)]
-      ],
-      isInMasterCollection: [false],
-      isDuplicate: [false],
-      isGradingCandidate: [false],
-      isOpenForTrade: [false],
-      isOpenToMessages: [false],
-      maySellLater: [false],
-      notes: [
-        '',
-        [Validators.maxLength(2000)]
-      ]
-    });
-  }
+  ) { }
 
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParamMap;
@@ -201,16 +184,16 @@ export class Collection implements OnInit {
         : 1
     );
 
-    this.loadCollection();
+    this.loadWishlist();
   }
 
   retry(): void {
-    this.loadCollection(true);
+    this.loadWishlist(true);
   }
 
   rememberCardDetailReturn(): void {
     this.cardDetailReturnService.save(
-      'collection',
+      'wishlist',
       this.router.url
     );
   }
@@ -253,146 +236,58 @@ export class Collection implements OnInit {
     }
 
     this.currentPage.set(page);
-    this.cancelEdit();
     this.syncUrlState();
 
     queueMicrotask(() => {
-      this.viewportScroller.scrollToAnchor('collection-records');
+      this.viewportScroller.scrollToAnchor('wishlist-records');
     });
   }
 
-  increaseQuantity(item: OwnedCard): void {
-    if (item.quantityOwned >= 999 || this.isRecordBusy(item.id)) {
+  increaseQuantity(item: WishlistItem): void {
+    if (item.wantedQuantity >= 999 || this.isRecordBusy(item.id)) {
       return;
     }
 
-    this.updateQuantity(item, item.quantityOwned + 1);
+    this.updateQuantity(item, item.wantedQuantity + 1);
   }
 
-  decreaseQuantity(item: OwnedCard): void {
-    // Quantity one is never converted into deletion implicitly. The explicit
-    // removal action keeps destructive intent clear.
-    if (item.quantityOwned <= 1 || this.isRecordBusy(item.id)) {
+  decreaseQuantity(item: WishlistItem): void {
+    // Quantity one is never converted into removal implicitly. The explicit
+    // removal action keeps the collector's destructive intent unambiguous.
+    if (item.wantedQuantity <= 1 || this.isRecordBusy(item.id)) {
       return;
     }
 
-    this.updateQuantity(item, item.quantityOwned - 1);
+    this.updateQuantity(item, item.wantedQuantity - 1);
   }
 
-  removeFromCollection(item: OwnedCard): void {
+  removeFromWishlist(item: WishlistItem): void {
     if (this.isRecordBusy(item.id)) {
       return;
     }
 
     this.setRecordBusy(item.id, true);
 
-    this.ownedCardsService
+    this.wishlistService
       .remove(item)
       .pipe(
         finalize(() => this.setRecordBusy(item.id, false))
       )
       .subscribe({
         next: () => {
-          if (this.editingRecordId() === item.id) {
-            this.cancelEdit();
-          }
-
           this.ensureCurrentPageInRange();
-          this.feedback.showStatus('Removed from Collection.');
+          this.feedback.showStatus('Removed from Wishlist.');
         },
         error: error => this.handleMutationError(error)
       });
   }
 
-  beginEdit(item: OwnedCard): void {
-    if (this.isSavingRecord() || this.isRecordBusy(item.id)) {
-      return;
-    }
-
-    this.clearSaveErrors();
-    this.editingRecordId.set(item.id);
-    this.recordForm.reset({
-      condition: item.condition ?? '',
-      isInMasterCollection: item.isInMasterCollection,
-      isDuplicate: item.isDuplicate,
-      isGradingCandidate: item.isGradingCandidate,
-      isOpenForTrade: item.isOpenForTrade,
-      isOpenToMessages: item.isOpenToMessages,
-      maySellLater: item.maySellLater,
-      notes: item.notes ?? ''
-    });
-  }
-
-  cancelEdit(): void {
-    this.editingRecordId.set(null);
-    this.clearSaveErrors();
-    this.recordForm.reset();
-  }
-
-  saveEdit(item: OwnedCard): void {
-    if (
-      this.editingRecordId() !== item.id ||
-      this.recordForm.invalid ||
-      this.isSavingRecord() ||
-      this.isRecordBusy(item.id)
-    ) {
-      this.recordForm.markAllAsTouched();
-      return;
-    }
-
-    this.clearSaveErrors();
-    const values = this.recordForm.getRawValue();
-
-    this.isSavingRecord.set(true);
-    this.setRecordBusy(item.id, true);
-
-    /*
-     * The backend UpdateOwnedCardRequest requires QuantityOwned to remain
-     * between 1 and 999. Editing metadata must preserve the current quantity;
-     * sending 0 causes ASP.NET Core model validation to return 400.
-     */
-    this.ownedCardsService
-      .updateRecord(item, {
-        quantityOwned: item.quantityOwned,
-        condition: this.normaliseOptionalText(values.condition),
-        isInMasterCollection: values.isInMasterCollection,
-        isDuplicate: values.isDuplicate,
-        isGradingCandidate: values.isGradingCandidate,
-        isOpenForTrade: values.isOpenForTrade,
-        isOpenToMessages: values.isOpenToMessages,
-        maySellLater: values.maySellLater,
-        notes: this.normaliseOptionalText(values.notes)
-      })
-      .pipe(
-        finalize(() => {
-          this.isSavingRecord.set(false);
-          this.setRecordBusy(item.id, false);
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.editingRecordId.set(null);
-          this.feedback.showStatus('RECORD SAVED');
-        },
-        error: error => this.handleSaveError(error)
-      });
+  ownedQuantity(item: WishlistItem): number | null {
+    return this.ownedQuantityByPrinting().get(item.cardPrintingId) ?? null;
   }
 
   isRecordBusy(id: number): boolean {
     return this.busyRecordIds().has(id);
-  }
-
-  hasRecordDetails(item: OwnedCard): boolean {
-    return Boolean(
-      this.hasMeaningfulValue(item.condition) ||
-      this.hasMeaningfulValue(item.notes) ||
-      item.isInMasterCollection ||
-      item.isDuplicate ||
-      item.isGradingCandidate ||
-      item.isOpenForTrade ||
-      item.isOpenToMessages ||
-      item.maySellLater
-    );
   }
 
   hasMeaningfulValue(value: string | null | undefined): boolean {
@@ -410,11 +305,24 @@ export class Collection implements OnInit {
     ].includes(value.trim().toLowerCase());
   }
 
-  private loadCollection(forceRefresh = false): void {
+  private loadWishlist(forceRefresh = false): void {
     this.isLoading.set(true);
     this.loadError.set(false);
 
-    this.ownedCardsService.load(forceRefresh).subscribe({
+    forkJoin({
+      wishlist: this.wishlistService.load(forceRefresh),
+      owned: this.ownedCardsService.load(forceRefresh).pipe(
+        catchError(error => {
+          if (error instanceof HttpErrorResponse && error.status === 401) {
+            return throwError(() => error);
+          }
+
+          // OWNED crossover is useful secondary context, but a non-auth
+          // Collection failure must not make the primary Wishlist unusable.
+          return of([]);
+        })
+      )
+    }).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.ensureCurrentPageInRange();
@@ -432,16 +340,16 @@ export class Collection implements OnInit {
     });
   }
 
-  private updateQuantity(item: OwnedCard, quantityOwned: number): void {
+  private updateQuantity(item: WishlistItem, wantedQuantity: number): void {
     this.setRecordBusy(item.id, true);
 
-    this.ownedCardsService
-      .updateQuantity(item, quantityOwned)
+    this.wishlistService
+      .updateQuantity(item, wantedQuantity)
       .pipe(
         finalize(() => this.setRecordBusy(item.id, false))
       )
       .subscribe({
-        next: () => this.feedback.showStatus('Collection updated.'),
+        next: () => this.feedback.showStatus('Wishlist updated.'),
         error: error => this.handleMutationError(error)
       });
   }
@@ -460,67 +368,6 @@ export class Collection implements OnInit {
     });
   }
 
-  private handleSaveError(error: unknown): void {
-    if (error instanceof HttpErrorResponse) {
-      if (error.status === 401) {
-        this.sendToLoginAfterSessionEnded();
-        return;
-      }
-
-      if (error.status === 403) {
-        this.saveError.set('This record cannot be changed with the current account.');
-        return;
-      }
-
-      if (error.status === 404) {
-        this.saveError.set('This Collection record is no longer available.');
-        return;
-      }
-
-      if (error.status === 429) {
-        this.saveError.set('Too many requests. Try saving again shortly.');
-        return;
-      }
-
-      if (error.status === 400) {
-        this.applySafeValidationErrors(error.error);
-        this.saveError.set(
-          'We couldn\'t save this record. Check the details and try again.'
-        );
-        return;
-      }
-    }
-
-    this.saveError.set(
-      'We couldn\'t save this record. Check the details and try again.'
-    );
-  }
-
-  private applySafeValidationErrors(errorBody: unknown): void {
-    const details = errorBody as ValidationProblemDetails | null;
-    const errors = details?.errors;
-
-    if (!errors || typeof errors !== 'object') {
-      return;
-    }
-
-    for (const key of Object.keys(errors)) {
-      const normalisedKey = key.toLowerCase();
-
-      if (normalisedKey === 'condition') {
-        this.conditionServerError.set(
-          'Condition must be 50 characters or fewer.'
-        );
-      }
-
-      if (normalisedKey === 'notes') {
-        this.notesServerError.set(
-          'Notes must be 2,000 characters or fewer.'
-        );
-      }
-    }
-  }
-
   private handleMutationError(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 401) {
@@ -535,9 +382,9 @@ export class Collection implements OnInit {
 
       if (error.status === 404) {
         this.feedback.showError(
-          'That collection record is no longer available. Refreshing your Collection.'
+          'That Wishlist record is no longer available. Refreshing your Wishlist.'
         );
-        this.loadCollection(true);
+        this.loadWishlist(true);
         return;
       }
 
@@ -548,13 +395,13 @@ export class Collection implements OnInit {
 
       if (error.status === 400) {
         this.feedback.showError(
-          'We could not save that Collection change. Check the record and try again.'
+          'We could not save that Wishlist change. Check the record and try again.'
         );
         return;
       }
     }
 
-    this.feedback.showError('We could not update your Collection. Try again.');
+    this.feedback.showError('We could not update your Wishlist. Try again.');
   }
 
   private sendToLoginAfterSessionEnded(): void {
@@ -562,14 +409,13 @@ export class Collection implements OnInit {
 
     void this.router.navigate(['/login'], {
       queryParams: {
-        returnUrl: '/collection'
+        returnUrl: this.currentWishlistUrl()
       }
     });
   }
 
   private resetToFirstPage(): void {
     this.currentPage.set(1);
-    this.cancelEdit();
   }
 
   private ensureCurrentPageInRange(): void {
@@ -597,14 +443,17 @@ export class Collection implements OnInit {
     });
   }
 
-  private clearSaveErrors(): void {
-    this.saveError.set(null);
-    this.conditionServerError.set(null);
-    this.notesServerError.set(null);
-  }
-
-  private normaliseOptionalText(value: string): string | null {
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : null;
+  private currentWishlistUrl(): string {
+    return this.router.serializeUrl(
+      this.router.createUrlTree(['/wishlist'], {
+        queryParams: {
+          q: this.searchQuery().trim() || null,
+          set: this.setFilter() || null,
+          page: this.currentPage() > 1
+            ? this.currentPage()
+            : null
+        }
+      })
+    );
   }
 }

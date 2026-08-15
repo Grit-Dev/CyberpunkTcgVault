@@ -8,6 +8,7 @@ import { ResetPassword } from './features/auth/pages/reset-password/reset-passwo
 import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalogue';
 import { CardDetail } from './features/cards/pages/card-detail/card-detail';
 import { Collection } from './features/collection/pages/collection/collection';
+import { Wishlist } from './features/wishlist/pages/wishlist/wishlist';
 import { About } from './pages/about/about';
 import { Contact } from './pages/contact/contact';
 import { Home } from './pages/home/home';
@@ -58,6 +59,17 @@ export const routes: Routes = [
     data: {
       description:
         'Manage the exact Cyberpunk TCG card printings in your private Choom Vault collection.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  {
+    path: 'wishlist',
+    title: 'My Wishlist | Choom Vault',
+    component: Wishlist,
+    canActivate: [authGuard],
+    data: {
+      description:
+        'Track the exact Cyberpunk TCG card printings you still want in your private Choom Vault Wishlist.',
       robots: 'noindex, nofollow'
     }
   },

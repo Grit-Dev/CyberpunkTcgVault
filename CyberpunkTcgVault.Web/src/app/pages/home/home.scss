@@ -24,27 +24,6 @@
   isolation: isolate;
 }
 
-.hero-grid {
-  position: absolute;
-
-  z-index: -3;
-
-  inset: 0;
-
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.021) 1px,
-      transparent 1px),
-    linear-gradient(90deg,
-      rgba(255, 255, 255, 0.021) 1px,
-      transparent 1px);
-
-  background-size: 58px 58px;
-
-  mask-image: linear-gradient(to bottom,
-      black,
-      transparent 92%);
-}
-
 .hero-light {
   position: absolute;
 
@@ -627,32 +606,6 @@
   object-fit: contain;
 
   transition: transform 160ms ease;
-}
-
-
-/*
- * Keeps the existing subtle grid texture without adding
- * another colour treatment around the artwork.
- */
-.card-visual::before {
-  position: absolute;
-
-  z-index: 1;
-
-  inset: 0;
-
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px,
-      transparent 1px),
-    linear-gradient(90deg,
-      rgba(255, 255, 255, 0.035) 1px,
-      transparent 1px);
-
-  background-size: 16px 16px;
-
-  content: "";
-
-  pointer-events: none;
 }
 
 

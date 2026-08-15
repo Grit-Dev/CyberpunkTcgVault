@@ -8,6 +8,7 @@ import { DynamicSeoService } from '../../../../core/seo/dynamic-seo.service';
 import { OwnedCardsService } from '../../../collection/services/owned-cards.service';
 import { WishlistService } from '../../../wishlist/services/wishlist.service';
 import { Card } from '../../models/card';
+import { CardDetailReturnService } from '../../services/card-detail-return.service';
 import { CardsService } from '../../services/cards.service';
 import { CardDetail } from './card-detail';
 
@@ -166,4 +167,37 @@ describe('CardDetail', () => {
       'Kickstarter',
     ]);
   });
+
+  it('falls back to Vault Archive for a direct Card Detail visit', () => {
+    const backLink = fixture.nativeElement.querySelector(
+      '.card-detail-back'
+    ) as HTMLAnchorElement;
+
+    expect(backLink.textContent?.trim()).toContain('Vault Archive');
+    expect(backLink.getAttribute('href')).toBe('/cards');
+  });
+
+  it('returns to the exact Collection state when Card Detail was opened from Collection', async () => {
+    fixture.destroy();
+
+    const returnService = TestBed.inject(CardDetailReturnService);
+    returnService.save(
+      'collection',
+      '/collection?q=echo&set=Choom%20Vault%20Origins&page=2'
+    );
+
+    fixture = TestBed.createComponent(CardDetail);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const backLink = fixture.nativeElement.querySelector(
+      '.card-detail-back'
+    ) as HTMLAnchorElement;
+
+    expect(backLink.textContent?.trim()).toContain('Collection');
+    expect(backLink.getAttribute('href')).toContain('/collection?');
+    expect(backLink.getAttribute('href')).toContain('q=echo');
+    expect(backLink.getAttribute('href')).toContain('page=2');
+  });
+
 });

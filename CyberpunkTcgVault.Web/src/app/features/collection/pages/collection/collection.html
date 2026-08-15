@@ -126,6 +126,7 @@
                   class="collection-record__artwork"
                   [routerLink]="['/cards', item.cardId]"
                   [queryParams]="{ printing: item.cardPrintingId }"
+                  (click)="rememberCardDetailReturn()"
                   [attr.aria-label]="
                     'Inspect ' +
                     item.cardName +
@@ -146,6 +147,7 @@
                     class="collection-record__name"
                     [routerLink]="['/cards', item.cardId]"
                     [queryParams]="{ printing: item.cardPrintingId }"
+                    (click)="rememberCardDetailReturn()"
                   >
                     {{ item.cardName }}
                   </a>

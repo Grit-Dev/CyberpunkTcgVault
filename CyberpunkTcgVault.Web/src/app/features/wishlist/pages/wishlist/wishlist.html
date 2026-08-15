@@ -1,0 +1,256 @@
+<main class="wishlist-page">
+  <div class="wishlist-shell">
+    <header class="wishlist-intro" aria-labelledby="wishlist-title">
+      <p class="wishlist-intro__eyebrow">Wishlist</p>
+      <h1 id="wishlist-title">Still chasing.</h1>
+      <p>Track the exact physical printings you are still looking for.</p>
+    </header>
+
+    @if (isLoading()) {
+      <section class="wishlist-loading" aria-label="Loading Wishlist" aria-busy="true">
+        <div class="wishlist-loading__tools" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </div>
+
+        @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+          <div class="wishlist-record wishlist-record--loading" aria-hidden="true">
+            <span class="wishlist-record__art-skeleton"></span>
+            <div class="wishlist-record__identity-skeleton">
+              <span></span>
+              <span></span>
+            </div>
+            <span class="wishlist-record__quantity-skeleton"></span>
+          </div>
+        }
+      </section>
+    } @else if (loadError()) {
+      <section class="wishlist-state" aria-labelledby="wishlist-error-title">
+        <p class="wishlist-state__label">Wishlist unavailable</p>
+        <h2 id="wishlist-error-title">We couldn't load your Wishlist.</h2>
+        <p>Your existing wanted records have not been changed. Try again.</p>
+        <button class="btn btn--secondary" type="button" (click)="retry()">
+          Try again
+        </button>
+      </section>
+    } @else if (wishlistService.items().length === 0) {
+      <section class="wishlist-state wishlist-state--empty" aria-labelledby="wishlist-empty-title">
+        <p class="wishlist-state__label">Private Wishlist</p>
+        <h2 id="wishlist-empty-title">Nothing on the chase list.</h2>
+        <p>Add an exact printing from Card Detail when you find one you are still chasing.</p>
+        <a class="btn btn--primary" routerLink="/cards">Browse cards</a>
+      </section>
+    } @else {
+      <section class="wishlist-workspace" aria-label="Wanted card printings">
+        <div class="wishlist-tools">
+          <div class="wishlist-search">
+            <label for="wishlist-search">Search Wishlist</label>
+            <input
+              id="wishlist-search"
+              class="wishlist-control"
+              type="search"
+              [value]="searchQuery()"
+              placeholder="Card name, printing or set"
+              autocomplete="off"
+              (input)="updateSearch($event)"
+            />
+          </div>
+
+          <div class="wishlist-set-filter">
+            <label for="wishlist-set">Set</label>
+            <select
+              id="wishlist-set"
+              class="wishlist-control"
+              [value]="setFilter()"
+              (change)="updateSetFilter($event)"
+            >
+              <option value="">All sets</option>
+              @for (set of setOptions(); track set) {
+                <option [value]="set">{{ set }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="wishlist-results-rail" aria-live="polite">
+          <div class="wishlist-results-rail__summary">
+            <span class="wishlist-results-rail__count">
+              {{ filteredItems().length }} {{ filteredItems().length === 1 ? 'printing' : 'printings' }}
+            </span>
+
+            @if (totalPages() > 1) {
+              <span class="wishlist-results-rail__separator" aria-hidden="true">·</span>
+              <span class="wishlist-results-rail__page">Page {{ activePage() }} of {{ totalPages() }}</span>
+            }
+          </div>
+
+          @if (hasFilters()) {
+            <button class="wishlist-results-rail__clear" type="button" (click)="clearFilters()">
+              Clear filters
+            </button>
+          }
+        </div>
+
+        @if (filteredItems().length === 0) {
+          <div class="wishlist-no-results">
+            <h2>No wanted printings match these filters.</h2>
+            <button class="btn btn--secondary" type="button" (click)="clearFilters()">
+              Clear filters
+            </button>
+          </div>
+        } @else {
+          <div
+            id="wishlist-records"
+            class="wishlist-records"
+            [attr.aria-label]="
+              'Showing Wishlist printings ' +
+              firstVisibleRecord() +
+              ' to ' +
+              lastVisibleRecord() +
+              ' of ' +
+              filteredItems().length
+            "
+          >
+            @for (item of pagedItems(); track item.id) {
+              <article class="wishlist-record">
+                <a
+                  class="wishlist-record__artwork"
+                  [routerLink]="['/cards', item.cardId]"
+                  [queryParams]="{ printing: item.cardPrintingId }"
+                  (click)="rememberCardDetailReturn()"
+                  [attr.aria-label]="
+                    'Inspect ' +
+                    item.cardName +
+                    ', printing ' +
+                    (item.cardNumber || 'selected printing')
+                  "
+                >
+                  <img
+                    [appCardArtwork]="item.imageUrl"
+                    [alt]="item.cardName + ' card artwork'"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+
+                <div class="wishlist-record__identity">
+                  <a
+                    class="wishlist-record__name"
+                    [routerLink]="['/cards', item.cardId]"
+                    [queryParams]="{ printing: item.cardPrintingId }"
+                    (click)="rememberCardDetailReturn()"
+                  >
+                    {{ item.cardName }}
+                  </a>
+
+                  <div class="wishlist-record__printing" aria-label="Printing information">
+                    @if (hasMeaningfulValue(item.cardNumber)) {
+                      <strong>{{ item.cardNumber }}</strong>
+                    } @else {
+                      <strong>Physical printing</strong>
+                    }
+
+                    @if (hasMeaningfulValue(item.setName)) {
+                      <span>{{ item.setName }}</span>
+                    }
+
+                    @if (hasMeaningfulValue(item.rarity)) {
+                      <span>{{ item.rarity }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="wishlist-record__wanted">
+                  <div class="wishlist-record__quantity-unit">
+                    <span class="wishlist-record__wanted-label">Wanted</span>
+
+                    <div class="quantity-control" aria-label="Wanted quantity">
+                      <button
+                        type="button"
+                        [disabled]="item.wantedQuantity <= 1 || isRecordBusy(item.id)"
+                        [attr.aria-label]="'Decrease wanted quantity from ' + item.wantedQuantity"
+                        (click)="decreaseQuantity(item)"
+                      >−</button>
+                      <span aria-live="polite">{{ item.wantedQuantity }}</span>
+                      <button
+                        type="button"
+                        [disabled]="item.wantedQuantity >= 999 || isRecordBusy(item.id)"
+                        [attr.aria-label]="'Increase wanted quantity from ' + item.wantedQuantity"
+                        (click)="increaseQuantity(item)"
+                      >+</button>
+                    </div>
+                  </div>
+
+                  @if (ownedQuantity(item); as quantityOwned) {
+                    <p class="wishlist-record__owned-reference">
+                      <span>Owned</span>
+                      <strong>{{ quantityOwned }}</strong>
+                    </p>
+                  } @else {
+                    <p class="wishlist-record__owned-reference wishlist-record__owned-reference--empty">
+                      <span>Not yet owned</span>
+                    </p>
+                  }
+
+                  <button
+                    class="wishlist-record__remove"
+                    type="button"
+                    [disabled]="isRecordBusy(item.id)"
+                    (click)="removeFromWishlist(item)"
+                  >
+                    {{ isRecordBusy(item.id) ? 'Updating…' : 'Remove from Wishlist' }}
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+
+          @if (totalPages() > 1) {
+            <nav class="wishlist-pagination" aria-label="Wishlist pagination">
+              <div class="wishlist-pagination__controls">
+                <button
+                  class="wishlist-pagination__direction"
+                  type="button"
+                  [disabled]="activePage() === 1"
+                  aria-label="Previous Wishlist page"
+                  (click)="previousPage()"
+                >
+                  Previous
+                </button>
+
+                <div class="wishlist-pagination__pages" aria-label="Wishlist page numbers">
+                  @for (page of visiblePageNumbers(); track page) {
+                    <button
+                      class="wishlist-pagination__page"
+                      [class.wishlist-pagination__page--current]="page === activePage()"
+                      type="button"
+                      [attr.aria-current]="page === activePage() ? 'page' : null"
+                      [attr.aria-label]="'Wishlist page ' + page"
+                      (click)="goToPage(page)"
+                    >
+                      {{ page }}
+                    </button>
+                  }
+                </div>
+
+                <span class="wishlist-pagination__mobile-status">
+                  Page {{ activePage() }} of {{ totalPages() }}
+                </span>
+
+                <button
+                  class="wishlist-pagination__direction"
+                  type="button"
+                  [disabled]="activePage() === totalPages()"
+                  aria-label="Next Wishlist page"
+                  (click)="nextPage()"
+                >
+                  Next
+                </button>
+              </div>
+            </nav>
+          }
+        }
+      </section>
+    }
+  </div>
+</main>

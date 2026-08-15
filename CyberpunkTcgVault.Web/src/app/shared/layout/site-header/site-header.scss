@@ -25,6 +25,48 @@
   justify-self: start;
 }
 
+/*
+ * Header-only brand rendering.
+ *
+ * The shared brand primitive uses CSS clip-path elsewhere, but Chromium can
+ * briefly drop that clipping layer while the routed page underneath the
+ * translucent header is being recomposited. The header mark therefore uses
+ * the same fixed geometry as an SVG polygon instead. Its 48px box never
+ * changes, so route navigation cannot flash a square version of the mark.
+ */
+.site-header .brand-symbol {
+  overflow: visible;
+  background: transparent;
+  clip-path: none;
+}
+
+.site-header .brand-symbol-shape {
+  position: absolute;
+  inset: 0;
+  width: 48px;
+  height: 48px;
+  color: var(--colour-yellow);
+  pointer-events: none;
+}
+
+.site-header .brand-symbol > span,
+.site-header .brand-symbol > small {
+  z-index: 1;
+}
+
+/*
+ * Pointer navigation must not leave a large focus rectangle around the entire
+ * wordmark. Keyboard focus remains visible, but is contained inside the fixed
+ * 48px brand mark so route changes never make the header appear to twitch.
+ */
+.header-inner .brand:focus-visible {
+  outline: none;
+}
+
+.header-inner .brand:focus-visible .brand-symbol {
+  box-shadow: inset 0 0 0 3px var(--colour-cyan);
+}
+
 .site-navigation {
   display: flex;
   min-width: 220px;

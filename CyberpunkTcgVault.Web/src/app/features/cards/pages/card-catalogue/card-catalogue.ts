@@ -26,6 +26,7 @@ import {
 } from '../../models/card-filters';
 import { Card } from '../../models/card';
 import { CardCatalogueStateService } from '../../services/card-catalogue-state.service';
+import { CardDetailReturnService } from '../../services/card-detail-return.service';
 import { CardsService } from '../../services/cards.service';
 
 interface ActiveArchiveFilter {
@@ -83,6 +84,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
   constructor(
     private readonly cardsService: CardsService,
     private readonly catalogueStateService: CardCatalogueStateService,
+    private readonly cardDetailReturnService: CardDetailReturnService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly changeDetectorRef: ChangeDetectorRef
@@ -416,6 +418,11 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   rememberArchiveState(): void {
+    this.cardDetailReturnService.save(
+      'archive',
+      this.router.url
+    );
+
     this.catalogueStateService.save({
       filters: { ...this.filters },
       currentPage: this.currentPage

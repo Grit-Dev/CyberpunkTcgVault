@@ -52,11 +52,12 @@ describe('SiteHeader', () => {
     fixture.detectChanges();
   });
 
-  it('keeps Catalogue public and hides Collection anonymously', () => {
+  it('keeps Catalogue public and hides private collector navigation anonymously', () => {
     const navigationText = getNavigationText();
 
     expect(navigationText).toContain('Catalogue');
     expect(navigationText).not.toContain('Collection');
+    expect(navigationText).not.toContain('Wishlist');
   });
 
   it('shows Collection after an authenticated session is restored', () => {
@@ -75,10 +76,11 @@ describe('SiteHeader', () => {
 
     expect(navigationText).toContain('Catalogue');
     expect(navigationText).toContain('Collection');
+    expect(navigationText).toContain('Wishlist');
   });
 
 
-  it('renders one clear Demo identity group with Collection navigation', () => {
+  it('renders one clear Demo identity group with Collection and Wishlist navigation', () => {
     currentUser.set({
       userId: 'demo-1',
       userName: 'demo-vault',
@@ -106,7 +108,36 @@ describe('SiteHeader', () => {
     expect(demoContexts).toHaveLength(1);
     expect(demoContexts[0].textContent?.trim()).toBe('Demo Vault');
     expect(getNavigationText()).toContain('Collection');
+    expect(getNavigationText()).toContain('Wishlist');
     expect(fixture.nativeElement.querySelectorAll('.brand')).toHaveLength(1);
+  });
+
+  it('renders the header brand mark as fixed SVG geometry', () => {
+    const symbol = fixture.nativeElement.querySelector(
+      '.brand-symbol'
+    ) as HTMLElement;
+    const shape = symbol.querySelector(
+      '.brand-symbol-shape'
+    ) as SVGElement;
+    const path = shape.querySelector('path') as SVGPathElement;
+
+    expect(shape).toBeTruthy();
+    expect(shape.getAttribute('viewBox')).toBe('0 0 48 48');
+    expect(path.getAttribute('d')).toBe(
+      'M0 0H37.44L48 10.56V48H10.56L0 37.44V0Z'
+    );
+  });
+
+  it('does not let a mouse press leave focus on the brand link', () => {
+    const brand = fixture.nativeElement.querySelector('.brand') as HTMLAnchorElement;
+    const pointerPress = new MouseEvent('mousedown', {
+      bubbles: true,
+      cancelable: true
+    });
+
+    brand.dispatchEvent(pointerPress);
+
+    expect(pointerPress.defaultPrevented).toBe(true);
   });
 
   it('keeps the same brand presentation when authentication state changes', () => {
