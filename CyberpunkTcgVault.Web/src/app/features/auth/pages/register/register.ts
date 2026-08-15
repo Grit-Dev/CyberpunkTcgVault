@@ -5,8 +5,11 @@ import {
   signal
 } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
 import {
@@ -17,6 +20,41 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CapabilitiesService } from '../../../../core/capabilities/capabilities.service';
+
+const USERNAME_MIN_LENGTH = 3;
+const USERNAME_MAX_LENGTH = 20;
+
+/**
+ * Registration usernames are validated against the value that will actually
+ * be sent to the API. Surrounding whitespace is ignored, while whitespace
+ * inside the username and email-like handles remain invalid.
+ */
+const userNameValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const value = String(control.value ?? '').trim();
+
+  if (!value) {
+    return { required: true };
+  }
+
+  const errors: ValidationErrors = {};
+
+  if (
+    value.length < USERNAME_MIN_LENGTH ||
+    value.length > USERNAME_MAX_LENGTH
+  ) {
+    errors['usernameLength'] = true;
+  }
+
+  if (/[@\s]/.test(value)) {
+    errors['pattern'] = true;
+  }
+
+  return Object.keys(errors).length > 0
+    ? errors
+    : null;
+};
 
 @Component({
   selector: 'app-register',
@@ -44,11 +82,10 @@ export class Register implements OnInit {
       userName: [
         '',
         [
-          Validators.required,
-          Validators.maxLength(50),
-          // Username and email are separate concepts. This is UX validation;
-          // the API must enforce the same rule server-side.
-          Validators.pattern(/^[^@\s]+$/)
+          // Validate the trimmed value because submitRegistration sends the
+          // trimmed username. The API independently enforces the same 3-20
+          // character rule.
+          userNameValidator
         ]
       ],
       email: [

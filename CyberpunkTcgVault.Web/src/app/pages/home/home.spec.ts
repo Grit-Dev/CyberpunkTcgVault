@@ -43,4 +43,25 @@ describe('Home', () => {
 
     expect(exploreLink.getAttribute('href')).toBe('/cards');
   });
+
+
+  it('describes Wishlist using only the implemented MVP behaviour', () => {
+    const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
+
+    expect(text).toContain(
+      'Track the exact card printings you are still chasing, manage wanted quantities and see what you already own.'
+    );
+    expect(text).not.toContain('grading preference');
+    expect(text).not.toContain('the reason each item belongs on your list');
+  });
+
+  it('describes Sealed without stale valuation claims', () => {
+    const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
+
+    expect(text).toContain(
+      'Archive the sealed products you keep unopened, with quantity, edition details, artwork references and private storage information.'
+    );
+    expect(text).not.toContain('purchase costs');
+    expect(text).not.toContain('estimated values');
+  });
 });

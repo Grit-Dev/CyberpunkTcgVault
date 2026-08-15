@@ -5,7 +5,7 @@ namespace CyberpunkTcgVault.Api.DTOs
     public class RegisterUserRequest
     {
         [Required]
-        [StringLength(50)]
+        [StringLength(20, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 20 characters.")]
         public string UserName { get; set; } = string.Empty;
 
         [Required]
