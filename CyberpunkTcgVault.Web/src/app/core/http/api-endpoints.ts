@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   wishlistItemById: (id: number): string => apiUrl(`/api/WishListItem/${id}`),
   collectionProducts: apiUrl('/api/CollectionProducts'),
   collectionProductById: (id: number): string => apiUrl(`/api/CollectionProducts/${id}`),
+  account: apiUrl('/api/Account'),
   auth: {
     csrf: apiUrl('/api/Auth/csrf'),
     register: apiUrl('/api/Auth/register'),

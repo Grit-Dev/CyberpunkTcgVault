@@ -82,6 +82,28 @@ describe('SiteHeader', () => {
   });
 
 
+  it('uses the authenticated username as the direct Account entry without adding Account to primary navigation', () => {
+    currentUser.set({
+      userId: 'collector-1',
+      userName: 'paul',
+      email: 'paul@example.com',
+      roles: ['User'],
+      emailConfirmed: true,
+      twoFactorEnabled: false
+    });
+    isAuthenticated.set(true);
+    fixture.detectChanges();
+
+    const identity = fixture.nativeElement.querySelector(
+      '.header-identity'
+    ) as HTMLAnchorElement;
+
+    expect(identity.tagName).toBe('A');
+    expect(identity.getAttribute('href')).toBe('/account');
+    expect(identity.textContent).toContain('paul');
+    expect(getNavigationText()).not.toContain('Account');
+  });
+
   it('renders one clear Demo identity group with Collection and Wishlist navigation', () => {
     currentUser.set({
       userId: 'demo-1',

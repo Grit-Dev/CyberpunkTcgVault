@@ -5,6 +5,7 @@ import { ForgotPassword } from './features/auth/pages/forgot-password/forgot-pas
 import { Login } from './features/auth/pages/login/login';
 import { Register } from './features/auth/pages/register/register';
 import { ResetPassword } from './features/auth/pages/reset-password/reset-password';
+import { Account } from './features/account/pages/account/account';
 import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalogue';
 import { CardDetail } from './features/cards/pages/card-detail/card-detail';
 import { Collection } from './features/collection/pages/collection/collection';
@@ -82,6 +83,17 @@ export const routes: Routes = [
     data: {
       description:
         'Manage the unopened physical products recorded in your private Choom Vault collection.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  {
+    path: 'account',
+    title: 'Account | Choom Vault',
+    component: Account,
+    canActivate: [authGuard],
+    data: {
+      description:
+        'Review the account details connected to your private Choom Vault collector account.',
       robots: 'noindex, nofollow'
     }
   },

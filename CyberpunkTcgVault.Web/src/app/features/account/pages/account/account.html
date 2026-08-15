@@ -1,0 +1,167 @@
+<main class="account-page">
+  <div class="account-shell">
+    <header class="account-intro" aria-labelledby="account-title">
+      <span class="account-intro__mark" aria-hidden="true"></span>
+      <div class="account-intro__copy">
+        <p class="account-intro__label">Account</p>
+        <h1 id="account-title">Your Vault. Your account.</h1>
+        <p>Review the details connected to your Choom Vault account.</p>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <section class="account-loading" aria-label="Loading account" aria-busy="true">
+        <div class="account-loading__section" aria-hidden="true">
+          <span class="account-loading__label"></span>
+          <span class="account-loading__row"></span>
+          <span class="account-loading__row"></span>
+        </div>
+      </section>
+    } @else if (loadError()) {
+      <section class="account-state" aria-labelledby="account-error-title">
+        <p class="account-section-label">Account unavailable</p>
+        <h2 id="account-error-title">We couldn't load your account. Try again.</h2>
+        <button class="btn btn--secondary" type="button" (click)="retry()">
+          Try again
+        </button>
+      </section>
+    } @else if (account(); as user) {
+      <div class="account-content">
+        <section class="account-section account-details" aria-labelledby="account-details-title">
+          <div class="account-section__heading">
+            <p class="account-section-label">Account details</p>
+            <h2 id="account-details-title" class="sr-only">Account details</h2>
+          </div>
+
+          <dl class="account-detail-list">
+            <div class="account-detail-row">
+              <dt>Username</dt>
+              <dd>{{ user.userName }}</dd>
+            </div>
+
+            <div class="account-detail-row">
+              <dt>Email</dt>
+              <dd>{{ user.email }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="account-section account-actions" aria-labelledby="account-actions-title">
+          <div class="account-section__heading">
+            <p class="account-section-label">Account actions</p>
+            <h2 id="account-actions-title" class="sr-only">Account actions</h2>
+          </div>
+
+          <div class="account-action-row">
+            <div>
+              <h3>Log out</h3>
+              <p>End this Choom Vault session on this browser.</p>
+            </div>
+
+            <button
+              class="account-utility-action"
+              type="button"
+              [disabled]="isLoggingOut()"
+              (click)="logout()"
+            >
+              {{ isLoggingOut() ? 'Logging out…' : 'Log out' }}
+            </button>
+          </div>
+
+          @if (logoutError()) {
+            <p class="account-inline-error" role="alert" aria-live="assertive">
+              {{ logoutError() }}
+            </p>
+          }
+        </section>
+
+        <section class="account-section account-delete" aria-labelledby="account-delete-title">
+          <div class="account-section__heading">
+            <p class="account-section-label">Account lifecycle</p>
+            <h2 id="account-delete-title">Delete account</h2>
+          </div>
+
+          <p class="account-delete__copy">
+            Permanently delete your Choom Vault account and its private collector data.
+          </p>
+
+          @if (isDemoAccount()) {
+            <p class="account-lifecycle-note">
+              Account deletion is unavailable in the Demo Vault.
+            </p>
+          } @else if (canDeleteAccount()) {
+            <button
+              #deleteTrigger
+              class="account-delete__trigger"
+              type="button"
+              (click)="openDeleteDialog()"
+            >
+              Delete account
+            </button>
+          } @else {
+            <p class="account-lifecycle-note">
+              Account deletion is unavailable for this account.
+            </p>
+          }
+        </section>
+      </div>
+    }
+  </div>
+
+  <dialog
+    #deleteDialog
+    class="account-delete-dialog"
+    aria-labelledby="delete-dialog-title"
+    aria-describedby="delete-dialog-description"
+    (cancel)="onDeleteDialogCancel($event)"
+  >
+    <form class="account-delete-dialog__form" [formGroup]="deleteForm" (ngSubmit)="confirmDelete()" novalidate>
+      <p class="account-delete-dialog__label">Account lifecycle</p>
+      <h2 id="delete-dialog-title">Delete your account?</h2>
+      <p id="delete-dialog-description" class="account-delete-dialog__copy">
+        This permanently removes your Choom Vault account and private collector records. This cannot be undone.
+      </p>
+
+      <div class="form-field account-delete-dialog__password">
+        <label class="form-label" for="account-delete-password">Current password</label>
+        <input
+          #deletePassword
+          id="account-delete-password"
+          class="form-control"
+          type="password"
+          autocomplete="current-password"
+          formControlName="currentPassword"
+          [attr.aria-invalid]="deleteForm.controls.currentPassword.invalid && deleteForm.controls.currentPassword.touched"
+        />
+
+        @if (deleteForm.controls.currentPassword.touched && deleteForm.controls.currentPassword.invalid) {
+          <p class="form-error">Enter your current password.</p>
+        }
+      </div>
+
+      @if (deleteError()) {
+        <p class="account-delete-dialog__error" role="alert" aria-live="assertive">
+          {{ deleteError() }}
+        </p>
+      }
+
+      <div class="account-delete-dialog__actions">
+        <button
+          class="account-dialog-cancel"
+          type="button"
+          [disabled]="isDeleting()"
+          (click)="cancelDelete()"
+        >
+          Cancel
+        </button>
+        <button
+          class="account-dialog-delete"
+          type="submit"
+          [disabled]="isDeleting()"
+        >
+          {{ isDeleting() ? 'Deleting…' : 'Delete account' }}
+        </button>
+      </div>
+    </form>
+  </dialog>
+</main>
