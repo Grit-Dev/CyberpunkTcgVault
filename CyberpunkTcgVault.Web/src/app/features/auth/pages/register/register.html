@@ -69,13 +69,13 @@
               <p id="register-username-error" class="form-error">
                 Enter a username.
               </p>
+            } @else if (registerForm.controls.userName.touched && registerForm.controls.userName.hasError('usernameLength')) {
+              <p id="register-username-error" class="form-error">
+                Username must be between 3 and 20 characters.
+              </p>
             } @else if (registerForm.controls.userName.touched && registerForm.controls.userName.hasError('pattern')) {
               <p id="register-username-error" class="form-error">
                 Username cannot contain spaces or an @ symbol.
-              </p>
-            } @else if (registerForm.controls.userName.touched && registerForm.controls.userName.hasError('maxlength')) {
-              <p id="register-username-error" class="form-error">
-                Username must be 50 characters or fewer.
               </p>
             }
           </div>

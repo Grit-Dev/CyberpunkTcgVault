@@ -269,7 +269,7 @@ export class Login implements OnInit {
       // guarded Collection/Wishlist/Sealed URL can return to the same page/filter.
       if (
         primarySegments.length === 1 &&
-        (primarySegments[0] === 'collection' || primarySegments[0] === 'wishlist' || primarySegments[0] === 'sealed')
+        (primarySegments[0] === 'collection' || primarySegments[0] === 'wishlist' || primarySegments[0] === 'sealed' || primarySegments[0] === 'account')
       ) {
         return returnUrl;
       }

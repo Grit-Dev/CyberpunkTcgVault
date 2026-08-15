@@ -1,5 +1,6 @@
 <section class="card-anatomy-showcase" [class.card-anatomy-showcase--active]="isOpen"
-    aria-labelledby="card-anatomy-title">
+    aria-labelledby="card-anatomy-accessible-title">
+    <span id="card-anatomy-accessible-title" class="sr-only">Vault Lens Card Anatomy</span>
     <div class="container">
 
         @if (isOpen) {
@@ -9,14 +10,14 @@
 
             <div class="card-anatomy-showcase__command-main">
 
-                <span class="card-anatomy-showcase__command-code">
+                <span id="card-anatomy-open-title" class="card-anatomy-showcase__command-code">
                     VAULT LENS // CARD ANATOMY
                 </span>
 
                 <div class="card-anatomy-showcase__modes" role="group" aria-label="Card Anatomy view">
 
-                    <button type="button" [class.is-active]="mode === 'guided'" [attr.aria-pressed]="mode === 'guided'"
-                        (click)="setMode('guided')">
+                    <button #guidedModeButton type="button" [class.is-active]="mode === 'guided'"
+                        [attr.aria-pressed]="mode === 'guided'" (click)="setMode('guided')">
                         Guided
                     </button>
 
@@ -136,7 +137,9 @@
                         ) {
 
                         <button class="card-anatomy-showcase__all-marker" type="button"
-                            [class.is-selected]="index === currentFieldIndex" [style.top.%]="field.marker.top"
+                            [class.is-selected]="index === currentFieldIndex"
+                            [class.is-left-perimeter]="field.marker.left < 0"
+                            [class.is-right-perimeter]="field.marker.left > 100" [style.top.%]="field.marker.top"
                             [style.left.%]="field.marker.left" [attr.aria-label]="'Explain ' + field.title"
                             [attr.aria-pressed]="index === currentFieldIndex" (click)="selectField(index)">
                             <span>

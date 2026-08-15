@@ -468,9 +468,9 @@ namespace CyberpunkTcgVault.Api.Controllers
                 return "Username is required.";
             }
 
-            if (userName.Length > 50)
+            if (userName.Length < 3 || userName.Length > 20)
             {
-                return "Username must be 50 characters or fewer.";
+                return "Username must be between 3 and 20 characters.";
             }
 
             if (userName.Contains('@'))

@@ -162,6 +162,14 @@ describe('Login', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/collection');
   });
 
+  it('accepts Account as a valid internal authentication return destination', () => {
+    const component = fixture.componentInstance as unknown as {
+      getValidAuthenticationReturnUrl: (returnUrl: string | null) => string | null;
+    };
+
+    expect(component.getValidAuthenticationReturnUrl('/account')).toBe('/account');
+  });
+
   it('rejects malformed external-style return destinations', () => {
     const component = fixture.componentInstance as unknown as {
       getValidAuthenticationReturnUrl: (returnUrl: string | null) => string | null;

@@ -78,6 +78,91 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             Assert.True(isUser);
         }
 
+        [Theory]
+        [InlineData("ab")]
+        [InlineData("abcdefghijklmnopqrstu")]
+        public async Task Register_WhenUserNameIsOutsideMvpLength_ReturnsBadRequest(
+            string userName)
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var request = new RegisterUserRequest
+            {
+                UserName = userName,
+                Email = $"{Guid.NewGuid():N}@example.com",
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            var badRequest =
+                Assert.IsType<BadRequestObjectResult>(result);
+
+            var problem =
+                Assert.IsType<ValidationProblemDetails>(badRequest.Value);
+
+            Assert.Equal(
+                "Username must be between 3 and 20 characters.",
+                problem.Errors["UserName"].Single());
+        }
+
+        [Theory]
+        [InlineData("abc")]
+        [InlineData("abcdefghijklmnopqrst")]
+        public async Task Register_WhenUserNameIsAtMvpLengthBoundary_CreatesUser(
+            string userName)
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var email = $"{Guid.NewGuid():N}@example.com";
+            var request = new RegisterUserRequest
+            {
+                UserName = userName,
+                Email = email,
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            var created = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(StatusCodes.Status201Created, created.StatusCode);
+
+            var user = await environment.UserManager.FindByEmailAsync(email);
+            Assert.NotNull(user);
+            Assert.Equal(userName, user.UserName);
+        }
+
+        [Fact]
+        public async Task Register_WhenWhitespacePadsTooShortUserName_ReturnsBadRequest()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var request = new RegisterUserRequest
+            {
+                UserName = " a ",
+                Email = "short@example.com",
+                Password = "Password123!"
+            };
+
+            var result =
+                await environment.Controller.Register(request);
+
+            var badRequest =
+                Assert.IsType<BadRequestObjectResult>(result);
+
+            var problem =
+                Assert.IsType<ValidationProblemDetails>(badRequest.Value);
+
+            Assert.Equal(
+                "Username must be between 3 and 20 characters.",
+                problem.Errors["UserName"].Single());
+        }
+
         [Fact]
         public async Task Register_WhenUserNameIsAnEmailAddress_ReturnsBadRequest()
         {

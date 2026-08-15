@@ -639,6 +639,20 @@
         text-align: left;
     }
 
+    /*
+     * Show All keeps the existing perimeter coordinates on larger screens.
+     * At mobile widths only the markers that intentionally sit outside the
+     * card are moved just inside its edge so their 44px targets stay fully
+     * inside the viewport without changing the anatomy map globally.
+     */
+    .card-anatomy-showcase__all-marker.is-left-perimeter {
+        left: 22px !important;
+    }
+
+    .card-anatomy-showcase__all-marker.is-right-perimeter {
+        left: calc(100% - 22px) !important;
+    }
+
     .card-anatomy-showcase__docket {
         padding: 24px 22px;
     }

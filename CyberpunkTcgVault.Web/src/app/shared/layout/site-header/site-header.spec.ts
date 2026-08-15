@@ -137,6 +137,90 @@ describe('SiteHeader', () => {
     expect(fixture.nativeElement.querySelectorAll('.brand')).toHaveLength(1);
   });
 
+  it('keeps primary navigation geometry stable for a 20-character username', () => {
+    currentUser.set({
+      userId: 'collector-1',
+      userName: 'short',
+      email: 'collector@example.com',
+      roles: ['User'],
+      emailConfirmed: true,
+      twoFactorEnabled: false
+    });
+    isAuthenticated.set(true);
+    fixture.detectChanges();
+
+    const headerInner = fixture.nativeElement.querySelector(
+      '.header-inner'
+    ) as HTMLElement;
+    const navigation = fixture.nativeElement.querySelector(
+      '.site-navigation'
+    ) as HTMLElement;
+    const actions = fixture.nativeElement.querySelector(
+      '.header-actions'
+    ) as HTMLElement;
+    const logout = fixture.nativeElement.querySelector(
+      '.header-logout'
+    ) as HTMLButtonElement;
+
+    const gridBefore = getComputedStyle(headerInner).gridTemplateColumns;
+    const heightBefore = getComputedStyle(headerInner).minHeight;
+    const actionsWidthBefore = getComputedStyle(actions).width;
+
+    currentUser.set({
+      userId: 'collector-1',
+      userName: 'abcdefghijklmnopqrst',
+      email: 'collector@example.com',
+      roles: ['User'],
+      emailConfirmed: true,
+      twoFactorEnabled: false
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.site-navigation')).toBe(navigation);
+    expect(fixture.nativeElement.querySelector('.header-logout')).toBe(logout);
+    expect(getComputedStyle(headerInner).gridTemplateColumns).toBe(gridBefore);
+    expect(getComputedStyle(headerInner).minHeight).toBe(heightBefore);
+    expect(getComputedStyle(actions).width).toBe(actionsWidthBefore);
+    expect(getComputedStyle(actions).justifyContent).toBe('flex-end');
+  });
+
+  it('truncates an unexpectedly long restored username inside the identity region', () => {
+    const legacyUserName = 'collector-name-created-before-the-mvp-limit';
+
+    currentUser.set({
+      userId: 'legacy-collector',
+      userName: legacyUserName,
+      email: 'legacy@example.com',
+      roles: ['User'],
+      emailConfirmed: true,
+      twoFactorEnabled: false
+    });
+    isAuthenticated.set(true);
+    fixture.detectChanges();
+
+    const identity = fixture.nativeElement.querySelector(
+      '.header-identity'
+    ) as HTMLElement;
+    const username = fixture.nativeElement.querySelector(
+      '.header-username'
+    ) as HTMLElement;
+    const actions = fixture.nativeElement.querySelector(
+      '.header-actions'
+    ) as HTMLElement;
+
+    const identityStyle = getComputedStyle(identity);
+    const usernameStyle = getComputedStyle(username);
+    const actionsStyle = getComputedStyle(actions);
+
+    expect(username.textContent?.trim()).toBe(legacyUserName);
+    expect(identity.getAttribute('aria-label')).toContain(legacyUserName);
+    expect(identityStyle.overflow).toBe('hidden');
+    expect(usernameStyle.overflow).toBe('hidden');
+    expect(usernameStyle.textOverflow).toBe('ellipsis');
+    expect(usernameStyle.whiteSpace).toBe('nowrap');
+    expect(actionsStyle.width).toBe('300px');
+  });
+
   it('renders the header brand mark as fixed SVG geometry', () => {
     const symbol = fixture.nativeElement.querySelector(
       '.brand-symbol'

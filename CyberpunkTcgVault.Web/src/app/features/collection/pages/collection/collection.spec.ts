@@ -4,11 +4,12 @@ import {
   ComponentFixture,
   TestBed
 } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import {
   of,
   throwError
 } from 'rxjs';
+import { vi } from 'vitest';
 
 import { FeedbackService } from '../../../../core/feedback/feedback.service';
 import { CardsService } from '../../../cards/services/cards.service';
@@ -46,10 +47,13 @@ describe('Collection', () => {
   let updateRecordCalls = 0;
   let lastUpdateRequest: UpdateOwnedCardRequest | null = null;
   let updateRecordFailure: HttpErrorResponse | null = null;
+  let loadFailure: HttpErrorResponse | null = null;
 
   const ownedCardsServiceStub = {
     items,
-    load: () => of(items()),
+    load: () => loadFailure
+      ? throwError(() => loadFailure)
+      : of(items()),
     updateQuantity: (item: OwnedCard, quantityOwned: number) => {
       const updated = { ...item, quantityOwned };
       items.set([
@@ -84,6 +88,7 @@ describe('Collection', () => {
     updateRecordCalls = 0;
     lastUpdateRequest = null;
     updateRecordFailure = null;
+    loadFailure = null;
 
     await TestBed.configureTestingModule({
       imports: [Collection],
@@ -225,6 +230,28 @@ describe('Collection', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.activePage()).toBe(1);
+  });
+
+
+  it('preserves the current Collection query state when session recovery sends the user to Login', () => {
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    vi.spyOn(router, 'url', 'get').mockReturnValue(
+      '/collection?q=V&set=NCL&page=3'
+    );
+
+    loadFailure = new HttpErrorResponse({
+      status: 401,
+      statusText: 'Unauthorized'
+    });
+
+    fixture.componentInstance.retry();
+
+    expect(navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: {
+        returnUrl: '/collection?q=V&set=NCL&page=3'
+      }
+    });
   });
 
   it('moves to the previous valid page when the final record on a page is removed', () => {

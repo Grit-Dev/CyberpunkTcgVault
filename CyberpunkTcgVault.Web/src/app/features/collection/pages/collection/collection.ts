@@ -562,7 +562,7 @@ export class Collection implements OnInit {
 
     void this.router.navigate(['/login'], {
       queryParams: {
-        returnUrl: '/collection'
+        returnUrl: this.router.url
       }
     });
   }
