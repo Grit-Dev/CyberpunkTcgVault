@@ -293,6 +293,27 @@ namespace CyberpunkTcgVault.Api.Data
                 },
                 new()
                 {
+                    Name = "Nova Vale",
+                    Colour = "Yellow",
+                    CardType = "Character",
+                    Classification = "Nomad",
+                    Keywords = "Courier",
+                    IsLegend = true,
+                },
+                new()
+                {
+                    Name = "Mara Velez",
+                    Colour = "Yellow",
+                    CardType = "Unit",
+                    Classification = "Tech",
+                    Keywords = "Medic",
+                    Cost = 5,
+                    Power = 6,
+                    RamCost = 2,
+                    IsLegend = false,
+                },
+                new()
+                {
                     Name = "Viktor The Architect Malvek",
                     Colour = "Unknown",
                     CardType = "Unknown",
@@ -496,27 +517,6 @@ namespace CyberpunkTcgVault.Api.Data
                 },
                 new()
                 {
-                    Name = "Nova Vale",
-                    Colour = "Yellow",
-                    CardType = "Character",
-                    Classification = "Nomad",
-                    Keywords = "Courier",
-                    IsLegend = true,
-                },
-                new()
-                {
-                    Name = "Mara Velez",
-                    Colour = "Yellow",
-                    CardType = "Unit",
-                    Classification = "Tech",
-                    Keywords = "Medic",
-                    Cost = 5,
-                    Power = 6,
-                    RamCost = 2,
-                    IsLegend = false,
-                },
-                new()
-                {
                     Name = "Kojin The Exile",
                     Colour = "Unknown",
                     CardType = "Unknown",
@@ -600,7 +600,7 @@ namespace CyberpunkTcgVault.Api.Data
                     CardSetId = cardSet.Id,
                     CardNumber =
                         $"{SeedSetCode}-{index + 1:000}",
-                    Rarity = "Unknown",
+                    Rarity = BuildRarity(card.Name),
                     ImageUrl = BuildImageUrl(card.Name),
                     LanguageCode = "en"
                 };
@@ -615,6 +615,16 @@ namespace CyberpunkTcgVault.Api.Data
 
             context.CardPrintings.AddRange(cardPrintings);
             context.SaveChanges();
+        }
+
+        private static string BuildRarity(string cardName)
+        {
+            return cardName switch
+            {
+                "Nova Vale" => "Iconic",
+                "Mara Velez" => "Prototype",
+                _ => "Unknown"
+            };
         }
 
         private static string BuildImageUrl(string cardName)
