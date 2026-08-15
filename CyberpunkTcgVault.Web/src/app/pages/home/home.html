@@ -101,8 +101,13 @@
             <a class="prototype-card" routerLink="/cards"
               [attr.aria-label]="'Explore the full catalogue from ' + card.name">
               <div class="card-header">
-                <span>{{ card.rarity ?? 'UNKNOWN' }}</span>
-                <strong>{{ card.cardNumber ?? 'NO-ID' }}</strong>
+                @if (hasMeaningfulValue(card.rarity)) {
+                <span>{{ card.rarity }}</span>
+                }
+
+                @if (hasMeaningfulValue(card.cardNumber)) {
+                <strong>{{ card.cardNumber }}</strong>
+                }
               </div>
 
               <div class="card-visual">
@@ -112,9 +117,11 @@
               <div class="card-information">
                 <strong>{{ card.name }}</strong>
 
-                <span>
-                  {{ card.classification ?? card.cardType ?? 'Unknown' }}
-                </span>
+                @if (hasMeaningfulValue(card.classification)) {
+                <span>{{ card.classification }}</span>
+                } @else if (hasMeaningfulValue(card.cardType)) {
+                <span>{{ card.cardType }}</span>
+                }
               </div>
 
               <div class="card-statline">

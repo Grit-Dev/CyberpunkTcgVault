@@ -45,6 +45,19 @@ describe('Home', () => {
   });
 
 
+
+  it('does not treat unsupported featured-card metadata as displayable', () => {
+    expect(component.hasMeaningfulValue('Unknown')).toBe(false);
+    expect(component.hasMeaningfulValue('unknown')).toBe(false);
+    expect(component.hasMeaningfulValue('NO-ID')).toBe(false);
+    expect(component.hasMeaningfulValue('')).toBe(false);
+    expect(component.hasMeaningfulValue(null)).toBe(false);
+
+    expect(component.hasMeaningfulValue('Iconic')).toBe(true);
+    expect(component.hasMeaningfulValue('CVO-036')).toBe(true);
+    expect(component.hasMeaningfulValue('Nomad')).toBe(true);
+  });
+
   it('describes Wishlist using only the implemented MVP behaviour', () => {
     const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
 

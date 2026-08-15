@@ -36,6 +36,26 @@ export class Home implements OnInit {
   }
 
   /**
+   * Public catalogue previews omit placeholder metadata instead of presenting
+   * unsupported values as real card information.
+   */
+  hasMeaningfulValue(value: string | null | undefined): boolean {
+    if (!value?.trim()) {
+      return false;
+    }
+
+    return ![
+      'unknown',
+      'no-id',
+      'n/a',
+      'null',
+      'none',
+      '-',
+      '—'
+    ].includes(value.trim().toLowerCase());
+  }
+
+  /**
    * Loads cards from the API and selects the records used by the homepage.
    * The full searchable/filterable experience remains on the catalogue page.
    */
