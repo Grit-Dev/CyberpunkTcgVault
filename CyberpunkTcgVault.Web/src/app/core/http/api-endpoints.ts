@@ -21,6 +21,8 @@ export const API_ENDPOINTS = {
   ownedCardById: (id: number): string => apiUrl(`/api/OwnedCards/${id}`),
   wishlist: apiUrl('/api/WishListItem'),
   wishlistItemById: (id: number): string => apiUrl(`/api/WishListItem/${id}`),
+  collectionProducts: apiUrl('/api/CollectionProducts'),
+  collectionProductById: (id: number): string => apiUrl(`/api/CollectionProducts/${id}`),
   auth: {
     csrf: apiUrl('/api/Auth/csrf'),
     register: apiUrl('/api/Auth/register'),

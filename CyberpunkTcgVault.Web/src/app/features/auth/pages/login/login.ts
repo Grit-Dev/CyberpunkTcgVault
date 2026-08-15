@@ -266,10 +266,10 @@ export class Login implements OnInit {
         urlTree.root.children['primary']?.segments.map(segment => segment.path) ?? [];
 
       // Implemented private MVP utilities preserve their query state so a
-      // guarded Collection/Wishlist URL can return to the same page/filter.
+      // guarded Collection/Wishlist/Sealed URL can return to the same page/filter.
       if (
         primarySegments.length === 1 &&
-        (primarySegments[0] === 'collection' || primarySegments[0] === 'wishlist')
+        (primarySegments[0] === 'collection' || primarySegments[0] === 'wishlist' || primarySegments[0] === 'sealed')
       ) {
         return returnUrl;
       }

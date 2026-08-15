@@ -9,6 +9,7 @@ import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalo
 import { CardDetail } from './features/cards/pages/card-detail/card-detail';
 import { Collection } from './features/collection/pages/collection/collection';
 import { Wishlist } from './features/wishlist/pages/wishlist/wishlist';
+import { Sealed } from './features/sealed/pages/sealed/sealed';
 import { About } from './pages/about/about';
 import { Contact } from './pages/contact/contact';
 import { Home } from './pages/home/home';
@@ -70,6 +71,17 @@ export const routes: Routes = [
     data: {
       description:
         'Track the exact Cyberpunk TCG card printings you still want in your private Choom Vault Wishlist.',
+      robots: 'noindex, nofollow'
+    }
+  },
+  {
+    path: 'sealed',
+    title: 'Sealed Products | Choom Vault',
+    component: Sealed,
+    canActivate: [authGuard],
+    data: {
+      description:
+        'Manage the unopened physical products recorded in your private Choom Vault collection.',
       robots: 'noindex, nofollow'
     }
   },

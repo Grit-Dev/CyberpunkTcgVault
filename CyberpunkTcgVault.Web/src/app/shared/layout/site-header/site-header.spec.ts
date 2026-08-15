@@ -58,6 +58,7 @@ describe('SiteHeader', () => {
     expect(navigationText).toContain('Catalogue');
     expect(navigationText).not.toContain('Collection');
     expect(navigationText).not.toContain('Wishlist');
+    expect(navigationText).not.toContain('Sealed');
   });
 
   it('shows Collection after an authenticated session is restored', () => {
@@ -77,6 +78,7 @@ describe('SiteHeader', () => {
     expect(navigationText).toContain('Catalogue');
     expect(navigationText).toContain('Collection');
     expect(navigationText).toContain('Wishlist');
+    expect(navigationText).toContain('Sealed');
   });
 
 
@@ -109,6 +111,7 @@ describe('SiteHeader', () => {
     expect(demoContexts[0].textContent?.trim()).toBe('Demo Vault');
     expect(getNavigationText()).toContain('Collection');
     expect(getNavigationText()).toContain('Wishlist');
+    expect(getNavigationText()).toContain('Sealed');
     expect(fixture.nativeElement.querySelectorAll('.brand')).toHaveLength(1);
   });
 

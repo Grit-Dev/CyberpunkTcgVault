@@ -1,0 +1,422 @@
+<main class="sealed-page">
+  <div class="sealed-shell">
+    <header class="sealed-intro" aria-labelledby="sealed-title">
+      <span class="sealed-intro__mark" aria-hidden="true"></span>
+      <div class="sealed-intro__copy">
+        <p class="sealed-intro__label">Sealed</p>
+        <h1 id="sealed-title">Kept sealed.</h1>
+        <p>Keep track of the unopened products in your collection.</p>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <section class="sealed-loading" aria-label="Loading sealed products" aria-busy="true">
+        <div class="sealed-loading__tools" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </div>
+
+        @for (placeholder of [1, 2, 3]; track placeholder) {
+          <div class="sealed-record sealed-record--loading" aria-hidden="true">
+            <span class="sealed-record__object-skeleton"></span>
+            <div class="sealed-record__identity-skeleton">
+              <span></span>
+              <span></span>
+            </div>
+            <span class="sealed-record__quantity-skeleton"></span>
+          </div>
+        }
+      </section>
+    } @else if (loadError()) {
+      <section class="sealed-state" aria-labelledby="sealed-error-title">
+        <p class="sealed-state__label">Sealed unavailable</p>
+        <h2 id="sealed-error-title">We couldn't load your sealed products.</h2>
+        <p>Your existing product records have not been changed. Try again.</p>
+        <button class="btn btn--secondary" type="button" (click)="retry()">
+          Try again
+        </button>
+      </section>
+    } @else if (sealedItems().length === 0 && !isCreating()) {
+      <section class="sealed-state sealed-state--empty" aria-labelledby="sealed-empty-title">
+        <p class="sealed-state__label">Private sealed records</p>
+        <h2 id="sealed-empty-title">The shelf is clear.</h2>
+        <p>No unopened products are recorded in your Vault yet.</p>
+
+        @if (canCreateOrDelete()) {
+          <button class="btn btn--primary" type="button" (click)="openCreate()">
+            Add sealed product
+          </button>
+        } @else {
+          <p class="sealed-state__demo-note">Demo Vault uses prepared sealed-product records.</p>
+        }
+      </section>
+    } @else {
+      <section class="sealed-workspace" aria-label="Sealed products">
+        <div class="sealed-tools">
+          <div class="sealed-search">
+            <label for="sealed-search">Search sealed</label>
+            <input
+              id="sealed-search"
+              class="sealed-control"
+              type="search"
+              [value]="searchQuery()"
+              placeholder="Product name, type or edition"
+              autocomplete="off"
+              (input)="updateSearch($event)"
+            />
+          </div>
+
+          @if (canCreateOrDelete()) {
+            <button
+              class="sealed-add"
+              type="button"
+              [disabled]="isCreating() || isSavingCreate()"
+              (click)="openCreate()"
+            >
+              Add sealed product
+            </button>
+          }
+        </div>
+
+        @if (isCreating()) {
+          <form
+            class="sealed-editor sealed-editor--create"
+            [formGroup]="createForm"
+            (ngSubmit)="createProduct()"
+            novalidate
+          >
+            <div class="sealed-editor__heading">
+              <p>New sealed record</p>
+              <h2>Add unopened product</h2>
+            </div>
+
+            <div class="sealed-editor__identity-fields">
+              <div class="form-field">
+                <label class="form-label" for="sealed-create-name">Product name</label>
+                <input
+                  id="sealed-create-name"
+                  class="form-control"
+                  type="text"
+                  formControlName="productName"
+                  [attr.aria-invalid]="createForm.controls.productName.invalid && createForm.controls.productName.touched"
+                />
+                @if (createForm.controls.productName.touched && createForm.controls.productName.invalid) {
+                  <p class="form-error">Enter a product name.</p>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="sealed-create-type">Product type</label>
+                <input id="sealed-create-type" class="form-control" type="text" formControlName="productType" />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="sealed-create-edition">Edition</label>
+                <input id="sealed-create-edition" class="form-control" type="text" formControlName="edition" />
+              </div>
+
+              <div class="form-field sealed-editor__quantity-field">
+                <label class="form-label" for="sealed-create-quantity">Quantity</label>
+                <input
+                  id="sealed-create-quantity"
+                  class="form-control"
+                  type="number"
+                  min="1"
+                  step="1"
+                  inputmode="numeric"
+                  formControlName="quantity"
+                  [attr.aria-invalid]="createForm.controls.quantity.invalid && createForm.controls.quantity.touched"
+                />
+                @if (createForm.controls.quantity.touched && createForm.controls.quantity.invalid) {
+                  <p class="form-error">Quantity must be at least 1.</p>
+                }
+              </div>
+            </div>
+
+            <div class="sealed-editor__secondary-fields">
+              <div class="form-field">
+                <label class="form-label" for="sealed-create-image">Artwork URL</label>
+                <input
+                  id="sealed-create-image"
+                  class="form-control"
+                  type="url"
+                  formControlName="imageUrl"
+                  [attr.aria-invalid]="createForm.controls.imageUrl.invalid && createForm.controls.imageUrl.touched"
+                />
+                @if (createForm.controls.imageUrl.touched && createForm.controls.imageUrl.hasError('invalidArtworkUrl')) {
+                  <p class="form-error">Enter a valid artwork URL or leave this field empty.</p>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="sealed-create-storage">Storage location</label>
+                <input id="sealed-create-storage" class="form-control" type="text" formControlName="storageLocation" />
+              </div>
+
+              <div class="form-field sealed-editor__notes-field">
+                <label class="form-label" for="sealed-create-notes">Notes</label>
+                <textarea id="sealed-create-notes" class="form-control sealed-editor__notes" formControlName="notes"></textarea>
+              </div>
+            </div>
+
+            @if (formError()) {
+              <p class="sealed-editor__error" role="alert">{{ formError() }}</p>
+            }
+
+            <div class="sealed-editor__actions">
+              <button class="btn btn--primary" type="submit" [disabled]="isSavingCreate()">
+                {{ isSavingCreate() ? 'Saving…' : 'Save product' }}
+              </button>
+              <button class="btn btn--text" type="button" [disabled]="isSavingCreate()" (click)="cancelCreate()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (sealedItems().length > 0) {
+          <div class="sealed-results-rail" aria-live="polite">
+            <div class="sealed-results-rail__summary">
+              <span class="sealed-results-rail__count">
+                {{ filteredItems().length }} {{ filteredItems().length === 1 ? 'product' : 'products' }}
+              </span>
+
+              @if (totalPages() > 1) {
+                <span class="sealed-results-rail__separator" aria-hidden="true">·</span>
+                <span class="sealed-results-rail__page">Page {{ activePage() }} of {{ totalPages() }}</span>
+              }
+            </div>
+
+            @if (hasFilters()) {
+              <button class="sealed-results-rail__clear" type="button" (click)="clearFilters()">
+                Clear filters
+              </button>
+            }
+          </div>
+
+          @if (filteredItems().length === 0) {
+            <div class="sealed-no-results">
+              <h2>No sealed products match these filters.</h2>
+              <button class="btn btn--secondary" type="button" (click)="clearFilters()">
+                Clear filters
+              </button>
+            </div>
+          } @else {
+            <div
+              id="sealed-records"
+              class="sealed-records"
+              [attr.aria-label]="
+                'Showing sealed products ' +
+                firstVisibleRecord() +
+                ' to ' +
+                lastVisibleRecord() +
+                ' of ' +
+                filteredItems().length
+              "
+            >
+              @for (item of pagedItems(); track item.id) {
+                <article class="sealed-record">
+                  <div class="sealed-record__object">
+                    @if (imageUrl(item); as productImageUrl) {
+                      <img
+                        class="sealed-record__art-image"
+                        [appSealedArtworkState]="productImageUrl"
+                        [src]="productImageUrl"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    }
+                    <span class="sealed-record__art-fallback">Product artwork unavailable</span>
+                  </div>
+
+                  <div class="sealed-record__identity">
+                    <h2>{{ item.productName }}</h2>
+                    <div class="sealed-record__metadata" aria-label="Product identity">
+                      @if (hasMeaningfulValue(item.productType)) {
+                        <strong>{{ item.productType }}</strong>
+                      } @else {
+                        <strong>Sealed product</strong>
+                      }
+
+                      @if (hasMeaningfulValue(item.edition)) {
+                        <span>{{ item.edition }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="sealed-record__state">
+                    <div class="sealed-record__quantity-unit">
+                      <span class="sealed-record__state-label">Sealed</span>
+                      <div class="quantity-control" aria-label="Sealed quantity">
+                        <button
+                          type="button"
+                          [disabled]="item.quantity <= 1 || isProductBusy(item.id)"
+                          [attr.aria-label]="'Decrease sealed quantity from ' + item.quantity"
+                          (click)="decreaseQuantity(item)"
+                        >−</button>
+                        <span aria-live="polite">{{ item.quantity }}</span>
+                        <button
+                          type="button"
+                          [disabled]="isProductBusy(item.id)"
+                          [attr.aria-label]="'Increase sealed quantity from ' + item.quantity"
+                          (click)="increaseQuantity(item)"
+                        >+</button>
+                      </div>
+                    </div>
+
+                    <div class="sealed-record__actions">
+                      <button
+                        class="sealed-record__edit"
+                        type="button"
+                        [disabled]="isProductBusy(item.id) || isSavingEdit()"
+                        (click)="editingProductId() === item.id ? cancelEdit() : beginEdit(item)"
+                      >
+                        {{ editingProductId() === item.id ? 'Close edit' : 'Edit product' }}
+                      </button>
+
+                      @if (canCreateOrDelete()) {
+                        <button
+                          class="sealed-record__remove"
+                          type="button"
+                          [disabled]="isProductBusy(item.id)"
+                          (click)="removeProduct(item)"
+                        >
+                          {{ isProductBusy(item.id) ? 'Updating…' : 'Remove sealed product' }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  @if (editingProductId() === item.id) {
+                    <form
+                      class="sealed-editor sealed-editor--record"
+                      [formGroup]="editForm"
+                      (ngSubmit)="saveEdit(item)"
+                      novalidate
+                    >
+                      <div class="sealed-editor__heading">
+                        <p>Sealed record</p>
+                        <h3>{{ item.productName }}</h3>
+                      </div>
+
+                      <div class="sealed-editor__identity-fields sealed-editor__identity-fields--edit">
+                        <div class="form-field">
+                          <label class="form-label" [for]="'sealed-edit-name-' + item.id">Product name</label>
+                          <input
+                            [id]="'sealed-edit-name-' + item.id"
+                            class="form-control"
+                            type="text"
+                            formControlName="productName"
+                            [attr.aria-invalid]="editForm.controls.productName.invalid && editForm.controls.productName.touched"
+                          />
+                          @if (editForm.controls.productName.touched && editForm.controls.productName.invalid) {
+                            <p class="form-error">Enter a product name.</p>
+                          }
+                        </div>
+
+                        <div class="form-field">
+                          <label class="form-label" [for]="'sealed-edit-type-' + item.id">Product type</label>
+                          <input [id]="'sealed-edit-type-' + item.id" class="form-control" type="text" formControlName="productType" />
+                        </div>
+
+                        <div class="form-field">
+                          <label class="form-label" [for]="'sealed-edit-edition-' + item.id">Edition</label>
+                          <input [id]="'sealed-edit-edition-' + item.id" class="form-control" type="text" formControlName="edition" />
+                        </div>
+                      </div>
+
+                      <div class="sealed-editor__secondary-fields">
+                        <div class="form-field">
+                          <label class="form-label" [for]="'sealed-edit-image-' + item.id">Artwork URL</label>
+                          <input
+                            [id]="'sealed-edit-image-' + item.id"
+                            class="form-control"
+                            type="url"
+                            formControlName="imageUrl"
+                            [attr.aria-invalid]="editForm.controls.imageUrl.invalid && editForm.controls.imageUrl.touched"
+                          />
+                          @if (editForm.controls.imageUrl.touched && editForm.controls.imageUrl.hasError('invalidArtworkUrl')) {
+                            <p class="form-error">Enter a valid artwork URL or leave this field empty.</p>
+                          }
+                        </div>
+
+                        <div class="form-field">
+                          <label class="form-label" [for]="'sealed-edit-storage-' + item.id">Storage location</label>
+                          <input [id]="'sealed-edit-storage-' + item.id" class="form-control" type="text" formControlName="storageLocation" />
+                        </div>
+
+                        <div class="form-field sealed-editor__notes-field">
+                          <label class="form-label" [for]="'sealed-edit-notes-' + item.id">Notes</label>
+                          <textarea [id]="'sealed-edit-notes-' + item.id" class="form-control sealed-editor__notes" formControlName="notes"></textarea>
+                        </div>
+                      </div>
+
+                      @if (formError()) {
+                        <p class="sealed-editor__error" role="alert">{{ formError() }}</p>
+                      }
+
+                      <div class="sealed-editor__actions">
+                        <button class="btn btn--primary" type="submit" [disabled]="isSavingEdit()">
+                          {{ isSavingEdit() ? 'Saving…' : 'Save product' }}
+                        </button>
+                        <button class="btn btn--text" type="button" [disabled]="isSavingEdit()" (click)="cancelEdit()">
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  }
+                </article>
+              }
+            </div>
+
+            @if (totalPages() > 1) {
+              <nav class="sealed-pagination" aria-label="Sealed products pagination">
+                <div class="sealed-pagination__controls">
+                  <button
+                    class="sealed-pagination__direction"
+                    type="button"
+                    [disabled]="activePage() === 1"
+                    aria-label="Previous sealed products page"
+                    (click)="previousPage()"
+                  >
+                    Previous
+                  </button>
+
+                  <div class="sealed-pagination__pages" aria-label="Sealed products page numbers">
+                    @for (page of visiblePageNumbers(); track page) {
+                      <button
+                        class="sealed-pagination__page"
+                        [class.sealed-pagination__page--current]="page === activePage()"
+                        type="button"
+                        [attr.aria-current]="page === activePage() ? 'page' : null"
+                        [attr.aria-label]="'Sealed products page ' + page"
+                        (click)="goToPage(page)"
+                      >
+                        {{ page }}
+                      </button>
+                    }
+                  </div>
+
+                  <span class="sealed-pagination__mobile-status">
+                    Page {{ activePage() }} of {{ totalPages() }}
+                  </span>
+
+                  <button
+                    class="sealed-pagination__direction"
+                    type="button"
+                    [disabled]="activePage() === totalPages()"
+                    aria-label="Next sealed products page"
+                    (click)="nextPage()"
+                  >
+                    Next
+                  </button>
+                </div>
+              </nav>
+            }
+          }
+        }
+      </section>
+    }
+  </div>
+</main>
