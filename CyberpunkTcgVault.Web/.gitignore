@@ -6,6 +6,10 @@
 /out-tsc
 /bazel-out
 
+# Angular source is TypeScript. Guard against accidental direct tsc/ngc output in src.
+/src/**/*.js
+/src/**/*.js.map
+
 # Node
 /node_modules
 npm-debug.log

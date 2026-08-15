@@ -119,6 +119,21 @@ describe('Login', () => {
     );
   });
 
+  it('preserves a valid implemented Wishlist return destination for Demo', () => {
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
+      key === 'returnUrl' ? '/wishlist?page=2&q=echo&set=CVO' : null
+    );
+    const navigateByUrl = vi
+      .spyOn(router, 'navigateByUrl')
+      .mockResolvedValue(true);
+
+    fixture.componentInstance.enterDemoVault();
+
+    expect(navigateByUrl).toHaveBeenCalledWith(
+      '/wishlist?page=2&q=echo&set=CVO'
+    );
+  });
+
   it('falls back to Collection when Demo receives a stale return destination', () => {
     vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
       key === 'returnUrl' ? '/my-vault' : null

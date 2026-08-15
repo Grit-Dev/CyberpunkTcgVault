@@ -25,6 +25,7 @@ import { WishlistService } from '../../../wishlist/services/wishlist.service';
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardPrinting } from '../../models/card-printing';
 import { Card } from '../../models/card';
+import { CardDetailReturnContext, CardDetailReturnService } from '../../services/card-detail-return.service';
 import { CardsService } from '../../services/cards.service';
 
 /**
@@ -51,6 +52,11 @@ export class CardDetail implements OnInit, OnDestroy {
   readonly isLoading = signal(true);
   readonly isNotFound = signal(false);
   readonly loadError = signal(false);
+  readonly returnContext = signal<CardDetailReturnContext>({
+    label: 'Vault Archive',
+    path: '/cards',
+    queryParams: {}
+  });
 
   readonly collectorError = signal('');
   readonly collectorMessage = signal('');
@@ -89,6 +95,7 @@ export class CardDetail implements OnInit, OnDestroy {
     readonly authService: AuthService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly cardDetailReturnService: CardDetailReturnService,
     private readonly cardsService: CardsService,
     private readonly ownedCardsService: OwnedCardsService,
     private readonly wishlistService: WishlistService,
@@ -96,6 +103,14 @@ export class CardDetail implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.returnContext.set(
+      this.cardDetailReturnService.consume() ?? {
+        label: 'Vault Archive',
+        path: '/cards',
+        queryParams: {}
+      }
+    );
+
     this.subscriptions.add(
       this.route.paramMap.subscribe(params => {
         const id = Number(params.get('id'));

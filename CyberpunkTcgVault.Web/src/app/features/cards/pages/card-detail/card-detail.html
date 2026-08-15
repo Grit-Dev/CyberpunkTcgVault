@@ -1,8 +1,12 @@
 <main class="card-detail-page">
   <div class="card-detail-shell">
-    <a class="card-detail-back" routerLink="/cards">
+    <a
+      class="card-detail-back"
+      [routerLink]="returnContext().path"
+      [queryParams]="returnContext().queryParams"
+    >
       <span aria-hidden="true">←</span>
-      Vault Archive
+      {{ returnContext().label }}
     </a>
 
     @if (isLoading()) {
@@ -27,16 +31,14 @@
         <p class="eyebrow">Vault Archive</p>
         <h1 id="card-not-found-title">Card record not found.</h1>
         <p>This card isn't currently stored in the Vault Archive.</p>
-        <a class="btn btn--primary" routerLink="/cards">Return to Vault Archive</a>
       </section>
     } @else if (loadError()) {
       <section class="card-detail-state" aria-labelledby="card-error-title">
         <p class="eyebrow">Vault Archive</p>
         <h1 id="card-error-title">We couldn't load this card.</h1>
-        <p>Try the card again, or return to the Vault Archive.</p>
+        <p>Try the card again, or return to {{ returnContext().label }}.</p>
         <div class="card-detail-state__actions">
           <button class="btn btn--primary" type="button" (click)="retry()">Try again</button>
-          <a class="btn btn--secondary" routerLink="/cards">Back to Vault Archive</a>
         </div>
       </section>
     } @else if (card(); as currentCard) {

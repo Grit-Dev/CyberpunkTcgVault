@@ -38,29 +38,6 @@
   background: var(--colour-background);
 }
 
-/*
- * Quiet archive structure.
- * Physical card artwork remains the primary source of colour.
- */
-.catalogue-grid {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.016) 1px,
-      transparent 1px),
-    linear-gradient(90deg,
-      rgba(255, 255, 255, 0.016) 1px,
-      transparent 1px);
-  background-size: 58px 58px;
-  mask-image: linear-gradient(to bottom,
-      black,
-      transparent 88%);
-  -webkit-mask-image: linear-gradient(to bottom,
-      black,
-      transparent 88%);
-  pointer-events: none;
-}
-
 .catalogue-shell {
   position: relative;
   z-index: 1;

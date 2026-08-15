@@ -4,8 +4,27 @@
     [class.header-inner--authenticated]="authService.isAuthenticated()"
   >
     <!-- Brand / Home -->
-    <a class="brand" routerLink="/" aria-label="Choom Vault — Home">
+    <a
+      class="brand"
+      routerLink="/"
+      aria-label="Choom Vault — Home"
+      (mousedown)="$event.preventDefault()"
+    >
       <span class="brand-symbol">
+        <!--
+          The header mark uses an SVG polygon rather than CSS clip-path.
+          Chrome can intermittently drop clip-path during route/compositing
+          updates, which made the yellow mark flash between clipped and square.
+          Keeping the geometry as SVG makes the brand shape deterministic.
+        -->
+        <svg
+          class="brand-symbol-shape"
+          viewBox="0 0 48 48"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M0 0H37.44L48 10.56V48H10.56L0 37.44V0Z" fill="currentColor" />
+        </svg>
         <span>CV</span>
         <small>01</small>
       </span>
@@ -25,6 +44,9 @@
       @if (authService.isAuthenticated()) {
         <a routerLink="/collection" routerLinkActive="is-active" ariaCurrentWhenActive="page">
           Collection
+        </a>
+        <a routerLink="/wishlist" routerLinkActive="is-active" ariaCurrentWhenActive="page">
+          Wishlist
         </a>
       }
     </nav>
