@@ -1,4 +1,4 @@
-@CyberpunkTcgVault.Api_HostAddress = http://localhost:5096
+﻿@CyberpunkTcgVault.Api_HostAddress = https://localhost:7258
 
 GET {{CyberpunkTcgVault.Api_HostAddress}}/api/cards
 Accept: application/json

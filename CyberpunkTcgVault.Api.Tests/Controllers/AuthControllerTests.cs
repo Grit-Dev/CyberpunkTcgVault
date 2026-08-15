@@ -1,9 +1,12 @@
-﻿using CyberpunkTcgVault.Api.Controllers;
+using CyberpunkTcgVault.Api.Controllers;
 using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Options;
 using CyberpunkTcgVault.Api.Security;
+using CyberpunkTcgVault.Api.Services;
+using CyberpunkTcgVault.Api.Services.Interfaces;
+using CyberpunkTcgVault.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -106,7 +109,11 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 await environment.Controller.Register(request);
 
             // Assert
-            Assert.IsType<ConflictObjectResult>(result);
+            ProblemDetailsAssert.IsProblem(
+                result,
+                StatusCodes.Status409Conflict,
+                "Account already exists.",
+                "An account with those details already exists.");
         }
 
         [Fact]
@@ -129,7 +136,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 await environment.Controller.Register(request);
 
             // Assert
-            Assert.IsType<NotFoundObjectResult>(result);
+            ProblemDetailsAssert.IsProblem(
+                result,
+                StatusCodes.Status404NotFound,
+                "Public registration is not available.");
         }
 
         [Fact]
@@ -173,8 +183,13 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var ok =
                 Assert.IsType<OkObjectResult>(result.Result);
 
-            var response =
-                Assert.IsType<AuthUserResponse>(ok.Value);
+            var loginResponse =
+                Assert.IsType<LoginResponse>(ok.Value);
+
+            Assert.False(loginResponse.RequiresTwoFactor);
+            Assert.NotNull(loginResponse.User);
+
+            var response = loginResponse.User!;
 
             Assert.Equal(user.Id, response.UserId);
             Assert.Equal("paul-admin", response.UserName);
@@ -412,6 +427,7 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
 
                 services.AddLogging();
                 services.AddHttpContextAccessor();
+                services.AddControllers();
 
                 services.AddDbContext<AppDbContext>(options =>
                     options.UseInMemoryDatabase(
@@ -439,6 +455,11 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                         })
                     .AddEntityFrameworkStores<AppDbContext>()
                     .AddDefaultTokenProviders();
+
+                // AuthController now depends on IDemoVaultService.
+                // Register the real service in the test DI container so the
+                // controller constructor matches the production controller.
+                services.AddScoped<IDemoVaultService, DemoVaultService>();
 
                 var provider =
                     services.BuildServiceProvider();
@@ -491,11 +512,16 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                             DemoAccessEnabled = true
                         });
 
+                var demoVaultService =
+                    serviceProvider
+                        .GetRequiredService<IDemoVaultService>();
+
                 var controller =
                     new AuthController(
                         userManager,
                         signInManager,
-                        capabilityOptions)
+                        capabilityOptions,
+                        demoVaultService)
                     {
                         ControllerContext =
                             new ControllerContext

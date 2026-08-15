@@ -3,6 +3,7 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Tests.TestHelpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using CyberpunkTcgVault.Api.Services;
@@ -18,7 +19,8 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 context,
                 NullLogger<CardService>.Instance);
 
-            return new CardsController(cardService);
+            return ControllerTestContext.Configure(
+                new CardsController(cardService));
         }
 
         private static async Task<Card> CreateCardWithPrintingAsync(
@@ -294,7 +296,12 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 request,
                 CancellationToken.None);
 
-            Assert.IsType<BadRequestObjectResult>(result.Result);
+            ProblemDetailsAssert.IsProblem(
+                result.Result!,
+                StatusCodes.Status400BadRequest,
+                "Invalid printing data.",
+                "SetName and CardNumber must be supplied together when creating a printing.");
+
             Assert.Empty(context.Cards);
             Assert.Empty(context.CardPrintings);
         }
@@ -435,7 +442,11 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 card.Id,
                 CancellationToken.None);
 
-            Assert.IsType<ConflictObjectResult>(result);
+            ProblemDetailsAssert.IsProblem(
+                result,
+                StatusCodes.Status409Conflict,
+                "Card is referenced by collector data.",
+                "This card cannot be deleted while one of its printings is referenced by collection or wishlist data.");
 
             Assert.NotNull(
                 await context.Cards.FindAsync(card.Id));

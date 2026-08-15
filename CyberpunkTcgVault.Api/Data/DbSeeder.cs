@@ -19,14 +19,26 @@ namespace CyberpunkTcgVault.Api.Data
 
         private static void SeedCards(AppDbContext context)
         {
-            if (context.Cards.Any())
+            var seedCards = CreateSeedCards();
+            var seedNames = seedCards
+                .Select(card => card.Name)
+                .ToList();
+
+            var existingNames = context.Cards
+                .Where(card => seedNames.Contains(card.Name))
+                .Select(card => card.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var missingCards = seedCards
+                .Where(card => !existingNames.Contains(card.Name))
+                .ToList();
+
+            if (missingCards.Count == 0)
             {
                 return;
             }
 
-            var cards = CreateSeedCards();
-
-            context.Cards.AddRange(cards);
+            context.Cards.AddRange(missingCards);
             context.SaveChanges();
         }
 
@@ -545,7 +557,9 @@ namespace CyberpunkTcgVault.Api.Data
 
             var cardsByName = context.Cards
                 .Where(card => seedNames.Contains(card.Name))
-                .ToDictionary(card => card.Name);
+                .ToDictionary(
+                    card => card.Name,
+                    StringComparer.OrdinalIgnoreCase);
 
             var existingPrintingCardIds = context.CardPrintings
                 .Where(printing =>

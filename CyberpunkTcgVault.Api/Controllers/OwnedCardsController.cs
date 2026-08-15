@@ -1,5 +1,7 @@
 using CyberpunkTcgVault.Api.DTOs;
+using CyberpunkTcgVault.Api.Security;
 using CyberpunkTcgVault.Api.Services.Interfaces;
+using CyberpunkTcgVault.Api.Services.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +10,9 @@ namespace CyberpunkTcgVault.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [ResponseCache(
+        NoStore = true,
+        Location = ResponseCacheLocation.None)]
     public class OwnedCardsController : ControllerBase
     {
         private readonly IOwnedCardService _ownedCardService;
@@ -46,14 +51,12 @@ namespace CyberpunkTcgVault.Api.Controllers
                 id,
                 cancellationToken);
 
-            if (ownedCard is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(ownedCard);
+            return ownedCard is null
+                ? NotFound()
+                : Ok(ownedCard);
         }
 
+        [Authorize(Policy = AuthorizationPolicies.CollectorWrite)]
         [HttpPost]
         public async Task<ActionResult<OwnedCardResponse>> CreateOwnedCard(
             CreateOwnedCardRequest request,
@@ -61,15 +64,28 @@ namespace CyberpunkTcgVault.Api.Controllers
         {
             var userId = _currentUserService.GetUserId();
 
-            var response = await _ownedCardService.CreateOwnedCardAsync(
+            var result = await _ownedCardService.CreateOwnedCardAsync(
                 userId,
                 request,
                 cancellationToken);
 
-            if (response is null)
+            if (result.Status == OwnedCardCreateStatus.CardPrintingNotFound)
             {
-                return BadRequest("Card printing does not exist");
+                return Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: "Invalid card printing.",
+                    detail: "The requested card printing does not exist.");
             }
+
+            if (result.Status == OwnedCardCreateStatus.Duplicate)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Card printing already owned.",
+                    detail: "Change the quantity on the existing owned-card record instead of creating a duplicate row.");
+            }
+
+            var response = result.Item!;
 
             return CreatedAtAction(
                 nameof(GetOwnedCardById),
@@ -77,6 +93,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                 response);
         }
 
+        [Authorize(Policy = AuthorizationPolicies.CollectorWrite)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOwnedCard(
             int id,
@@ -96,6 +113,10 @@ namespace CyberpunkTcgVault.Api.Controllers
                 : NotFound();
         }
 
+        // Demo is intentionally allowed to remove its own OwnedCard rows.
+        // This affects only collector-owned data and never the shared
+        // Card/CardPrinting catalogue.
+        [Authorize(Policy = AuthorizationPolicies.CollectorWrite)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOwnedCard(
             int id,

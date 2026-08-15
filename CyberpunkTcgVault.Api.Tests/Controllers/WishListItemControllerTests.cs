@@ -3,6 +3,7 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Tests.TestHelpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using CyberpunkTcgVault.Api.Services;
@@ -22,9 +23,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             var currentUserService =
                 new TestCurrentUserService(userId);
 
-            return new WishListItemController(
-                wishListItemService,
-                currentUserService);
+            return ControllerTestContext.Configure(
+                new WishListItemController(
+                    wishListItemService,
+                    currentUserService));
         }
 
         private static AppUser CreateTestUser()
@@ -340,7 +342,10 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 request,
                 CancellationToken.None);
 
-            Assert.IsType<BadRequestObjectResult>(result.Result);
+            ProblemDetailsAssert.IsProblem(
+                result.Result!,
+                StatusCodes.Status400BadRequest,
+                "Card printing does not exist.");
         }
 
         [Fact]
@@ -632,13 +637,11 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
                 request,
                 CancellationToken.None);
 
-            var conflict =
-                Assert.IsType<ConflictObjectResult>(
-                    result.Result);
-
-            Assert.Equal(
-                "This card printing is already on your wishlist.",
-                conflict.Value);
+            ProblemDetailsAssert.IsProblem(
+                result.Result!,
+                StatusCodes.Status409Conflict,
+                "Wishlist item already exists.",
+                "This card printing is already on your wishlist.");
 
             Assert.Single(context.WishList);
         }

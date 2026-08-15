@@ -2,6 +2,7 @@ using CyberpunkTcgVault.Api.Data;
 using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Services.Interfaces;
+using CyberpunkTcgVault.Api.Services.Results;
 using Microsoft.EntityFrameworkCore;
 
 namespace CyberpunkTcgVault.Api.Services
@@ -53,7 +54,7 @@ namespace CyberpunkTcgVault.Api.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<OwnedCardResponse?> CreateOwnedCardAsync(
+        public async Task<OwnedCardCreateResult> CreateOwnedCardAsync(
             Guid userId,
             CreateOwnedCardRequest request,
             CancellationToken cancellationToken)
@@ -67,7 +68,26 @@ namespace CyberpunkTcgVault.Api.Services
 
             if (!cardPrintingExists)
             {
-                return null;
+                return new OwnedCardCreateResult
+                {
+                    Status = OwnedCardCreateStatus.CardPrintingNotFound
+                };
+            }
+
+            var ownedCardExists = await _context.OwnedCards
+                .AsNoTracking()
+                .AnyAsync(
+                    ownedCard =>
+                        ownedCard.UserId == userId &&
+                        ownedCard.CardPrintingId == request.CardPrintingId,
+                    cancellationToken);
+
+            if (ownedCardExists)
+            {
+                return new OwnedCardCreateResult
+                {
+                    Status = OwnedCardCreateStatus.Duplicate
+                };
             }
 
             var ownedCard = new OwnedCard
@@ -89,17 +109,60 @@ namespace CyberpunkTcgVault.Api.Services
                 ownedCard,
                 cancellationToken);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException)
+            {
+                // The database unique index is the final concurrency guard.
+                // Two requests can pass the friendly pre-check at the same
+                // time, but only one row for (UserId, CardPrintingId) is
+                // allowed to commit.
+                var duplicateNowExists = await _context.OwnedCards
+                    .AsNoTracking()
+                    .AnyAsync(
+                        existing =>
+                            existing.UserId == userId &&
+                            existing.CardPrintingId == request.CardPrintingId,
+                        cancellationToken);
+
+                if (duplicateNowExists)
+                {
+                    // SaveChanges left the losing insert tracked as Added.
+                    // Detach it before returning so the scoped context is
+                    // clean if any later work occurs in this request.
+                    _context.Entry(ownedCard).State = EntityState.Detached;
+
+                    _logger.LogWarning(
+                        "Duplicate owned-card creation prevented for user {UserId} and printing {CardPrintingId}.",
+                        userId,
+                        request.CardPrintingId);
+
+                    return new OwnedCardCreateResult
+                    {
+                        Status = OwnedCardCreateStatus.Duplicate
+                    };
+                }
+
+                throw;
+            }
 
             _logger.LogInformation(
                 "Created owned card {OwnedCardId} for user {UserId}.",
                 ownedCard.Id,
                 userId);
 
-            return await GetOwnedCardByIdAsync(
+            var createdItem = await GetOwnedCardByIdAsync(
                 userId,
                 ownedCard.Id,
                 cancellationToken);
+
+            return new OwnedCardCreateResult
+            {
+                Status = OwnedCardCreateStatus.Created,
+                Item = createdItem
+            };
         }
 
         public async Task<bool> UpdateOwnedCardAsync(
@@ -176,6 +239,7 @@ namespace CyberpunkTcgVault.Api.Services
                 CardNumber = ownedCard.CardPrinting.CardNumber,
                 Rarity = ownedCard.CardPrinting.Rarity,
                 Colour = ownedCard.CardPrinting.Card.Colour,
+                ImageUrl = ownedCard.CardPrinting.ImageUrl,
                 QuantityOwned = ownedCard.QuantityOwned,
                 Condition = ownedCard.Condition,
                 IsInMasterCollection = ownedCard.IsInMasterCollection,

@@ -1,14 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace CyberpunkTcgVault.Api.DTOs
 {
     public class CreateOwnedCardRequest
     {
+        [Range(1, int.MaxValue)]
         public int CardPrintingId { get; set; }
 
-        [Range(0, int.MaxValue)]
+        [Range(1, 999)]
         public int QuantityOwned { get; set; }
 
+        [StringLength(50)]
         public string? Condition { get; set; }
 
         public bool IsInMasterCollection { get; set; }

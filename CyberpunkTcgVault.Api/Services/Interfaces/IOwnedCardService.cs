@@ -1,4 +1,5 @@
 using CyberpunkTcgVault.Api.DTOs;
+using CyberpunkTcgVault.Api.Services.Results;
 
 namespace CyberpunkTcgVault.Api.Services.Interfaces
 {
@@ -13,7 +14,7 @@ namespace CyberpunkTcgVault.Api.Services.Interfaces
             int id,
             CancellationToken cancellationToken);
 
-        Task<OwnedCardResponse?> CreateOwnedCardAsync(
+        Task<OwnedCardCreateResult> CreateOwnedCardAsync(
             Guid userId,
             CreateOwnedCardRequest request,
             CancellationToken cancellationToken);

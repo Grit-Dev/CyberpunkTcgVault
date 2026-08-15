@@ -11,6 +11,9 @@ namespace CyberpunkTcgVault.Api.Middleware
     {
         private const string LoginPath = "/api/Auth/login";
         private const string RegisterPath = "/api/Auth/register";
+        private const string DemoPath = "/api/Auth/demo";
+        private const string MfaPath = "/api/Auth/mfa";
+        private const string MfaRecoveryPath = "/api/Auth/mfa/recovery";
 
         private readonly RequestDelegate _next;
         private readonly ILogger<SecurityEventLoggingMiddleware> _logger;
@@ -66,9 +69,35 @@ namespace CyberpunkTcgVault.Api.Middleware
                 }
                 else if (statusCode == StatusCodes.Status200OK)
                 {
+                    // A 200 can either be a completed single-factor sign-in
+                    // or the accepted primary authentication step of an MFA login.
+                    // Do not claim final MFA completion at this point.
                     _logger.LogInformation(
-                        SecurityLogEvents.LoginSucceeded,
-                        "Security event: login succeeded. ClientIp: {ClientIp}. TraceId: {TraceId}.",
+                        SecurityLogEvents.LoginPrimaryAuthenticationAccepted,
+                        "Security event: primary authentication accepted. ClientIp: {ClientIp}. TraceId: {TraceId}.",
+                        clientIp,
+                        traceId);
+                }
+
+                return;
+            }
+
+            if (IsPostTo(path, method, MfaPath) ||
+                IsPostTo(path, method, MfaRecoveryPath))
+            {
+                if (statusCode == StatusCodes.Status200OK)
+                {
+                    _logger.LogInformation(
+                        SecurityLogEvents.MfaLoginSucceeded,
+                        "Security event: MFA login completed. ClientIp: {ClientIp}. TraceId: {TraceId}.",
+                        clientIp,
+                        traceId);
+                }
+                else if (statusCode == StatusCodes.Status401Unauthorized)
+                {
+                    _logger.LogWarning(
+                        SecurityLogEvents.MfaLoginFailed,
+                        "Security event: MFA login failed. ClientIp: {ClientIp}. TraceId: {TraceId}.",
                         clientIp,
                         traceId);
                 }
@@ -82,6 +111,18 @@ namespace CyberpunkTcgVault.Api.Middleware
                 _logger.LogInformation(
                     SecurityLogEvents.RegistrationSucceeded,
                     "Security event: registration succeeded. ClientIp: {ClientIp}. TraceId: {TraceId}.",
+                    clientIp,
+                    traceId);
+
+                return;
+            }
+
+            if (IsPostTo(path, method, DemoPath) &&
+                statusCode == StatusCodes.Status200OK)
+            {
+                _logger.LogInformation(
+                    SecurityLogEvents.DemoLoginSucceeded,
+                    "Security event: demo login succeeded. ClientIp: {ClientIp}. TraceId: {TraceId}.",
                     clientIp,
                     traceId);
 

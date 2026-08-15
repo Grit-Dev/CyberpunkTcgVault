@@ -138,6 +138,11 @@ namespace CyberpunkTcgVault.Api.Services
 
                 if (duplicateNowExists)
                 {
+                    // SaveChanges left the losing insert tracked as Added.
+                    // Detach it before returning so the scoped context is
+                    // clean if any later work occurs in this request.
+                    _context.Entry(item).State = EntityState.Detached;
+
                     _logger.LogWarning(
                         "Duplicate wishlist creation prevented for user {UserId} and printing {CardPrintingId}.",
                         userId,
@@ -247,6 +252,7 @@ namespace CyberpunkTcgVault.Api.Services
                 CardNumber = item.CardPrinting.CardNumber,
                 Rarity = item.CardPrinting.Rarity,
                 Colour = item.CardPrinting.Card.Colour,
+                ImageUrl = item.CardPrinting.ImageUrl,
                 WantedQuantity = item.WantedQuantity,
                 Priority = item.Priority,
                 ReasonWanted = item.ReasonWanted,

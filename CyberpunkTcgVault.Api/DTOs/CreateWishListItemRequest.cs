@@ -5,6 +5,7 @@ namespace CyberpunkTcgVault.Api.DTOs
     public class CreateWishListItemRequest
     {
         // Foreign key to the CardPrintings table.
+        [Range(1, int.MaxValue)]
         public int CardPrintingId { get; set; }
 
         [Required]

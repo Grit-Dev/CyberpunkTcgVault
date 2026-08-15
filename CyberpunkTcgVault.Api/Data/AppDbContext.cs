@@ -1,4 +1,4 @@
-﻿using CyberpunkTcgVault.Api.Models;
+using CyberpunkTcgVault.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -77,11 +77,40 @@ namespace CyberpunkTcgVault.Api.Data
                 .HasForeignKey(ownedCard => ownedCard.CardPrintingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<OwnedCard>()
+                .HasOne(ownedCard => ownedCard.User)
+                .WithMany(user => user.OwnedCards)
+                .HasForeignKey(ownedCard => ownedCard.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // A collector has one row per exact physical printing. QuantityOwned
+            // represents multiple copies and the unique index is the final
+            // concurrency guard against duplicate rows.
+            builder.Entity<OwnedCard>()
+                .HasIndex(ownedCard => new
+                {
+                    ownedCard.UserId,
+                    ownedCard.CardPrintingId
+                })
+                .IsUnique();
+
             builder.Entity<WishListItem>()
                 .HasOne(wishListItem => wishListItem.CardPrinting)
                 .WithMany(cardPrinting => cardPrinting.WishListItems)
                 .HasForeignKey(wishListItem => wishListItem.CardPrintingId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<WishListItem>()
+                .HasOne(wishListItem => wishListItem.User)
+                .WithMany(user => user.WishListItems)
+                .HasForeignKey(wishListItem => wishListItem.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<CollectionProduct>()
+                .HasOne(product => product.User)
+                .WithMany(user => user.CollectionProducts)
+                .HasForeignKey(product => product.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<WishListItem>()
                 .HasIndex(wishListItem => new

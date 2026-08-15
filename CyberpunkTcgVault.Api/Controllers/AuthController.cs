@@ -1,7 +1,9 @@
-﻿using CyberpunkTcgVault.Api.DTOs;
+using CyberpunkTcgVault.Api.DTOs;
 using CyberpunkTcgVault.Api.Models;
 using CyberpunkTcgVault.Api.Options;
 using CyberpunkTcgVault.Api.Security;
+using CyberpunkTcgVault.Api.Services.Interfaces;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,15 +22,41 @@ namespace CyberpunkTcgVault.Api.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ProductCapabilitiesOptions _capabilities;
+        private readonly IDemoVaultService _demoVaultService;
 
         public AuthController(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
-            IOptions<ProductCapabilitiesOptions> options)
+            IOptions<ProductCapabilitiesOptions> options,
+            IDemoVaultService demoVaultService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _capabilities = options.Value;
+            _demoVaultService = demoVaultService;
+        }
+
+        // Angular calls this before unsafe requests. The response token is
+        // not an authentication credential; it is the request half of the
+        // ASP.NET Core antiforgery token pair.
+        [AllowAnonymous]
+        [HttpGet("csrf")]
+        public ActionResult<CsrfTokenResponse> GetCsrfToken(
+            [FromServices] IAntiforgery antiforgery)
+        {
+            var tokenSet = antiforgery.GetAndStoreTokens(HttpContext);
+
+            if (string.IsNullOrWhiteSpace(tokenSet.RequestToken))
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Unable to create an antiforgery token.");
+            }
+
+            return Ok(new CsrfTokenResponse
+            {
+                RequestToken = tokenSet.RequestToken
+            });
         }
 
         [Authorize]
@@ -42,9 +70,7 @@ namespace CyberpunkTcgVault.Api.Controllers
                 return Unauthorized();
             }
 
-            var response = await CreateAuthUserResponse(user);
-
-            return Ok(response);
+            return Ok(await CreateAuthUserResponse(user));
         }
 
         [AllowAnonymous]
@@ -55,10 +81,9 @@ namespace CyberpunkTcgVault.Api.Controllers
         {
             if (!_capabilities.PublicRegistrationEnabled)
             {
-                return NotFound(new
-                {
-                    message = "Public registration is not available."
-                });
+                return Problem(
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: "Public registration is not available.");
             }
 
             var user = new AppUser
@@ -79,19 +104,23 @@ namespace CyberpunkTcgVault.Api.Controllers
 
                 if (duplicateAccount)
                 {
-                    return Conflict(new
-                    {
-                        message =
-                            "An account with those details already exists."
-                    });
+                    return Problem(
+                        statusCode: StatusCodes.Status409Conflict,
+                        title: "Account already exists.",
+                        detail: "An account with those details already exists.");
                 }
 
-                // Identity validation errors are safe and useful client
-                // feedback. Internal exceptions are handled globally.
-                return BadRequest(new
+                return BadRequest(new ValidationProblemDetails(
+                    result.Errors
+                        .GroupBy(error => error.Code)
+                        .ToDictionary(
+                            group => group.Key,
+                            group => group
+                                .Select(error => error.Description)
+                                .ToArray()))
                 {
-                    errors = result.Errors
-                        .Select(error => error.Description)
+                    Title = "Registration validation failed.",
+                    Status = StatusCodes.Status400BadRequest
                 });
             }
 
@@ -103,12 +132,9 @@ namespace CyberpunkTcgVault.Api.Controllers
             {
                 await _userManager.DeleteAsync(user);
 
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    new
-                    {
-                        message = "Unable to complete registration."
-                    });
+                return Problem(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Unable to complete registration.");
             }
 
             return StatusCode(
@@ -122,7 +148,7 @@ namespace CyberpunkTcgVault.Api.Controllers
         [AllowAnonymous]
         [EnableRateLimiting(RateLimitPolicyNames.Login)]
         [HttpPost("login")]
-        public async Task<ActionResult<AuthUserResponse>> Login(
+        public async Task<ActionResult<LoginResponse>> Login(
             LoginUserRequest request)
         {
             var user = await _userManager.FindByEmailAsync(
@@ -130,10 +156,7 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             if (user is null)
             {
-                return Unauthorized(new
-                {
-                    message = "Invalid email or password."
-                });
+                return InvalidLogin();
             }
 
             var result = await _signInManager.PasswordSignInAsync(
@@ -144,26 +167,134 @@ namespace CyberpunkTcgVault.Api.Controllers
 
             if (result.RequiresTwoFactor)
             {
-                return Unauthorized(new
+                // Password validation succeeded, but Identity has only stored
+                // its temporary two-factor user cookie. The final application
+                // authentication cookie is not created until MFA succeeds.
+                return Ok(new LoginResponse
                 {
-                    message = "Two-factor authentication is required.",
-                    requiresTwoFactor = true
+                    RequiresTwoFactor = true
                 });
             }
 
-            // Do not reveal whether the account is locked or the password
-            // was wrong. Both are intentionally the same public response.
+            // Do not reveal whether the account is locked, disallowed, or the
+            // password was wrong. All remain the same public response.
+            if (result.IsLockedOut || result.IsNotAllowed || !result.Succeeded)
+            {
+                return InvalidLogin();
+            }
+
+            return Ok(new LoginResponse
+            {
+                RequiresTwoFactor = false,
+                User = await CreateAuthUserResponse(user)
+            });
+        }
+
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicyNames.Mfa)]
+        [HttpPost("mfa")]
+        public async Task<ActionResult<AuthUserResponse>> CompleteMfaLogin(
+            TwoFactorLoginRequest request)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+            if (user is null)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "No MFA login is in progress."
+                });
+            }
+
+            var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(
+                NormalizeAuthenticatorCode(request.Code),
+                isPersistent: false,
+                rememberClient: false);
+
             if (result.IsLockedOut || !result.Succeeded)
             {
-                return Unauthorized(new
+                return Unauthorized(new ProblemDetails
                 {
-                    message = "Invalid email or password."
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Invalid authenticator code."
                 });
             }
 
-            var response = await CreateAuthUserResponse(user);
+            return Ok(await CreateAuthUserResponse(user));
+        }
 
-            return Ok(response);
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicyNames.Mfa)]
+        [HttpPost("mfa/recovery")]
+        public async Task<ActionResult<AuthUserResponse>> CompleteRecoveryCodeLogin(
+            RecoveryCodeLoginRequest request)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+            if (user is null)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "No MFA login is in progress."
+                });
+            }
+
+            var result = await _signInManager.TwoFactorRecoveryCodeSignInAsync(
+                request.RecoveryCode.Trim());
+
+            if (!result.Succeeded)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Invalid recovery code."
+                });
+            }
+
+            return Ok(await CreateAuthUserResponse(user));
+        }
+
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicyNames.Demo)]
+        [HttpPost("demo")]
+        public async Task<ActionResult<AuthUserResponse>> DemoLogin(
+            [FromServices] IOptions<DemoUserOptions> demoOptions)
+        {
+            if (!_capabilities.DemoAccessEnabled)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: "Demo access is not available.");
+            }
+
+            var demoUser = await _userManager.FindByEmailAsync(
+                demoOptions.Value.Email.Trim());
+
+            if (demoUser is null ||
+                !await _userManager.IsInRoleAsync(
+                    demoUser,
+                    AppRoles.Demo))
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status503ServiceUnavailable,
+                    title: "Demo access is temporarily unavailable.");
+            }
+
+            // Reset immediately before sign-in so a reviewer begins from a
+            // predictable collector baseline without exposing a public reset
+            // endpoint. Only the configured Demo user's rows are touched.
+            await _demoVaultService.ResetDemoCollectorDataAsync(
+                demoUser.Id,
+                HttpContext.RequestAborted);
+
+            await _signInManager.SignOutAsync();
+            await _signInManager.SignInAsync(
+                demoUser,
+                isPersistent: false);
+
+            return Ok(await CreateAuthUserResponse(demoUser));
         }
 
         [Authorize]
@@ -171,8 +302,16 @@ namespace CyberpunkTcgVault.Api.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-
             return NoContent();
+        }
+
+        private UnauthorizedObjectResult InvalidLogin()
+        {
+            return Unauthorized(new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Title = "Invalid email or password."
+            });
         }
 
         private async Task<AuthUserResponse> CreateAuthUserResponse(
@@ -189,6 +328,13 @@ namespace CyberpunkTcgVault.Api.Controllers
                 EmailConfirmed = user.EmailConfirmed,
                 TwoFactorEnabled = user.TwoFactorEnabled
             };
+        }
+
+        private static string NormalizeAuthenticatorCode(string code)
+        {
+            return code
+                .Replace(" ", string.Empty)
+                .Replace("-", string.Empty);
         }
     }
 }
