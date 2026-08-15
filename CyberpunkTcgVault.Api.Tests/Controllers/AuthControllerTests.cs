@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Security.Claims;
 using FrameworkOptions = Microsoft.Extensions.Options.Options;
 
@@ -545,6 +546,151 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
         }
 
         [Fact]
+        public async Task ForgotPassword_WhenAccountExists_SendsResetLinkAndReturnsAccepted()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var user = new AppUser
+            {
+                UserName = "paul",
+                Email = "paul@example.com"
+            };
+
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    user,
+                    "Password123!");
+
+            Assert.True(createResult.Succeeded);
+
+            var emailSender = new FakePasswordResetEmailSender();
+
+            var result = await environment.Controller.ForgotPassword(
+                new ForgotPasswordRequest
+                {
+                    Email = "paul@example.com"
+                },
+                emailSender,
+                FrameworkOptions.Create(
+                    new PasswordResetOptions
+                    {
+                        FrontendResetUrl =
+                            "https://localhost:4200/reset-password"
+                    }),
+                NullLogger<AuthController>.Instance);
+
+            Assert.IsType<AcceptedResult>(result);
+            Assert.Equal("paul@example.com", emailSender.RecipientEmail);
+            Assert.NotNull(emailSender.ResetUrl);
+            Assert.Contains("userId=", emailSender.ResetUrl);
+            Assert.Contains("token=", emailSender.ResetUrl);
+        }
+
+        [Fact]
+        public async Task ForgotPassword_WhenAccountDoesNotExist_ReturnsSameAcceptedResponseWithoutSending()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var emailSender = new FakePasswordResetEmailSender();
+
+            var result = await environment.Controller.ForgotPassword(
+                new ForgotPasswordRequest
+                {
+                    Email = "missing@example.com"
+                },
+                emailSender,
+                FrameworkOptions.Create(
+                    new PasswordResetOptions()),
+                NullLogger<AuthController>.Instance);
+
+            Assert.IsType<AcceptedResult>(result);
+            Assert.Null(emailSender.RecipientEmail);
+            Assert.Null(emailSender.ResetUrl);
+        }
+
+        [Fact]
+        public async Task ResetPassword_WhenTokenIsValid_ChangesPassword()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var user = new AppUser
+            {
+                UserName = "paul",
+                Email = "paul@example.com"
+            };
+
+            var createResult =
+                await environment.UserManager.CreateAsync(
+                    user,
+                    "Password123!");
+
+            Assert.True(createResult.Succeeded);
+
+            var token =
+                await environment.UserManager
+                    .GeneratePasswordResetTokenAsync(user);
+
+            var result = await environment.Controller.ResetPassword(
+                new ResetPasswordRequest
+                {
+                    UserId = user.Id,
+                    Token = token,
+                    NewPassword = "DifferentPassword123!"
+                });
+
+            Assert.IsType<NoContentResult>(result);
+
+            Assert.False(
+                await environment.UserManager.CheckPasswordAsync(
+                    user,
+                    "Password123!"));
+
+            Assert.True(
+                await environment.UserManager.CheckPasswordAsync(
+                    user,
+                    "DifferentPassword123!"));
+        }
+
+        [Fact]
+        public async Task ForgotPassword_WhenAccountIsDemo_DoesNotSendResetLink()
+        {
+            using var environment =
+                await TestIdentityEnvironment.CreateAsync();
+
+            var user = new AppUser
+            {
+                UserName = "demo-vault",
+                Email = "demo@example.com"
+            };
+
+            Assert.True((await environment.UserManager.CreateAsync(
+                user,
+                "Password123!")).Succeeded);
+
+            Assert.True((await environment.UserManager.AddToRoleAsync(
+                user,
+                AppRoles.Demo)).Succeeded);
+
+            var emailSender = new FakePasswordResetEmailSender();
+
+            var result = await environment.Controller.ForgotPassword(
+                new ForgotPasswordRequest
+                {
+                    Email = "demo@example.com"
+                },
+                emailSender,
+                FrameworkOptions.Create(
+                    new PasswordResetOptions()),
+                NullLogger<AuthController>.Instance);
+
+            Assert.IsType<AcceptedResult>(result);
+            Assert.Null(emailSender.RecipientEmail);
+        }
+
+        [Fact]
         public void Logout_HasAuthorizeAttribute()
         {
             // Arrange
@@ -562,6 +708,24 @@ namespace CyberpunkTcgVault.Api.Tests.Controllers
             // Assert
             Assert.NotNull(methodInfo);
             Assert.NotEmpty(attributes);
+        }
+
+        private sealed class FakePasswordResetEmailSender
+            : IPasswordResetEmailSender
+        {
+            public string? RecipientEmail { get; private set; }
+
+            public string? ResetUrl { get; private set; }
+
+            public Task SendPasswordResetAsync(
+                string recipientEmail,
+                string resetUrl,
+                CancellationToken cancellationToken)
+            {
+                RecipientEmail = recipientEmail;
+                ResetUrl = resetUrl;
+                return Task.CompletedTask;
+            }
         }
 
         private sealed class TestIdentityEnvironment : IDisposable

@@ -231,19 +231,19 @@
 
             @for (card of cards; track card.id) {
 
-            <!--
-                  Archive items remain informational until Card Detail exists.
-                  No fake link, button or keyboard destination is introduced.
-                -->
             <article class="catalogue-card">
+              <a
+                class="catalogue-card__link"
+                [routerLink]="['/cards', card.id]"
+                [attr.aria-label]="'Inspect ' + card.name"
+              >
+                <!-- Physical card artwork + GHOST SIGNAL fallback -->
+                <div class="catalogue-card__visual">
+                  <img [appCardArtwork]="card.imageUrl" [alt]="card.name" loading="lazy" decoding="async" />
+                </div>
 
-              <!-- Physical card artwork + GHOST SIGNAL fallback -->
-              <div class="catalogue-card__visual">
-                <img [appCardArtwork]="card.imageUrl" [alt]="card.name" loading="lazy" decoding="async" />
-              </div>
-
-              <!-- Archive Label -->
-              <div class="catalogue-card__archive-label">
+                <!-- Archive Label -->
+                <div class="catalogue-card__archive-label">
 
                 <!-- Level 1: Card Name -->
                 <h2>
@@ -354,7 +354,8 @@
 
                 </div>
 
-              </div>
+                </div>
+              </a>
             </article>
             }
 

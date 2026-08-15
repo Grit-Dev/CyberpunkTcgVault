@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { Login } from './features/auth/pages/login/login';
 import { Register } from './features/auth/pages/register/register';
 import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalogue';
+import { CardDetail } from './features/cards/pages/card-detail/card-detail';
 import { About } from './pages/about/about';
 import { Contact } from './pages/contact/contact';
 import { Home } from './pages/home/home';
@@ -33,6 +34,15 @@ export const routes: Routes = [
     data: {
       description:
         'Browse the Cyberpunk TCG cards currently archived in Choom Vault using the public card catalogue, search and filters.',
+      robots: 'index, follow'
+    }
+  },
+  {
+    path: 'cards/:id',
+    title: 'Card Detail | Choom Vault',
+    component: CardDetail,
+    data: {
+      description: 'Inspect a Cyberpunk TCG card and its available physical printings in the public Choom Vault Archive.',
       robots: 'index, follow'
     }
   },

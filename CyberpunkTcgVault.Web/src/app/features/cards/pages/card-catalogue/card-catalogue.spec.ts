@@ -3,6 +3,7 @@ import {
   TestBed
 } from '@angular/core/testing';
 
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { CardCatalogue } from './card-catalogue';
@@ -22,6 +23,7 @@ describe('CardCatalogue', () => {
         CardCatalogue
       ],
       providers: [
+        provideRouter([]),
         {
           provide: CardsService,
           useValue: cardsServiceMock

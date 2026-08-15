@@ -5,6 +5,7 @@ import {
   OnInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardFilters } from '../../models/card-filters';
 import { Card } from '../../models/card';
@@ -21,6 +22,7 @@ import { CardsService } from '../../services/cards.service';
   standalone: true,
   imports: [
     FormsModule,
+    RouterLink,
     CardArtworkDirective
   ],
   templateUrl: './card-catalogue.html',

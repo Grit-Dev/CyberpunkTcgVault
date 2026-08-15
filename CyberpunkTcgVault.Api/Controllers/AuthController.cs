@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -327,6 +328,123 @@ namespace CyberpunkTcgVault.Api.Controllers
             return Ok(await CreateAuthUserResponse(demoUser));
         }
 
+
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicyNames.PasswordReset)]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(
+            ForgotPasswordRequest request,
+            [FromServices] IPasswordResetEmailSender emailSender,
+            [FromServices] IOptions<PasswordResetOptions> passwordResetOptions,
+            [FromServices] ILogger<AuthController> logger)
+        {
+            const string publicMessage =
+                "If an account exists for that email, a password reset link has been sent.";
+
+            var email = request.Email?.Trim() ?? string.Empty;
+
+            // Keep the public response identical so callers cannot use this
+            // endpoint to discover which email addresses are registered.
+            if (email.Length == 0)
+            {
+                return Accepted(new { message = publicMessage });
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user is null ||
+                await _userManager.IsInRoleAsync(user, AppRoles.Demo))
+            {
+                return Accepted(new { message = publicMessage });
+            }
+
+            var token =
+                await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var resetUrl = QueryHelpers.AddQueryString(
+                passwordResetOptions.Value.FrontendResetUrl,
+                new Dictionary<string, string?>
+                {
+                    ["userId"] = user.Id.ToString(),
+                    ["token"] = token
+                });
+
+            try
+            {
+                await emailSender.SendPasswordResetAsync(
+                    user.Email ?? email,
+                    resetUrl,
+                    HttpContext.RequestAborted);
+            }
+            catch (Exception exception)
+            {
+                // Do not expose mail-provider/configuration failures to the
+                // anonymous caller. Operations can investigate the server log.
+                logger.LogError(
+                    exception,
+                    "Unable to deliver a password reset email.");
+            }
+
+            return Accepted(new { message = publicMessage });
+        }
+
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicyNames.PasswordReset)]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(
+            ResetPasswordRequest request)
+        {
+            var token = request.Token?.Trim() ?? string.Empty;
+
+            if (request.UserId == Guid.Empty || token.Length == 0)
+            {
+                return InvalidPasswordReset();
+            }
+
+            var user = await _userManager.FindByIdAsync(
+                request.UserId.ToString());
+
+            if (user is null ||
+                await _userManager.IsInRoleAsync(user, AppRoles.Demo))
+            {
+                return InvalidPasswordReset();
+            }
+
+            var result = await _userManager.ResetPasswordAsync(
+                user,
+                token,
+                request.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                var passwordErrors = result.Errors
+                    .Where(error =>
+                        error.Code.StartsWith(
+                            "Password",
+                            StringComparison.OrdinalIgnoreCase))
+                    .Select(error => error.Description)
+                    .ToArray();
+
+                if (passwordErrors.Length > 0)
+                {
+                    return BadRequest(new ValidationProblemDetails(
+                        new Dictionary<string, string[]>
+                        {
+                            [nameof(ResetPasswordRequest.NewPassword)] =
+                                passwordErrors
+                        })
+                    {
+                        Title = "Password reset validation failed.",
+                        Status = StatusCodes.Status400BadRequest
+                    });
+                }
+
+                return InvalidPasswordReset();
+            }
+
+            return NoContent();
+        }
+
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
@@ -373,6 +491,16 @@ namespace CyberpunkTcgVault.Api.Controllers
         {
             return exception.GetBaseException() is SqlException sqlException
                 && sqlException.Number is 2601 or 2627;
+        }
+
+
+        private BadRequestObjectResult InvalidPasswordReset()
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Invalid or expired password reset request."
+            });
         }
 
         private UnauthorizedObjectResult InvalidLogin()

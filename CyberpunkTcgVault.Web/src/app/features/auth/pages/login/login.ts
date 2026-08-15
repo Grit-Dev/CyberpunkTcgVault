@@ -40,6 +40,7 @@ export class Login implements OnInit {
   readonly isDemoSubmitting = signal(false);
   readonly authError = signal('');
   readonly registeredMessage = signal('');
+  readonly collectorIntent = signal<'collection' | 'wishlist' | null>(null);
   readonly mfaMode = signal<MfaMode>(null);
 
   constructor(
@@ -92,6 +93,12 @@ export class Login implements OnInit {
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('registered') === '1') {
       this.registeredMessage.set('Account created. Sign in to continue.');
+    }
+
+    const intent = this.route.snapshot.queryParamMap.get('intent');
+
+    if (intent === 'collection' || intent === 'wishlist') {
+      this.collectorIntent.set(intent);
     }
   }
 

@@ -6,5 +6,6 @@ namespace CyberpunkTcgVault.Api.Security
         public const string Registration = "Registration";
         public const string Demo = "Demo";
         public const string Mfa = "Mfa";
+        public const string PasswordReset = "PasswordReset";
     }
 }

@@ -21,7 +21,13 @@
       @if (mfaMode() === null) {
         <div class="login-access__heading">
           <h2 id="vault-access-title">Vault Access</h2>
-          <p>Use the email address attached to your collector account.</p>
+          @if (collectorIntent() === 'collection') {
+            <p>Sign in to add this printing to your Collection.</p>
+          } @else if (collectorIntent() === 'wishlist') {
+            <p>Sign in to add this printing to your Wishlist.</p>
+          } @else {
+            <p>Use the email address attached to your collector account.</p>
+          }
         </div>
 
         @if (registeredMessage()) {
