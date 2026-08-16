@@ -140,9 +140,9 @@
  * Authenticated identity is deliberately just a quiet recognition mark.
  * It is not an account widget, role badge or gamer profile treatment.
  *
- * Demo context sits beneath the real username rather than competing with it
- * horizontally. This gives the account area enough breathing room while the
- * shared brand and centred primary navigation stay in exactly the same shell.
+ * Account context sits beneath the real username rather than competing with it
+ * horizontally. Normal and Demo sessions therefore share the same identity
+ * geometry while the centred primary navigation stays in the same shell.
  */
 .header-identity {
   position: relative;
@@ -162,19 +162,6 @@
   max-width: 178px;
 }
 
-/*
- * A normal collector has a single-line identity, so do not reserve the full
- * Demo identity slot when the username is short. The account label stays
- * visually attached to the right-side account actions while the existing
- * max-width/ellipsis rules still protect 20-character and legacy usernames.
- * Demo keeps its wider two-line treatment unchanged.
- */
-.header-inner--authenticated .header-identity:not(.header-identity--demo) {
-  flex: 0 1 auto;
-  width: fit-content;
-  min-height: 24px;
-}
-
 .header-identity:focus-visible {
   outline: 2px solid var(--colour-cyan);
   outline-offset: 5px;
@@ -182,16 +169,11 @@
 
 .header-identity::before {
   width: 3px;
-  height: 10px;
+  height: 24px;
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 1 / span 2;
   background: var(--colour-yellow);
   content: '';
-}
-
-.header-identity--demo::before {
-  height: 24px;
-  grid-row: 1 / span 2;
 }
 
 .header-username {
@@ -210,7 +192,7 @@
   white-space: nowrap;
 }
 
-.header-demo-context {
+.header-identity-context {
   grid-column: 2;
   margin-top: 4px;
   color: var(--colour-text-muted);
@@ -424,7 +406,7 @@
     letter-spacing: 0.07em;
   }
 
-  .header-demo-context {
+  .header-identity-context {
     font-size: 0.52rem;
     letter-spacing: 0.11em;
   }

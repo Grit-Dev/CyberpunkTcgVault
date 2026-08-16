@@ -43,6 +43,19 @@ describe('application routes', () => {
     expect(accountRoute?.data?.['robots']).toBe('noindex, nofollow');
   });
 
+  it('fails closed for public password-recovery routes in Version 1', () => {
+    const forgotPasswordRoute = routes.find((route) => route.path === 'forgot-password');
+    const resetPasswordRoute = routes.find((route) => route.path === 'reset-password');
+
+    expect(forgotPasswordRoute?.redirectTo).toBe('login');
+    expect(forgotPasswordRoute?.pathMatch).toBe('full');
+    expect(forgotPasswordRoute?.component).toBeUndefined();
+
+    expect(resetPasswordRoute?.redirectTo).toBe('login');
+    expect(resetPasswordRoute?.pathMatch).toBe('full');
+    expect(resetPasswordRoute?.component).toBeUndefined();
+  });
+
   it('registers the public Terms route with the approved metadata', () => {
     const termsRoute = routes.find((route) => route.path === 'terms');
 

@@ -63,16 +63,14 @@
           @if (authService.currentUser(); as user) {
             <a
               class="header-identity"
-              [class.header-identity--demo]="authService.isDemo()"
               routerLink="/account"
               routerLinkActive="is-active"
               [attr.aria-label]="'Account for ' + user.userName"
             >
               <span class="header-username">{{ user.userName }}</span>
-
-              @if (authService.isDemo()) {
-                <span class="header-demo-context">Demo Vault</span>
-              }
+              <span class="header-identity-context">
+                {{ authService.isDemo() ? 'Demo Vault' : 'Account' }}
+              </span>
             </a>
           }
 

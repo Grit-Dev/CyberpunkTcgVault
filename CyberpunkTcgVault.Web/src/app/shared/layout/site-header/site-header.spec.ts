@@ -118,8 +118,11 @@ describe('SiteHeader', () => {
     const identity = fixture.nativeElement.querySelector('.header-identity') as HTMLAnchorElement;
 
     expect(identity.tagName).toBe('A');
+    const context = fixture.nativeElement.querySelector('.header-identity-context') as HTMLElement;
+
     expect(identity.getAttribute('href')).toBe('/account');
     expect(identity.textContent).toContain('paul');
+    expect(context.textContent?.trim()).toBe('Account');
     expect(getNavigationText()).not.toContain('Account');
   });
 
@@ -136,13 +139,11 @@ describe('SiteHeader', () => {
     isDemo.set(true);
     fixture.detectChanges();
 
-    const identity = fixture.nativeElement.querySelector('.header-identity') as HTMLElement;
     const username = fixture.nativeElement.querySelector('.header-username') as HTMLElement;
     const demoContexts = fixture.nativeElement.querySelectorAll(
-      '.header-demo-context',
+      '.header-identity-context',
     ) as NodeListOf<HTMLElement>;
 
-    expect(identity.classList.contains('header-identity--demo')).toBe(true);
     expect(username.textContent?.trim()).toBe('demo-vault');
     expect(demoContexts).toHaveLength(1);
     expect(demoContexts[0].textContent?.trim()).toBe('Demo Vault');
