@@ -1,620 +1,306 @@
-﻿# Cyberpunk TCG Vault
+﻿# Choom Vault
 
 [![Continuous Integration](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/ci.yml/badge.svg)](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/ci.yml)
-[![GitHub Pages Deployment](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/pages.yml/badge.svg)](https://github.com/Grit-Dev/CyberpunkTcgVault/actions/workflows/pages.yml)
 
-**Cyberpunk TCG Vault — Choom Vault** is a full-stack collector companion built with **C#/.NET 10, ASP.NET Core, Angular, Entity Framework Core and SQL Server**.
+**Choom Vault** is a full-stack collector companion for the Cyberpunk Trading Card Game, built with **C# / .NET 10, ASP.NET Core, Angular, Entity Framework Core and SQL Server**.
 
-It combines a secure API, a polished Angular catalogue experience and a growing set of collector-focused features for browsing cards and managing owned cards, wishlists and sealed products.
+I started the project because I wanted to build something around a hobby I genuinely care about while pushing beyond small coding exercises into a complete product: frontend, backend, database, authentication, security, testing and deployment.
 
-## Live Frontend
+The Collector MVP is built around a simple loop:
 
-[View the deployed Angular frontend](https://grit-dev.github.io/CyberpunkTcgVault/)
+**Discover → Inspect → Own or Want → Manage → Return**
 
-> The Angular frontend is deployed through GitHub Pages.  
-> API-backed catalogue behaviour currently runs against the ASP.NET Core API and SQL Server locally while the production API/Azure SQL deployment is prepared.
+> Choom Vault is an independent, fan-made and currently non-commercial project. It is not affiliated with, sponsored by or endorsed by CD PROJEKT RED, WeirdCo or NetDeck.
+
+**Version 1 status:** Collector MVP complete locally · Azure deployment next
+
+**Release verification:** 295 automated tests passing · 0 failures · Angular production build passing
+
+**GitHub:** https://github.com/Grit-Dev/CyberpunkTcgVault
+
+![Choom Vault Version 1 homepage and Featured Cards](docs/images/choom-vault-v1-home.png)
 
 ---
 
-## Project at a Glance
+## Live Version
+
+**Azure deployment is the next Version 1 release step.**
+
+The public URL will be added here once deployment and production smoke testing are complete.
+
+`Live demo: coming soon`
+
+The hosted Version 1 will use Choom Vault's own prototype/demo material and will not depend on scraped or undocumented Cyberpunk TCG data.
+
+---
+
+## What Version 1 Includes
+
+### Public Archive
+
+* Responsive homepage
+* Vault Archive card catalogue
+* Server-side search, filtering, sorting and pagination
+* Card Detail
+* Card / CardPrinting separation
+* Printing-specific artwork and collector state
+* Vault Lens interactive Card Anatomy experience
+* About, Privacy, Terms and Contact / Rights
+* Route metadata, SEO and custom 404 experience
+
+### Vault Lens
+
+Vault Lens is an interactive Card Anatomy experience built to explain the structure of a physical card through Guided and Show All modes while preserving keyboard, focus and reduced-motion behaviour.
+
+![Choom Vault Vault Lens interactive Card Anatomy experience](docs/images/choom-vault-v1-vault-lens.png)
+
+### Collector Vault
+
+Authenticated collectors can:
+
+* manage exact CardPrintings in their Collection
+* update quantities and collection information
+* maintain a Wishlist
+* track wanted quantities and ownership context
+* manage sealed products
+* move between Card Detail and personal collector records
+* manage account and data controls
+* restore an authenticated session across refreshes
+
+A restricted **Demo Vault** provides access to the collector experience without exposing destructive account or Admin capabilities.
+
+Public account registration is deliberately disabled for the initial hosted release.
+
+![Choom Vault Card Detail showing exact printing, Collection and Wishlist state](docs/images/choom-vault-v1-card-detail.png)
+
+---
+
+## Engineering
 
 ### Backend
 
-- ASP.NET Core Web API targeting **.NET 10 LTS**
-- Entity Framework Core + SQL Server
-- EF Core migrations
-- JWT authentication
-- ASP.NET Core password hashing
-- Claims-based user identification
-- Role-based Admin authorization
-- User-owned private data
-- Cross-user access protection
-- Request and response DTOs
-- Server-side catalogue filtering
-- Structured logging
-- Swagger / OpenAPI
-- Automated backend tests
-- GitHub Actions CI
+* .NET 10 / ASP.NET Core Web API
+* Entity Framework Core
+* SQL Server
+* EF Core migrations
+* ASP.NET Core Identity
+* Secure cookie-based authentication
+* Antiforgery protection
+* Role and policy-based authorization
+* Server-side ownership enforcement
+* Card / CardPrinting data model
+* Request and response DTOs
+* Server-side catalogue queries
+* ProblemDetails / central exception handling
+* Rate limiting
+* Health and readiness endpoints
+* Structured logging
 
 ### Frontend
 
-- Angular + TypeScript
-- Standalone components
-- Angular Router
-- Responsive homepage
-- Vault Archive card catalogue
-- Real ASP.NET Core API integration locally
-- Database-backed card rendering
-- Search and filtering
-- Loading, error and no-results states
-- Artwork fallback behaviour
-- Keyboard/focus improvements
-- Reduced-motion consideration
-- Shared layout/navigation
-- About, Privacy, Contact and Not Found surfaces
-- GitHub Pages deployment
+* Angular
+* TypeScript
+* Standalone components
+* Angular Router
+* SCSS
+* Responsive layouts
+* `/api/Auth/me` session restoration
+* HTTP credential and antiforgery handling
+* Route guards for authenticated UX
+* Loading, empty, validation and API-error states
+* Keyboard navigation and visible focus
+* Reduced-motion support
+* Approximately 390px mobile support
+* Prettier-backed frontend formatting
 
-### Current Milestone
+The frontend improves the user experience, but it is **not the security boundary**. Authentication, authorization and private-record ownership are enforced by the ASP.NET Core API.
 
-The next major engineering milestone is a public end-to-end deployment:
+---
+
+## Security and Data Ownership
+
+Private collector records belong to the authenticated user.
+
+Collection, Wishlist and Sealed operations derive the user's identity from the authenticated server session rather than trusting a user ID supplied by the browser.
+
+The application also includes:
+
+* ASP.NET Core password hashing
+* HttpOnly authentication cookies
+* antiforgery protection for state-changing requests
+* cross-user access protection
+* Admin-only catalogue mutation
+* restricted Demo permissions
+* authentication rate limiting
+* production secrets kept outside source control
+* deliberate production migration handling
+
+No Demo password or privileged provider credential is embedded in the Angular application.
+
+---
+
+## Version 1 Verification
+
+Version 1 has one reproducible release-verification path covering the complete application.
+
+```text
+Backend restore
+Backend Release build
+Backend automated tests
+Frontend clean dependency install
+Frontend automated tests
+Frontend production build
+```
+
+Verified for the Version 1 release:
+
+* **138 backend tests passing**
+* **157 frontend tests passing**
+* **295 automated tests passing**
+* **0 failures**
+* **Angular production build passing**
+
+GitHub Actions provides continuous integration, while the complete local Version 1 gate can be run from the repository root with:
+
+```powershell
+.\VERIFY_VERSION_1.ps1
+```
+
+---
+
+## Architecture
 
 ```text
 Angular
-   ↓ HTTPS
+   │
+   │ HTTPS
+   ▼
 ASP.NET Core API
-   ↓
-Entity Framework Core
-   ↓
-Azure SQL
+   │
+   │ Entity Framework Core
+   ▼
+SQL Server / Azure SQL
 ```
 
-Before public collector accounts are opened more widely, the backend is being hardened around validation, database integrity, predictable errors, rate limiting, health checks, production configuration and integration testing.
+**Azure deployment is the next Version 1 release step.**
 
----
-
-## Product Direction
-
-Choom Vault is intended to feel like a collector companion rather than a generic CRUD dashboard.
-
-```text
-DISCOVER
-Home / Vault Archive
-
-OWN
-Card Detail / Collection / Wishlist / Sealed Products
-
-EXPRESS
-My Vault / Safehouse
-```
-
-The current product focus is the public catalogue, secure account/data foundations and the backend work required to support a real hosted collector MVP.
-
----
-
-## Current Features
-
-### Shared Card Catalogue
-
-Cards are shared catalogue data rather than user-owned records.
-
-Public reads:
-
-```http
-GET /api/Cards
-GET /api/Cards/{id}
-```
-
-Admin-only mutations:
-
-```http
-POST   /api/Cards
-PUT    /api/Cards/{id}
-DELETE /api/Cards/{id}
-```
-
-The Angular Vault Archive consumes the Cards API and renders database-backed card data.
-
-Catalogue filtering currently includes fields such as:
-
-- Name
-- Rarity
-- Classification
-- Card type
-
-Read-only EF Core queries use patterns such as:
-
-- `AsNoTracking()`
-- database-side filtering
-- deliberate response projection
-
-This keeps filtering in SQL/EF Core rather than loading the complete catalogue into Angular.
-
-### Deliberate API Contracts
-
-The Cards API uses response DTOs rather than exposing EF Core persistence entities as the external HTTP contract.
-
-```text
-SQL Server
-    ↓
-EF Core query
-    ↓
-CardResponse DTO
-    ↓
-HTTP response
-```
-
-This keeps persistence concerns separate from the public API and gives the backend explicit control over what clients receive.
-
-### Authentication
-
-Users can register and log in through the API.
-
-Passwords are never stored as plain text. ASP.NET Core password hashing is used to create and verify password hashes.
-
-A successful login returns a signed JWT containing claims for:
-
-- User ID
-- Username
-- Role
-
-The API validates:
-
-- Signature
-- Issuer
-- Audience
-- Lifetime
-- Signing key
-
-Protected endpoints use:
-
-```csharp
-[Authorize]
-```
-
-Admin catalogue operations use:
-
-```csharp
-[Authorize(Roles = "Admin")]
-```
-
-### Current User Endpoint
-
-The API includes:
-
-```http
-GET /api/Auth/me
-```
-
-This endpoint requires authentication and returns the current user represented by the validated JWT.
-
-It is intended to support frontend session restoration and authenticated UI state while keeping the backend as the source of truth for identity and authorization.
-
-### User-Owned Data
-
-The backend currently supports three private user-owned areas:
-
-- Owned Cards
-- Wishlist Items
-- Collection Products
-
-The frontend does not decide which user owns a record.
-
-The API reads the authenticated user ID from the JWT and filters database access using that identity.
-
-```text
-JWT
- ↓
-Authenticated User ID
- ↓
-Backend query
- ↓
-UserId filter
- ↓
-Only that user's records
-```
-
-This prevents one user from viewing, updating or deleting another user's private collection data.
-
-Cross-user access deliberately returns:
-
-```http
-404 Not Found
-```
-
-rather than confirming whether another user's private record exists.
-
----
-
-## API Overview
-
-### Authentication
-
-```http
-POST /api/Auth/register
-POST /api/Auth/login
-GET  /api/Auth/me
-```
-
-### Cards
-
-```http
-GET    /api/Cards
-GET    /api/Cards/{id}
-POST   /api/Cards
-PUT    /api/Cards/{id}
-DELETE /api/Cards/{id}
-```
-
-`POST`, `PUT` and `DELETE` require the `Admin` role.
-
-### Owned Cards
-
-```http
-GET    /api/OwnedCards
-GET    /api/OwnedCards/{id}
-POST   /api/OwnedCards
-PUT    /api/OwnedCards/{id}
-DELETE /api/OwnedCards/{id}
-```
-
-### Wishlist Items
-
-```http
-GET    /api/WishListItem
-GET    /api/WishListItem/{id}
-POST   /api/WishListItem
-PUT    /api/WishListItem/{id}
-DELETE /api/WishListItem/{id}
-```
-
-### Collection Products
-
-```http
-GET    /api/CollectionProducts
-GET    /api/CollectionProducts/{id}
-POST   /api/CollectionProducts
-PUT    /api/CollectionProducts/{id}
-DELETE /api/CollectionProducts/{id}
-```
-
-User-owned endpoints require authentication and operate only on the logged-in user's records.
-
----
-
-## Security
-
-The project currently demonstrates:
-
-- Password hashing rather than plain-text storage
-- JWT authentication
-- JWT issuer, audience, signature and expiry validation
-- Protected API endpoints
-- Role-based Admin authorization
-- Claims-based user identity
-- Server-side ownership enforcement
-- Cross-user access prevention
-- JWT signing secrets stored outside source control
-- Request DTOs controlling client input
-- Response DTOs controlling API output
-- Private collection data separated from public catalogue data
-- Backend authorization rather than trusting frontend state
-
-The Angular application may display authentication state and Admin controls, but it is **not** treated as the security boundary.
-
-The ASP.NET Core API remains responsible for authentication, authorization, ownership and validation.
-
-Production security hardening is part of the current MVP roadmap rather than being hidden after deployment.
-
----
-
-## Testing and Continuous Integration
-
-The backend test suite covers areas including:
-
-- Card controller behaviour
-- Card response contracts
-- Owned-card ownership
-- Wishlist ownership
-- Collection-product ownership
-- Cross-user access prevention
-- User registration
-- Duplicate username behaviour
-- Password hashing
-- Login success/failure
-- JWT generation
-- JWT identity and role claims
-- Protected `/api/Auth/me` behaviour
-- Admin authorization
-
-Controller tests use the EF Core InMemory provider.
-
-Direct controller tests manually provide authenticated claims where required because they do not execute the complete ASP.NET Core authentication middleware pipeline.
-
-GitHub Actions provides CI checks for:
-
-```text
-Backend
-restore → build → tests
-
-Frontend
-npm ci → tests → production build
-```
-
-The repository is pinned to a stable .NET 10 SDK through `global.json` so local and CI builds use the same supported runtime generation.
-
----
-
-## Development Evidence
-
-### Angular Card Catalogue API Integration
-
-![Card catalogue API integration](docs/screenshots/card-catalogue-api-integration-success.png)
-
-Demonstrates Angular consuming the ASP.NET Core API and rendering database-backed card records.
-
-### Card Artwork Static File Hosting
-
-![Card artwork serving](docs/screenshots/static-card-image-serving-success.png)
-
-Demonstrates ASP.NET Core serving card artwork from `wwwroot` and exposing image paths through API data.
-
-Additional implementation screenshots are stored in:
-
-```text
-docs/screenshots/
-```
-
----
-
-## Tech Stack
-
-### Backend
-
-- C#
-- .NET 10 LTS
-- ASP.NET Core Web API
-- Entity Framework Core
-- SQL Server / LocalDB
-- JWT Bearer Authentication
-- ASP.NET Core Authorization
-- Swagger / OpenAPI
-
-### Frontend
-
-- Angular
-- TypeScript
-- Angular Router
-- Standalone components
-- HTML
-- SCSS
-- Responsive layouts
-
-### Testing and Tooling
-
-- xUnit
-- FluentAssertions
-- EF Core InMemory provider
-- Git
-- GitHub
-- GitHub Actions
-- Visual Studio 2026
-- Angular CLI
-- Swagger
-- SQL Server Management Studio
-
----
-
-## Project Structure
-
-```text
-CyberpunkTcgVault/
-│
-├── CyberpunkTcgVault.Api/
-│   ├── Controllers/
-│   ├── Data/
-│   ├── DTOs/
-│   ├── Migrations/
-│   ├── Models/
-│   ├── Program.cs
-│   └── appsettings.json
-│
-├── CyberpunkTcgVault.Api.Tests/
-│   ├── Controllers/
-│   └── TestHelpers/
-│
-├── CyberpunkTcgVault.Web/
-│   ├── public/
-│   ├── src/
-│   │   ├── app/
-│   │   ├── index.html
-│   │   ├── main.ts
-│   │   └── styles.scss
-│   ├── angular.json
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── docs/
-│   └── screenshots/
-│
-├── global.json
-├── README.md
-└── CyberpunkTcgVault.sln
-```
+Production database credentials and other secrets will be supplied through deployment configuration rather than committed to source control.
 
 ---
 
 ## Run Locally
 
-### Prerequisites
+### Requirements
 
-- .NET 10 SDK
-- Node.js LTS
-- npm
-- Angular CLI
-- SQL Server LocalDB or SQL Server
-- Git
-- Entity Framework Core CLI tools
+* .NET 10 SDK
+* Node.js
+* npm
+* SQL Server LocalDB / SQL Server
+* EF Core CLI tools
 
-The repository contains a `global.json` file that pins the supported .NET 10 SDK used by the project.
-
-### Clone and Build
+Clone the repository:
 
 ```bash
 git clone https://github.com/Grit-Dev/CyberpunkTcgVault.git
 cd CyberpunkTcgVault
-
-dotnet restore
-dotnet build
-dotnet test
 ```
 
-### Local Database
+Install the frontend dependencies using the committed lockfile:
 
-Example LocalDB connection string:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=CyberpunkTcgVaultDb;Trusted_Connection=True;TrustServerCertificate=True;"
-  }
-}
+```bash
+cd CyberpunkTcgVault.Web
+npm ci
+cd ..
 ```
 
-Apply migrations:
+Apply the local database migrations:
 
 ```bash
 dotnet ef database update --project CyberpunkTcgVault.Api
 ```
 
-### JWT Development Secret
-
-The JWT signing key must not be committed to source control.
-
-From the API project:
-
-```bash
-cd CyberpunkTcgVault.Api
-dotnet user-secrets init
-dotnet user-secrets set "Jwt:Key" "replace-this-with-a-long-private-development-key"
-```
-
-`UserSecretsId` in the project file identifies the local secret store; it is not the JWT signing key itself.
-
-### Run the API
-
-From the repository root:
+Run the API:
 
 ```bash
 dotnet run --project CyberpunkTcgVault.Api
 ```
 
-Swagger is available in the Development environment at the URL/port shown by the application.
-
-### Run Angular
-
-In a second terminal:
+Run Angular in another terminal:
 
 ```bash
 cd CyberpunkTcgVault.Web
-npm install
-ng serve --open
+npm start
 ```
 
-Default development URL:
+For the complete release verification:
 
-```text
-http://localhost:4200
+```powershell
+.\VERIFY_VERSION_1.ps1
 ```
 
 ---
 
-## Roadmap to Hosted MVP
+## Why Choom Vault?
 
-The immediate backend roadmap is intentionally focused on production readiness rather than adding architecture for appearance.
+I wanted this to be more than another CRUD portfolio project.
 
-### Next
+Choom Vault gave me somewhere to work through the parts of full-stack development that matter when a project has to behave like a real product: API contracts, authentication, authorization, database relationships, user-owned data, responsive frontend work, accessibility, testing and production deployment.
 
-- Request DTO validation
-- CancellationToken support across async API/EF Core operations
-- Review/migrate user identifiers to GUIDs
-- Card / CardPrinting domain decision and migration
-- Database integrity constraints and indexes
-- Predictable API errors using ProblemDetails
-- Central current-user access
-- Login/register rate limiting
-- Health checks
-- Production configuration and secrets
-- Server-side catalogue pagination
-- HTTP integration tests
-- Meaningful entity timestamps
+I also wanted the interface to feel built for collectors rather than like a generic dashboard with a Cyberpunk colour palette.
 
-### Hosting
-
-Target architecture:
-
-```text
-GitHub Pages / Angular
-        ↓ HTTPS
-Azure App Service / ASP.NET Core
-        ↓
-Azure SQL
-```
-
-The first hosted version will use safe project data/assets and will not depend on undocumented or unauthorized third-party APIs.
-
-### Collector MVP
-
-Once hosting and the Card/Printing ownership model are stable:
-
-- Login / registration UI
-- Auth/session restoration
-- Card Detail
-- Personal Collection
-- Wishlist
-- Sealed Products
-- Account/security controls
-- My Vault / Safehouse using real collector data
-
-Later features such as MFA, advanced session management, public Safehouses, trading, messaging and deeper collector tools remain deliberately outside the first MVP.
+Version 1 is deliberately a finished Collector MVP rather than a collection of half-built features.
 
 ---
 
-## Development Approach
+## After Version 1
 
-The project is developed incrementally with an emphasis on maintainability, security and understanding.
+This public repository represents the **frozen Choom Vault Collector MVP Version 1 portfolio release**.
 
-Features are kept simple until additional complexity is justified. Backend work is isolated into focused branches, tested, reviewed through pull requests and kept behind a green CI pipeline.
+Future development will continue separately in a **private development repository** so this public release remains a stable representation of the completed MVP.
 
-The project deliberately avoids adding patterns such as microservices, CQRS, MediatR or repository wrappers purely to make the architecture appear more complex.
+Choom Vault already works independently using its own prototype material.
 
----
+A future version could connect the collector experience to the official Cyberpunk TCG catalogue. Any integration using official card data, artwork or provider services will only proceed through an **approved data and rights route** with the relevant rights holders or authorised provider.
 
-## AI-Assisted Development
+Choom Vault will not build that integration by scraping the official database or relying on undocumented private APIs.
 
-AI-assisted tools are used selectively for code review, debugging, accessibility review, refactoring suggestions, repetitive implementation, visual prototyping and explaining unfamiliar concepts.
-
-AI is not treated as a substitute for understanding the application.
-
-Architecture decisions, security behaviour, testing decisions and final committed changes are reviewed, tested and owned by the author.
+If an approved route becomes available, future development can build on the existing Collector MVP rather than starting again.
 
 ---
 
-## Repository Usage & Copyright
+## Version 1 Boundary
+
+Deliberately outside the Collector MVP:
+
+* Safehouse / My Vault
+* Set Tracker
+* Decks
+* public collector profiles
+* community/social features
+* marketplace or trading
+* Spotify integration
+* official Cyberpunk TCG catalogue integration
+
+These are future product possibilities, not unfinished Version 1 functionality.
+
+---
+
+## Repository and Rights
 
 Copyright © 2026 Paul McGinley. All rights reserved.
 
-This repository is publicly available for **portfolio review, technical evaluation and educational reference**.
+This repository is published for portfolio review and technical evaluation. No open-source licence is granted.
 
-**No open-source licence is currently granted.**
+Unless otherwise stated, original Choom Vault source code, branding and project-created assets may not be copied, redistributed or reused without permission.
 
-Subject to rights provided through GitHub's Terms of Service, public availability of this repository should not be interpreted as permission to reuse, redistribute, republish, sublicense, sell or incorporate the source code, original Choom Vault interface designs, branding or original project assets into another project or product without prior written permission.
+Third-party names, trademarks, artwork and intellectual property remain the property of their respective owners.
 
-Third-party names, trademarks and intellectual property remain the property of their respective owners.
-
-Cyberpunk TCG Vault / Choom Vault is an **unofficial fan-made portfolio project** and is not affiliated with or endorsed by CD PROJEKT RED, WeirdCo or NetDeck.
+Choom Vault is an independent, fan-made and currently non-commercial project. It is not an official Cyberpunk product and is not affiliated with, sponsored by or endorsed by the relevant rights holders or data providers.
 
 ---
 
 ## Author
 
-Built by **Paul McGinley** as a full-stack C#/.NET and Angular portfolio project.
+Built by **Paul McGinley**.
+
+Full-stack software developer working primarily with **C#/.NET, SQL and Angular**.
