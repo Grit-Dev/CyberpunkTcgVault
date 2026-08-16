@@ -1,14 +1,16 @@
 import { CardAnatomyField } from '../../../features/cards/models/card-anatomy';
 
-/*
- * Fields used by the V StreetKid homepage showcase.
+/**
+ * DEVELOPMENT REFERENCE ONLY
  *
- * The order of this array controls Guided mode and
- * also controls the Show All marker numbering.
+ * Preserved as the original Vault Lens anatomy mapping for V // StreetKid.
  *
- * Region values are percentages of the complete card image.
- * Marker values control where the numbered Show All
- * buttons sit around the perimeter of the card.
+ * This data is not used by the current Choom Vault runtime and must not be
+ * imported into the production experience unless an approved rights/data
+ * route permits use of the corresponding official Cyberpunk TCG material.
+ *
+ * Current production Vault Lens:
+ * Vesper Ryne // Crimson Echo
  */
 export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
   {
