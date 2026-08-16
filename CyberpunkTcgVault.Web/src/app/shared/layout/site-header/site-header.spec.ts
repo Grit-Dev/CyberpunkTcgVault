@@ -17,6 +17,7 @@ describe('SiteHeader', () => {
   const currentUser = signal<AuthUser | null>(null);
   const isAuthenticated = signal(false);
   const isDemo = signal(false);
+  const publicRegistrationEnabled = signal(false);
 
   const authServiceStub = {
     currentUser,
@@ -30,6 +31,7 @@ describe('SiteHeader', () => {
     currentUser.set(null);
     isAuthenticated.set(false);
     isDemo.set(false);
+    publicRegistrationEnabled.set(false);
 
     await TestBed.configureTestingModule({
       imports: [SiteHeader],
@@ -42,7 +44,7 @@ describe('SiteHeader', () => {
         {
           provide: CapabilitiesService,
           useValue: {
-            publicRegistrationEnabled: signal(false)
+            publicRegistrationEnabled
           }
         }
       ]
@@ -50,6 +52,31 @@ describe('SiteHeader', () => {
 
     fixture = TestBed.createComponent(SiteHeader);
     fixture.detectChanges();
+  });
+
+  it('keeps public registration out of the signed-out header when the capability is disabled', () => {
+    const login = fixture.nativeElement.querySelector(
+      '.header-login'
+    ) as HTMLAnchorElement | null;
+    const register = fixture.nativeElement.querySelector(
+      '.header-register'
+    ) as HTMLAnchorElement | null;
+
+    expect(login?.textContent?.trim()).toBe('Log in');
+    expect(login?.getAttribute('href')).toBe('/login');
+    expect(register).toBeFalsy();
+  });
+
+  it('shows Join the Vault only when public registration is enabled', () => {
+    publicRegistrationEnabled.set(true);
+    fixture.detectChanges();
+
+    const register = fixture.nativeElement.querySelector(
+      '.header-register'
+    ) as HTMLAnchorElement | null;
+
+    expect(register?.textContent?.trim()).toBe('Join the Vault');
+    expect(register?.getAttribute('href')).toBe('/register');
   });
 
   it('keeps Catalogue public and hides private collector navigation anonymously', () => {

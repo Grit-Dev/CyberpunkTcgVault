@@ -3,6 +3,7 @@ import { Account } from './features/account/pages/account/account';
 import { Collection } from './features/collection/pages/collection/collection';
 import { Wishlist } from './features/wishlist/pages/wishlist/wishlist';
 import { Sealed } from './features/sealed/pages/sealed/sealed';
+import { Terms } from './pages/terms/terms';
 import { routes } from './app.routes';
 
 describe('application routes', () => {
@@ -42,4 +43,15 @@ describe('application routes', () => {
     expect(accountRoute?.data?.['robots']).toBe('noindex, nofollow');
   });
 
+  it('registers the public Terms route with the approved metadata', () => {
+    const termsRoute = routes.find(route => route.path === 'terms');
+
+    expect(termsRoute).toBeTruthy();
+    expect(termsRoute?.component).toBe(Terms);
+    expect(termsRoute?.title).toBe('Terms of Use | Choom Vault');
+    expect(termsRoute?.data?.['description']).toBe(
+      'Terms governing use of Choom Vault and the Demo Vault collector experience.'
+    );
+    expect(termsRoute?.data?.['robots']).toBe('index, follow');
+  });
 });

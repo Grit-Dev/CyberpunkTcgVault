@@ -16,6 +16,7 @@ import { Contact } from './pages/contact/contact';
 import { Home } from './pages/home/home';
 import { NotFound } from './pages/not-found/not-found';
 import { Privacy } from './pages/privacy/privacy';
+import { Terms } from './pages/terms/terms';
 
 /**
  * Choom Vault routes.
@@ -152,6 +153,16 @@ export const routes: Routes = [
     data: {
       description:
         'Read how Choom Vault handles account, collection and privacy information as the collector companion develops.',
+      robots: 'index, follow'
+    }
+  },
+  {
+    path: 'terms',
+    title: 'Terms of Use | Choom Vault',
+    component: Terms,
+    data: {
+      description:
+        'Terms governing use of Choom Vault and the Demo Vault collector experience.',
       robots: 'index, follow'
     }
   },

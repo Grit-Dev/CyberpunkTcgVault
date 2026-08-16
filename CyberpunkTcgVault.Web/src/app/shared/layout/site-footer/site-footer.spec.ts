@@ -27,4 +27,19 @@ describe('SiteFooter', () => {
     );
     expect(text).toContain('No ownership of third-party intellectual property is claimed.');
   });
+
+  it('keeps Terms in the supporting trust navigation between Privacy and Contact', () => {
+    const links = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('.footer-navigation a')
+    );
+
+    expect(links.map((link) => link.textContent?.trim())).toEqual([
+      'Catalogue',
+      'About',
+      'Privacy',
+      'Terms',
+      'Contact'
+    ]);
+    expect(links[3].getAttribute('href')).toBe('/terms');
+  });
 });

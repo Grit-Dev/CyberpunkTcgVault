@@ -162,6 +162,19 @@
   max-width: 178px;
 }
 
+/*
+ * A normal collector has a single-line identity, so do not reserve the full
+ * Demo identity slot when the username is short. The account label stays
+ * visually attached to the right-side account actions while the existing
+ * max-width/ellipsis rules still protect 20-character and legacy usernames.
+ * Demo keeps its wider two-line treatment unchanged.
+ */
+.header-inner--authenticated .header-identity:not(.header-identity--demo) {
+  flex: 0 1 auto;
+  width: fit-content;
+  min-height: 24px;
+}
+
 .header-identity:focus-visible {
   outline: 2px solid var(--colour-cyan);
   outline-offset: 5px;
