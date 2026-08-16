@@ -141,20 +141,37 @@ describe('CardCatalogue', () => {
     expect(component.hasSearchQuery).toBe(true);
   });
 
-  it('keeps Rarity available when the options response is empty', () => {
+  it('hides the Rarity dimension when there are no meaningful options', () => {
     component.filterOptions = {
       ...component.filterOptions,
-      rarities: []
+      rarities: ['Unknown', '  ']
     };
     component.isFilterOptionsLoading = false;
     component.filterOptionsUnavailable = false;
     fixture.detectChanges();
 
+    expect(
+      fixture.nativeElement.querySelector('select[name="rarity"]')
+    ).toBeNull();
+  });
+
+  it('excludes Unknown while keeping genuine Rarity options available', () => {
+    component.filterOptions = {
+      ...component.filterOptions,
+      rarities: ['Unknown', 'Iconic', 'Rare']
+    };
+    component.isFilterOptionsLoading = false;
+    fixture.detectChanges();
+
     const raritySelect = fixture.nativeElement.querySelector(
       'select[name="rarity"]'
     ) as HTMLSelectElement;
+    const optionText = Array.from(raritySelect.options)
+      .map(option => option.textContent?.trim());
 
-    expect(raritySelect.disabled).toBe(false);
+    expect(optionText).toContain('Iconic');
+    expect(optionText).toContain('Rare');
+    expect(optionText).not.toContain('Unknown');
   });
 
   it('renders search as a removable active record without changing filter count', () => {

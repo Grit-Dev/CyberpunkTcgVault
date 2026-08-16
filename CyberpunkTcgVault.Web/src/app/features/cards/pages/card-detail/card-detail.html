@@ -147,6 +147,11 @@
                   <p class="printing-record__set">{{ printing.setName }}</p>
                 }
 
+                @if (
+                  hasMeaningfulValue(printing.rarity) ||
+                  hasMeaningfulValue(printing.languageCode) ||
+                  hasMeaningfulValue(printing.setCode)
+                ) {
                 <p class="printing-record__line">
                   @if (hasMeaningfulValue(printing.rarity)) {
                     <span>{{ printing.rarity }}</span>
@@ -158,6 +163,7 @@
                     <span>Set Code {{ printing.setCode }}</span>
                   }
                 </p>
+                }
 
                 @if (printingVariants(printing).length > 0) {
                   <p class="printing-record__variants">
@@ -194,7 +200,9 @@
                       </span>
                       <span class="printing-option__copy">
                         <strong>{{ candidate.cardNumber }}</strong>
+                        @if (hasMeaningfulValue(candidate.setName)) {
                         <span>{{ candidate.setName }}</span>
+                        }
                         @if (printingVariants(candidate).length > 0) {
                           <small>{{ printingVariants(candidate).join(' · ') }}</small>
                         }

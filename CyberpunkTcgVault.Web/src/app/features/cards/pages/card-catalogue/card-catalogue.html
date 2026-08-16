@@ -29,7 +29,12 @@
           (ngSubmit)="applyFilters()"
           aria-label="Vault Archive search and filters"
         >
-          <div class="catalogue-tools__primary">
+          <div
+            class="catalogue-tools__primary"
+            [class.catalogue-tools__primary--no-rarity]="
+              !isFilterOptionsLoading && visibleRarityOptions.length === 0
+            "
+          >
             <!-- Search remains the dominant Archive control. -->
             <div class="catalogue-search">
               <label class="catalogue-field catalogue-field--search" for="archive-search-input">
@@ -83,6 +88,7 @@
               </select>
             </label>
 
+            @if (isFilterOptionsLoading || visibleRarityOptions.length > 0) {
             <label class="catalogue-field catalogue-field--primary-filter">
               <span>Rarity</span>
               <select
@@ -92,11 +98,12 @@
                 [disabled]="isFilterOptionsLoading || filterOptionsUnavailable"
               >
                 <option value="">All rarities</option>
-                @for (rarity of filterOptions.rarities; track rarity) {
+                @for (rarity of visibleRarityOptions; track rarity) {
                 <option [value]="rarity">{{ rarity }}</option>
                 }
               </select>
             </label>
+            }
 
             <button
               class="catalogue-filter-toggle catalogue-filter-toggle--desktop"

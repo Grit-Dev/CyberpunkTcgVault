@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 
 import { CardAnatomyField } from '../../models/card-anatomy';
-import { V_STREETKID_ANATOMY } from '../../../../pages/home/data/v-streetkid-anatomy';
+import { VESPER_CRIMSON_ECHO_ANATOMY } from '../../../../pages/home/data/vesper-crimson-echo-anatomy';
 
 
 /*
@@ -51,9 +51,9 @@ export class CardAnatomyShowcase {
     // Stores the position of the field currently being explained.
     currentFieldIndex = 0;
 
-    // Fields available for the V StreetKid homepage showcase.
+    // Fields available for the Vesper // Crimson Echo study card.
     readonly anatomyFields: CardAnatomyField[] =
-        V_STREETKID_ANATOMY;
+        VESPER_CRIMSON_ECHO_ANATOMY;
 
 
     constructor(

@@ -329,6 +329,7 @@ export class CardDetail implements OnInit, OnDestroy {
 
     return ![
       'unknown',
+      'no-id',
       'n/a',
       'null',
       'none',
@@ -358,7 +359,11 @@ export class CardDetail implements OnInit, OnDestroy {
       ? `, ${variants.join(', ')}`
       : '';
 
-    return `Inspect printing ${printing.cardNumber} from ${printing.setName}${variantText}`;
+    const setText = this.hasMeaningfulValue(printing.setName)
+      ? ` from ${printing.setName}`
+      : '';
+
+    return `Inspect printing ${printing.cardNumber}${setText}${variantText}`;
   }
 
   private updateCollectionQuantity(

@@ -77,4 +77,57 @@ describe('Home', () => {
     expect(text).not.toContain('purchase costs');
     expect(text).not.toContain('estimated values');
   });
+  it('omits unsupported Featured Card stats instead of rendering placeholder dashes', () => {
+    component.featuredCards = [{
+      id: 99,
+      name: 'Sparse Prototype',
+      colour: null,
+      cardType: null,
+      classification: null,
+      keywords: null,
+      cost: null,
+      power: null,
+      ramCost: null,
+      eddies: null,
+      isLegend: false,
+      notes: null,
+      cardPrintingId: 999,
+      setName: 'Choom Vault Origins',
+      rarity: null,
+      hasBetaSymbol: false,
+      isKickstarterVersion: false,
+      isRetailVersion: false,
+      isFoil: false,
+      isAltArt: false,
+      isBoxTopper: false,
+      isPromo: false,
+      isStarterDeckExclusive: false,
+      cardNumber: 'CVO-999',
+      imageUrl: '/images/cards/sparse-prototype.png',
+      printings: []
+    }];
+    fixture.detectChanges();
+
+    const preview = fixture.nativeElement.querySelector('.prototype-card') as HTMLElement;
+    const text = preview.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+
+    expect(preview.querySelector('.card-statline')).toBeNull();
+    expect(text).not.toContain('PWR —');
+    expect(text).not.toContain('RAM —');
+    expect(text.toLowerCase()).not.toContain('unknown');
+  });
+
+  it('keeps collector examples meaningful when catalogue rarity is unavailable', () => {
+    component.collectionExampleCard = null;
+    component.wishlistExampleCard = null;
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
+
+    expect(text).toContain('Near Mint');
+    expect(text).toContain('Priority want');
+    expect(text).not.toContain('Legendary · Near Mint');
+    expect(text).not.toContain('Legendary · Priority want');
+  });
+
 });

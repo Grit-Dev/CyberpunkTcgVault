@@ -68,4 +68,65 @@ describe('CardAnatomyShowcase', () => {
 
     expect(document.activeElement).toBe(explainButton);
   });
+  it('uses the Vesper Ryne Crimson Echo prototype study card and preserves all 11 anatomy fields', () => {
+    const image = fixture.nativeElement.querySelector(
+      '.card-anatomy-showcase__card img'
+    ) as HTMLImageElement;
+    const studyIdentity = fixture.nativeElement.querySelector(
+      '.card-anatomy-showcase__card-label strong'
+    ) as HTMLElement;
+
+    expect(image.getAttribute('src')).toBe('images/showcase/vesper-ryne-crimson-echo.webp');
+    expect(image.getAttribute('alt')).toBe(
+      'Vesper Ryne Crimson Echo Choom Vault prototype study card'
+    );
+    expect(studyIdentity.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'VESPER RYNE // CRIMSON ECHO'
+    );
+    expect(fixture.componentInstance.anatomyFields.map(field => field.id)).toEqual([
+      'cost',
+      'sellTag',
+      'type',
+      'ram',
+      'tags',
+      'power',
+      'rulesText',
+      'setCode',
+      'cardNumber',
+      'rarity',
+      'artistCredit'
+    ]);
+  });
+
+
+  it('uses the Vesper Ryne-specific lower-card alignment without changing the anatomy order', () => {
+    const fields = Object.fromEntries(
+      fixture.componentInstance.anatomyFields.map(field => [field.id, field])
+    );
+
+    const setCode = fields['setCode'];
+    const cardNumber = fields['cardNumber'];
+    const rulesText = fields['rulesText'];
+
+    expect(setCode.region.left).toBeGreaterThan(cardNumber.region.left);
+    expect(setCode.region.top).toBeGreaterThan(cardNumber.region.top);
+    expect(setCode.marker.left).toBeGreaterThan(0);
+    expect(cardNumber.marker.left).toBeLessThan(0);
+    expect(rulesText.region.width).toBeGreaterThan(70);
+    expect(rulesText.region.height).toBeLessThan(20);
+  });
+
+  it('keeps all 11 Show All markers available for the Vesper Ryne study card', async () => {
+    fixture.componentInstance.openCardAnatomy();
+    fixture.componentInstance.setMode('showAll');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const markers = fixture.nativeElement.querySelectorAll(
+      '.card-anatomy-showcase__all-marker'
+    );
+
+    expect(markers.length).toBe(11);
+  });
+
 });

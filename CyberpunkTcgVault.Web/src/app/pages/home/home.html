@@ -124,10 +124,16 @@
                 }
               </div>
 
+              @if (card.power !== null || card.ramCost !== null) {
               <div class="card-statline">
-                <span>PWR {{ card.power ?? '—' }}</span>
-                <span>RAM {{ card.ramCost ?? '—' }}</span>
+                @if (card.power !== null) {
+                <span>PWR {{ card.power }}</span>
+                }
+                @if (card.ramCost !== null) {
+                <span>RAM {{ card.ramCost }}</span>
+                }
               </div>
+              }
             </a>
             }
           </div>
@@ -201,9 +207,13 @@
                   {{ collectionExampleCard?.name ?? 'Black Clinic Miracle' }}
                 </strong>
 
+                @if (hasMeaningfulValue(collectionExampleCard?.rarity)) {
                 <span>
-                  {{ collectionExampleCard?.rarity ?? 'Legendary' }} · Near Mint
+                  {{ collectionExampleCard?.rarity }} · Near Mint
                 </span>
+                } @else {
+                <span>Near Mint</span>
+                }
               </div>
 
               <div class="vault-record__value">
@@ -246,9 +256,13 @@
                   {{ wishlistExampleCard?.name ?? 'Void Geisha' }}
                 </strong>
 
+                @if (hasMeaningfulValue(wishlistExampleCard?.rarity)) {
                 <span>
-                  {{ wishlistExampleCard?.rarity ?? 'Legendary' }} · Priority want
+                  {{ wishlistExampleCard?.rarity }} · Priority want
                 </span>
+                } @else {
+                <span>Priority want</span>
+                }
               </div>
 
               <div class="vault-record__value">

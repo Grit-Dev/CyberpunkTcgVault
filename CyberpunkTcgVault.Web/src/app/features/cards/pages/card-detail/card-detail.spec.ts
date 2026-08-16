@@ -200,4 +200,32 @@ describe('CardDetail', () => {
     expect(backLink.getAttribute('href')).toContain('page=2');
   });
 
+  it('treats unsupported metadata sentinels as absent presentation data', () => {
+    expect(fixture.componentInstance.hasMeaningfulValue('Unknown')).toBe(false);
+    expect(fixture.componentInstance.hasMeaningfulValue('NO-ID')).toBe(false);
+    expect(fixture.componentInstance.hasMeaningfulValue('—')).toBe(false);
+    expect(fixture.componentInstance.hasMeaningfulValue('Rare')).toBe(true);
+  });
+
+  it('does not render an empty printing metadata line', () => {
+    const sparseCard: Card = {
+      ...card,
+      rarity: null,
+      printings: [{
+        ...card.printings[0],
+        rarity: null,
+        languageCode: 'Unknown',
+        setCode: 'Unknown'
+      }]
+    };
+
+    fixture.componentInstance.card.set(sparseCard);
+    fixture.componentInstance.selectedPrinting.set(sparseCard.printings[0]);
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('.printing-record__line')
+    ).toBeNull();
+  });
+
 });

@@ -264,6 +264,11 @@ export class CardCatalogue implements OnInit, OnDestroy {
     ).length;
   }
 
+  get visibleRarityOptions(): string[] {
+    return this.filterOptions.rarities
+      .filter(rarity => this.hasMeaningfulValue(rarity));
+  }
+
   get sortValue(): ArchiveSortValue {
     if (this.filters.sortBy === 'name') {
       return this.filters.sortDirection === 'desc'
@@ -286,6 +291,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
 
     return ![
       'unknown',
+      'no-id',
       'n/a',
       'null',
       'none',
@@ -784,16 +790,21 @@ export class CardCatalogue implements OnInit, OnDestroy {
   private normaliseFilterOptions(
     options: CardFilterOptions
   ): CardFilterOptions {
+    const meaningfulStrings = (values: string[] | undefined): string[] =>
+      (values ?? [])
+        .map(value => value.trim())
+        .filter(value => this.hasMeaningfulValue(value));
+
     return {
-      colours: options.colours ?? [],
-      cardTypes: options.cardTypes ?? [],
-      tags: options.tags ?? [],
+      colours: meaningfulStrings(options.colours),
+      cardTypes: meaningfulStrings(options.cardTypes),
+      tags: meaningfulStrings(options.tags),
       costs: options.costs ?? [],
       powers: options.powers ?? [],
       ramValues: options.ramValues ?? [],
       eddiesValues: options.eddiesValues ?? [],
       sets: options.sets ?? [],
-      rarities: options.rarities ?? []
+      rarities: meaningfulStrings(options.rarities)
     };
   }
 
@@ -815,7 +826,9 @@ export class CardCatalogue implements OnInit, OnDestroy {
       ...this.filterOptions,
       rarities: [
         ...new Set([
-          ...this.filterOptions.rarities,
+          ...this.filterOptions.rarities.filter(rarity =>
+            this.hasMeaningfulValue(rarity)
+          ),
           ...rarities
         ])
       ].sort((left, right) => left.localeCompare(right))
