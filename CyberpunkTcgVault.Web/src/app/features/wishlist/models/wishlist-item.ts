@@ -24,7 +24,6 @@ export interface CreateWishlistItemRequest {
   wantedQuantity: number;
 }
 
-
 /** Full backend update contract. Keep existing wishlist metadata on quantity edits. */
 export interface UpdateWishlistItemRequest {
   wantedQuantity: number;

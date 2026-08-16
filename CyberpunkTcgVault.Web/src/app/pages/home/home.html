@@ -1,5 +1,4 @@
 <div class="home-page">
-
   <main>
     <section class="hero-section">
       <div class="hero-light hero-light--yellow"></div>
@@ -15,9 +14,8 @@
           </h1>
 
           <p class="hero-description">
-            Explore the shared card catalogue, track every pull and keep your
-            collection, wishlist and sealed products together in one personal
-            Vault.
+            Explore the shared card catalogue, track every pull and keep your collection, wishlist
+            and sealed products together in one personal Vault.
           </p>
 
           <div class="hero-actions">
@@ -26,9 +24,7 @@
               <span aria-hidden="true">↗</span>
             </a>
 
-            <a class="btn btn--secondary" href="#security">
-              How privacy works
-            </a>
+            <a class="btn btn--secondary" href="#security"> How privacy works </a>
           </div>
 
           <dl class="hero-stats">
@@ -63,17 +59,12 @@
           </div>
 
           <div class="database-preview-notice">
-            <span class="database-preview-notice__icon" aria-hidden="true">
-              ⌕
-            </span>
+            <span class="database-preview-notice__icon" aria-hidden="true"> ⌕ </span>
 
             <div>
               <strong>Discover here. Search there.</strong>
 
-              <span>
-                Search, filters and the complete card list live in the full
-                catalogue.
-              </span>
+              <span> Search, filters and the complete card list live in the full catalogue. </span>
             </div>
 
             <a routerLink="/cards">
@@ -86,56 +77,64 @@
             <div>
               <span>Featured selection</span>
 
-              <strong>
-                {{ featuredCards.length }} cards chosen from the Vault
-              </strong>
+              <strong> {{ featuredCards.length }} cards chosen from the Vault </strong>
             </div>
 
-            <span class="database-heading__label">
-              Homepage edit
-            </span>
+            <span class="database-heading__label"> Homepage edit </span>
           </div>
 
           <div class="prototype-card-grid">
             @for (card of featuredCards; track card.id) {
-            <a class="prototype-card" routerLink="/cards"
-              [attr.aria-label]="'Explore the full catalogue from ' + card.name">
-              <div class="card-header">
-                @if (hasMeaningfulValue(card.rarity)) {
-                <span>{{ card.rarity }}</span>
+              <a
+                class="prototype-card"
+                routerLink="/cards"
+                [attr.aria-label]="'Explore the full catalogue from ' + card.name"
+              >
+                <div class="card-header">
+                  @if (hasMeaningfulValue(card.rarity)) {
+                    <span>{{ card.rarity }}</span>
+                  }
+
+                  @if (hasMeaningfulValue(card.cardNumber)) {
+                    <strong>{{ card.cardNumber }}</strong>
+                  }
+                </div>
+
+                <div class="card-visual">
+                  <img
+                    [appCardArtwork]="card.imageUrl"
+                    [alt]="card.name"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+
+                <div class="card-information">
+                  <strong>{{ card.name }}</strong>
+
+                  @if (hasMeaningfulValue(card.classification)) {
+                    <span>{{ card.classification }}</span>
+                  } @else if (hasMeaningfulValue(card.cardType)) {
+                    <span>{{ card.cardType }}</span>
+                  }
+                </div>
+
+                @if (card.power !== null || card.ramCost !== null) {
+                  <div class="card-statline">
+                    @if (card.power !== null) {
+                      <span>PWR {{ card.power }}</span>
+                    }
+                    @if (card.ramCost !== null) {
+                      <span>RAM {{ card.ramCost }}</span>
+                    }
+                  </div>
                 }
-
-                @if (hasMeaningfulValue(card.cardNumber)) {
-                <strong>{{ card.cardNumber }}</strong>
-                }
-              </div>
-
-              <div class="card-visual">
-                <img [appCardArtwork]="card.imageUrl" [alt]="card.name" loading="lazy" decoding="async" />
-              </div>
-
-              <div class="card-information">
-                <strong>{{ card.name }}</strong>
-
-                @if (hasMeaningfulValue(card.classification)) {
-                <span>{{ card.classification }}</span>
-                } @else if (hasMeaningfulValue(card.cardType)) {
-                <span>{{ card.cardType }}</span>
-                }
-              </div>
-
-              <div class="card-statline">
-                <span>PWR {{ card.power ?? '—' }}</span>
-                <span>RAM {{ card.ramCost ?? '—' }}</span>
-              </div>
-            </a>
+              </a>
             }
           </div>
 
           <div class="database-footer">
-            <span>
-              Shared catalogue // curated homepage selection
-            </span>
+            <span> Shared catalogue // curated homepage selection </span>
 
             <a class="database-footer__link" routerLink="/cards">
               Browse all cards
@@ -162,48 +161,50 @@
           </div>
 
           <p>
-            Keep your owned cards, wanted cards and sealed products together
-            while tracking the details that matter to your collection.
+            Keep your owned cards, wanted cards and sealed products together while tracking the
+            details that matter to your collection.
           </p>
         </div>
 
         <div class="vault-snapshot" aria-label="Personal Vault examples">
           <article class="vault-snapshot__feature">
             <div class="vault-snapshot__copy">
-              <span class="feature-index">
-                01 / COLLECTION
-              </span>
+              <span class="feature-index"> 01 / COLLECTION </span>
 
               <h3>Owned cards</h3>
 
               <p>
-                Record quantity, condition, duplicates, grading candidates,
-                private notes and trading availability.
+                Record quantity, condition, duplicates, grading candidates, private notes and
+                trading availability.
               </p>
             </div>
 
             <div class="vault-record" aria-label="Owned card example">
               <div class="vault-record__thumbnail">
                 @if (collectionExampleCard?.imageUrl; as imagePath) {
-                <img [appCardArtwork]="imagePath" [alt]="collectionExampleCard?.name ?? 'Black Clinic Miracle'"
-                  loading="lazy" decoding="async" />
+                  <img
+                    [appCardArtwork]="imagePath"
+                    [alt]="collectionExampleCard?.name ?? 'Black Clinic Miracle'"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 } @else {
-                <span aria-hidden="true">CV</span>
+                  <span aria-hidden="true">CV</span>
                 }
               </div>
 
               <div class="vault-record__content">
-                <span class="vault-record__type">
-                  Owned card
-                </span>
+                <span class="vault-record__type"> Owned card </span>
 
                 <strong>
                   {{ collectionExampleCard?.name ?? 'Black Clinic Miracle' }}
                 </strong>
 
-                <span>
-                  {{ collectionExampleCard?.rarity ?? 'Legendary' }} · Near Mint
-                </span>
+                @if (hasMeaningfulValue(collectionExampleCard?.rarity)) {
+                  <span> {{ collectionExampleCard?.rarity }} · Near Mint </span>
+                } @else {
+                  <span>Near Mint</span>
+                }
               </div>
 
               <div class="vault-record__value">
@@ -215,40 +216,42 @@
 
           <article class="vault-snapshot__feature">
             <div class="vault-snapshot__copy">
-              <span class="feature-index">
-                02 / WISHLIST
-              </span>
+              <span class="feature-index"> 02 / WISHLIST </span>
 
               <h3>Wanted cards</h3>
 
               <p>
-                Track the exact card printings you are still chasing, manage
-                wanted quantities and see what you already own.
+                Track the exact card printings you are still chasing, manage wanted quantities and
+                see what you already own.
               </p>
             </div>
 
             <div class="vault-record" aria-label="Wanted card example">
               <div class="vault-record__thumbnail">
                 @if (wishlistExampleCard?.imageUrl; as imagePath) {
-                <img [appCardArtwork]="imagePath" [alt]="wishlistExampleCard?.name ?? 'Void Geisha'" loading="lazy"
-                  decoding="async" />
+                  <img
+                    [appCardArtwork]="imagePath"
+                    [alt]="wishlistExampleCard?.name ?? 'Void Geisha'"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 } @else {
-                <span aria-hidden="true">CV</span>
+                  <span aria-hidden="true">CV</span>
                 }
               </div>
 
               <div class="vault-record__content">
-                <span class="vault-record__type">
-                  Wishlist
-                </span>
+                <span class="vault-record__type"> Wishlist </span>
 
                 <strong>
                   {{ wishlistExampleCard?.name ?? 'Void Geisha' }}
                 </strong>
 
-                <span>
-                  {{ wishlistExampleCard?.rarity ?? 'Legendary' }} · Priority want
-                </span>
+                @if (hasMeaningfulValue(wishlistExampleCard?.rarity)) {
+                  <span> {{ wishlistExampleCard?.rarity }} · Priority want </span>
+                } @else {
+                  <span>Priority want</span>
+                }
               </div>
 
               <div class="vault-record__value">
@@ -260,33 +263,30 @@
 
           <article class="vault-snapshot__feature">
             <div class="vault-snapshot__copy">
-              <span class="feature-index">
-                03 / SEALED
-              </span>
+              <span class="feature-index"> 03 / SEALED </span>
 
               <h3>Sealed products</h3>
 
               <p>
-                Archive the sealed products you keep unopened, with quantity,
-                edition details, artwork references and private storage information.
+                Archive the sealed products you keep unopened, with quantity, edition details,
+                artwork references and private storage information.
               </p>
             </div>
 
             <div class="vault-record" aria-label="Owned sealed product example">
-              <div class="vault-record__thumbnail vault-record__thumbnail--product" aria-hidden="true">
+              <div
+                class="vault-record__thumbnail vault-record__thumbnail--product"
+                aria-hidden="true"
+              >
                 <span>SEALED</span>
               </div>
 
               <div class="vault-record__content">
-                <span class="vault-record__type">
-                  Sealed product
-                </span>
+                <span class="vault-record__type"> Sealed product </span>
 
                 <strong>Booster Display</strong>
 
-                <span>
-                  Factory sealed · Stored
-                </span>
+                <span> Factory sealed · Stored </span>
               </div>
 
               <div class="vault-record__value">
@@ -312,9 +312,8 @@
           </div>
 
           <p>
-            Your collection, wishlist, sealed products and private notes belong
-            to your account. Other collectors cannot browse or change your
-            personal Vault records.
+            Your collection, wishlist, sealed products and private notes belong to your account.
+            Other collectors cannot browse or change your personal Vault records.
           </p>
 
           <ul>
@@ -344,9 +343,7 @@
           <div class="trust-surface__header">
             <span>Personal Vault</span>
 
-            <strong id="account-privacy-title">
-              Private by default
-            </strong>
+            <strong id="account-privacy-title"> Private by default </strong>
           </div>
 
           <ul class="trust-surface__records" aria-label="Private Vault information">
@@ -359,10 +356,7 @@
           <div class="trust-surface__note">
             <strong>Shared catalogue</strong>
 
-            <span>
-              Card data is discoverable while your personal Vault records stay
-              private.
-            </span>
+            <span> Card data is discoverable while your personal Vault records stay private. </span>
           </div>
         </aside>
       </div>
@@ -371,17 +365,13 @@
     <section class="final-cta">
       <div class="container final-cta-inner">
         <div>
-          <span class="cta-code">
-            BUILD YOUR VAULT
-          </span>
+          <span class="cta-code"> BUILD YOUR VAULT </span>
 
-          <h2>
-            Your collection deserves a home.
-          </h2>
+          <h2>Your collection deserves a home.</h2>
 
           <p>
-            Explore the catalogue, keep track of what you own and build a Vault
-            around the collection that matters to you.
+            Explore the catalogue, keep track of what you own and build a Vault around the
+            collection that matters to you.
           </p>
         </div>
 
@@ -392,5 +382,4 @@
       </div>
     </section>
   </main>
-
 </div>

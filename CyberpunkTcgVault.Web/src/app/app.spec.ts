@@ -7,9 +7,7 @@ import { App } from './app';
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        App
-      ],
+      imports: [App],
       providers: [
         /*
          * The App shell contains Angular Router functionality.
@@ -17,58 +15,43 @@ describe('App', () => {
          */
         provideRouter([]),
         provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
   });
 
   it('should create the app', () => {
-    const fixture =
-      TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(App);
 
-    expect(
-      fixture.componentInstance
-    ).toBeTruthy();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
   it('should render the shared site header', () => {
-    const fixture =
-      TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(App);
 
     fixture.detectChanges();
 
-    const header =
-      fixture.nativeElement.querySelector(
-        'app-site-header'
-      );
+    const header = fixture.nativeElement.querySelector('app-site-header');
 
     expect(header).toBeTruthy();
   });
 
   it('should render the router outlet', () => {
-    const fixture =
-      TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(App);
 
     fixture.detectChanges();
 
-    const outlet =
-      fixture.nativeElement.querySelector(
-        'router-outlet'
-      );
+    const outlet = fixture.nativeElement.querySelector('router-outlet');
 
     expect(outlet).toBeTruthy();
   });
 
   it('should render the shared site footer', () => {
-    const fixture =
-      TestBed.createComponent(App);
+    const fixture = TestBed.createComponent(App);
 
     fixture.detectChanges();
 
-    const footer =
-      fixture.nativeElement.querySelector(
-        'app-site-footer'
-      );
+    const footer = fixture.nativeElement.querySelector('app-site-footer');
 
     expect(footer).toBeTruthy();
   });

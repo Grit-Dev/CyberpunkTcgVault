@@ -1,8 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -17,7 +14,7 @@ const user = {
   email: 'collector@example.com',
   roles: ['User'],
   emailConfirmed: true,
-  twoFactorEnabled: false
+  twoFactorEnabled: false,
 };
 
 const product: CollectionProduct = {
@@ -41,7 +38,7 @@ const product: CollectionProduct = {
   isOpenToTrade: false,
   maySellLater: false,
   imageUrl: '/images/products/ncl-display.png',
-  notes: 'Keep sealed.'
+  notes: 'Keep sealed.',
 };
 
 describe('CollectionProductsService', () => {
@@ -58,10 +55,10 @@ describe('CollectionProductsService', () => {
           provide: AuthService,
           useValue: {
             currentUser,
-            isAuthenticated: signal(true)
-          }
-        }
-      ]
+            isAuthenticated: signal(true),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(CollectionProductsService);
@@ -73,7 +70,7 @@ describe('CollectionProductsService', () => {
   });
 
   it('preserves the complete sealed record while changing quantity', () => {
-    service.updateQuantity(product, 3).subscribe(updated => {
+    service.updateQuantity(product, 3).subscribe((updated) => {
       expect(updated.quantity).toBe(3);
       expect(updated.storageLocation).toBe('Case A');
       expect(updated.purchaseCost).toBe(100);
@@ -102,38 +99,40 @@ describe('CollectionProductsService', () => {
       isOpenToTrade: false,
       maySellLater: false,
       imageUrl: '/images/products/ncl-display.png',
-      notes: 'Keep sealed.'
+      notes: 'Keep sealed.',
     });
 
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
   });
 
   it('adds the server-confirmed created product to local state', () => {
-    service.create({
-      productName: 'Starter Deck',
-      productType: 'Starter',
-      edition: null,
-      quantity: 1,
-      isSealed: true,
-      isBetaProduct: false,
-      isKickstarterProduct: false,
-      isRetailProduct: true,
-      isPledgeItem: false,
-      purchaseCost: null,
-      shippingCost: null,
-      vatCost: null,
-      estimatedValue: null,
-      minimumSellPrice: null,
-      storageLocation: null,
-      isLongTermHold: false,
-      isOpenToTrade: false,
-      maySellLater: false,
-      imageUrl: null,
-      notes: null
-    }).subscribe();
+    service
+      .create({
+        productName: 'Starter Deck',
+        productType: 'Starter',
+        edition: null,
+        quantity: 1,
+        isSealed: true,
+        isBetaProduct: false,
+        isKickstarterProduct: false,
+        isRetailProduct: true,
+        isPledgeItem: false,
+        purchaseCost: null,
+        shippingCost: null,
+        vatCost: null,
+        estimatedValue: null,
+        minimumSellPrice: null,
+        storageLocation: null,
+        isLongTermHold: false,
+        isOpenToTrade: false,
+        maySellLater: false,
+        imageUrl: null,
+        notes: null,
+      })
+      .subscribe();
 
     const request = httpTesting.expectOne(API_ENDPOINTS.collectionProducts);
     expect(request.request.method).toBe('POST');
@@ -142,10 +141,10 @@ describe('CollectionProductsService', () => {
       id: 8,
       productName: 'Starter Deck',
       productType: 'Starter',
-      quantity: 1
+      quantity: 1,
     });
 
-    expect(service.items().some(item => item.id === 8)).toBe(true);
+    expect(service.items().some((item) => item.id === 8)).toBe(true);
   });
 
   it('removes only the selected product after API success', () => {
@@ -158,7 +157,7 @@ describe('CollectionProductsService', () => {
     expect(request.request.method).toBe('DELETE');
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
 
     expect(service.items()).toEqual([]);

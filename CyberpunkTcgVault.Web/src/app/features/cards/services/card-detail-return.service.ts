@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export type CardDetailReturnOrigin =
-  'archive' |
-  'collection' |
-  'wishlist';
+export type CardDetailReturnOrigin = 'archive' | 'collection' | 'wishlist';
 
 export interface CardDetailReturnContext {
   label: 'Vault Archive' | 'Collection' | 'Wishlist';
@@ -19,15 +16,12 @@ export interface CardDetailReturnContext {
  * normal in-app inspection can return to the exact originating list state.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CardDetailReturnService {
   private context: CardDetailReturnContext | null = null;
 
-  save(
-    origin: CardDetailReturnOrigin,
-    url: string
-  ): void {
+  save(origin: CardDetailReturnOrigin, url: string): void {
     const path = this.pathFor(origin);
 
     if (!this.isValidInternalListUrl(url, path)) {
@@ -38,9 +32,7 @@ export class CardDetailReturnService {
     this.context = {
       label: this.labelFor(origin),
       path,
-      queryParams: origin === 'archive'
-        ? {}
-        : this.readQueryParams(url)
+      queryParams: origin === 'archive' ? {} : this.readQueryParams(url),
     };
   }
 
@@ -50,9 +42,7 @@ export class CardDetailReturnService {
     return context;
   }
 
-  private labelFor(
-    origin: CardDetailReturnOrigin
-  ): CardDetailReturnContext['label'] {
+  private labelFor(origin: CardDetailReturnOrigin): CardDetailReturnContext['label'] {
     switch (origin) {
       case 'collection':
         return 'Collection';
@@ -63,9 +53,7 @@ export class CardDetailReturnService {
     }
   }
 
-  private pathFor(
-    origin: CardDetailReturnOrigin
-  ): CardDetailReturnContext['path'] {
+  private pathFor(origin: CardDetailReturnOrigin): CardDetailReturnContext['path'] {
     switch (origin) {
       case 'collection':
         return '/collection';
@@ -78,7 +66,7 @@ export class CardDetailReturnService {
 
   private isValidInternalListUrl(
     url: string,
-    expectedPath: CardDetailReturnContext['path']
+    expectedPath: CardDetailReturnContext['path'],
   ): boolean {
     if (!url.startsWith('/')) {
       return false;
@@ -88,9 +76,7 @@ export class CardDetailReturnService {
     return path === expectedPath;
   }
 
-  private readQueryParams(
-    url: string
-  ): Record<string, string> {
+  private readQueryParams(url: string): Record<string, string> {
     const queryStart = url.indexOf('?');
 
     if (queryStart < 0) {
@@ -98,10 +84,7 @@ export class CardDetailReturnService {
     }
 
     const fragmentStart = url.indexOf('#', queryStart);
-    const query = url.slice(
-      queryStart + 1,
-      fragmentStart >= 0 ? fragmentStart : undefined
-    );
+    const query = url.slice(queryStart + 1, fragmentStart >= 0 ? fragmentStart : undefined);
     const params = new URLSearchParams(query);
     const queryParams: Record<string, string> = {};
 

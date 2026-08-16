@@ -4,11 +4,8 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-privacy',
   standalone: true,
-  imports: [
-    RouterLink
-  ],
+  imports: [RouterLink],
   templateUrl: './privacy.html',
-  styleUrl: './privacy.scss'
+  styleUrl: './privacy.scss',
 })
-export class Privacy {
-}
+export class Privacy {}

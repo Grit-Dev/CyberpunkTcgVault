@@ -1,22 +1,14 @@
 import { ViewportScroller } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  computed,
-  OnInit,
-  signal
-} from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
-  Validators
+  Validators,
 } from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router
-} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -25,7 +17,7 @@ import { SealedArtworkStateDirective } from '../../directives/sealed-artwork-sta
 import {
   CollectionProduct,
   CreateCollectionProductRequest,
-  UpdateCollectionProductRequest
+  UpdateCollectionProductRequest,
 } from '../../models/collection-product';
 import { CollectionProductsService } from '../../services/collection-products.service';
 
@@ -40,9 +32,7 @@ function optionalHttpUrlValidator(control: AbstractControl): ValidationErrors | 
     const url = new URL(value);
     const isHttpUrl = url.protocol === 'http:' || url.protocol === 'https:';
 
-    return isHttpUrl && Boolean(url.hostname)
-      ? null
-      : { invalidArtworkUrl: true };
+    return isHttpUrl && Boolean(url.hostname) ? null : { invalidArtworkUrl: true };
   } catch {
     return { invalidArtworkUrl: true };
   }
@@ -54,7 +44,7 @@ function optionalHttpUrlValidator(control: AbstractControl): ValidationErrors | 
   standalone: true,
   imports: [ReactiveFormsModule, SealedArtworkStateDirective],
   templateUrl: './sealed.html',
-  styleUrl: './sealed.scss'
+  styleUrl: './sealed.scss',
 })
 export class Sealed implements OnInit {
   readonly isLoading = signal(true);
@@ -74,7 +64,7 @@ export class Sealed implements OnInit {
 
   /** Only unopened records belong on this product surface. */
   readonly sealedItems = computed(() =>
-    this.collectionProductsService.items().filter(item => item.isSealed)
+    this.collectionProductsService.items().filter((item) => item.isSealed),
   );
 
   readonly filteredItems = computed(() => {
@@ -84,20 +74,14 @@ export class Sealed implements OnInit {
       return this.sealedItems();
     }
 
-    return this.sealedItems().filter(item =>
-      [
-        item.productName,
-        item.productType,
-        item.edition
-      ]
+    return this.sealedItems().filter((item) =>
+      [item.productName, item.productType, item.edition]
         .filter((value): value is string => Boolean(value))
-        .some(value => value.toLowerCase().includes(query))
+        .some((value) => value.toLowerCase().includes(query)),
     );
   });
 
-  readonly totalPages = computed(
-    () => Math.ceil(this.filteredItems().length / this.pageSize)
-  );
+  readonly totalPages = computed(() => Math.ceil(this.filteredItems().length / this.pageSize));
 
   readonly activePage = computed(() => {
     const totalPages = this.totalPages();
@@ -124,32 +108,21 @@ export class Sealed implements OnInit {
     }
 
     let startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(
-      totalPages,
-      startPage + maximumVisiblePages - 1
-    );
+    const endPage = Math.min(totalPages, startPage + maximumVisiblePages - 1);
 
     if (endPage - startPage + 1 < maximumVisiblePages) {
       startPage = Math.max(1, endPage - maximumVisiblePages + 1);
     }
 
-    return Array.from(
-      { length: endPage - startPage + 1 },
-      (_, index) => startPage + index
-    );
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
   });
 
-  readonly firstVisibleRecord = computed(
-    () => this.filteredItems().length === 0
-      ? 0
-      : (this.activePage() - 1) * this.pageSize + 1
+  readonly firstVisibleRecord = computed(() =>
+    this.filteredItems().length === 0 ? 0 : (this.activePage() - 1) * this.pageSize + 1,
   );
 
-  readonly lastVisibleRecord = computed(
-    () => Math.min(
-      this.activePage() * this.pageSize,
-      this.filteredItems().length
-    )
+  readonly lastVisibleRecord = computed(() =>
+    Math.min(this.activePage() * this.pageSize, this.filteredItems().length),
   );
 
   readonly hasFilters = computed(() => Boolean(this.searchQuery().trim()));
@@ -162,7 +135,7 @@ export class Sealed implements OnInit {
     private readonly feedback: FeedbackService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly viewportScroller: ViewportScroller
+    private readonly viewportScroller: ViewportScroller,
   ) {
     this.createForm = this.formBuilder.nonNullable.group({
       productName: ['', Validators.required],
@@ -171,7 +144,7 @@ export class Sealed implements OnInit {
       quantity: [1, [Validators.required, Validators.min(1)]],
       imageUrl: ['', optionalHttpUrlValidator],
       storageLocation: [''],
-      notes: ['']
+      notes: [''],
     });
 
     this.editForm = this.formBuilder.nonNullable.group({
@@ -180,7 +153,7 @@ export class Sealed implements OnInit {
       edition: [''],
       imageUrl: ['', optionalHttpUrlValidator],
       storageLocation: [''],
-      notes: ['']
+      notes: [''],
     });
   }
 
@@ -189,11 +162,7 @@ export class Sealed implements OnInit {
     const requestedPage = Number(queryParams.get('page'));
 
     this.searchQuery.set(queryParams.get('q') ?? '');
-    this.currentPage.set(
-      Number.isInteger(requestedPage) && requestedPage > 0
-        ? requestedPage
-        : 1
-    );
+    this.currentPage.set(Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1);
 
     this.loadProducts();
   }
@@ -255,7 +224,7 @@ export class Sealed implements OnInit {
       quantity: 1,
       imageUrl: '',
       storageLocation: '',
-      notes: ''
+      notes: '',
     });
     this.isCreating.set(true);
   }
@@ -270,11 +239,7 @@ export class Sealed implements OnInit {
     this.formError.set(null);
     this.createForm.markAllAsTouched();
 
-    if (
-      this.createForm.invalid ||
-      this.isSavingCreate() ||
-      !this.canCreateOrDelete()
-    ) {
+    if (this.createForm.invalid || this.isSavingCreate() || !this.canCreateOrDelete()) {
       return;
     }
 
@@ -299,7 +264,7 @@ export class Sealed implements OnInit {
       isOpenToTrade: false,
       maySellLater: false,
       imageUrl: this.normaliseOptionalText(values.imageUrl),
-      notes: this.normaliseOptionalText(values.notes)
+      notes: this.normaliseOptionalText(values.notes),
     };
 
     this.isSavingCreate.set(true);
@@ -313,7 +278,7 @@ export class Sealed implements OnInit {
           this.ensureCurrentPageInRange();
           this.feedback.showStatus('Sealed product added.');
         },
-        error: error => this.handleFormMutationError(error)
+        error: (error) => this.handleFormMutationError(error),
       });
   }
 
@@ -331,7 +296,7 @@ export class Sealed implements OnInit {
       edition: item.edition ?? '',
       imageUrl: item.imageUrl ?? '',
       storageLocation: item.storageLocation ?? '',
-      notes: item.notes ?? ''
+      notes: item.notes ?? '',
     });
   }
 
@@ -362,7 +327,7 @@ export class Sealed implements OnInit {
       edition: this.normaliseOptionalText(values.edition),
       imageUrl: this.normaliseOptionalText(values.imageUrl),
       storageLocation: this.normaliseOptionalText(values.storageLocation),
-      notes: this.normaliseOptionalText(values.notes)
+      notes: this.normaliseOptionalText(values.notes),
     };
 
     this.isSavingEdit.set(true);
@@ -374,14 +339,14 @@ export class Sealed implements OnInit {
         finalize(() => {
           this.isSavingEdit.set(false);
           this.setProductBusy(item.id, false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
           this.editingProductId.set(null);
           this.feedback.showStatus('Sealed record saved.');
         },
-        error: error => this.handleFormMutationError(error)
+        error: (error) => this.handleFormMutationError(error),
       });
   }
 
@@ -419,7 +384,7 @@ export class Sealed implements OnInit {
           this.ensureCurrentPageInRange();
           this.feedback.showStatus('Sealed product removed.');
         },
-        error: error => this.handleMutationError(error)
+        error: (error) => this.handleMutationError(error),
       });
   }
 
@@ -445,10 +410,10 @@ export class Sealed implements OnInit {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: () => this.ensureCurrentPageInRange(),
-        error: error => {
+        error: (error) => {
           this.loadError.set(true);
           this.handleSessionError(error);
-        }
+        },
       });
   }
 
@@ -460,7 +425,7 @@ export class Sealed implements OnInit {
       .pipe(finalize(() => this.setProductBusy(item.id, false)))
       .subscribe({
         next: () => this.feedback.showStatus('Sealed quantity updated.'),
-        error: error => this.handleMutationError(error)
+        error: (error) => this.handleMutationError(error),
       });
   }
 
@@ -518,13 +483,13 @@ export class Sealed implements OnInit {
 
     this.feedback.showError('Your session ended. Sign in to continue.');
     void this.router.navigate(['/login'], {
-      queryParams: { returnUrl: this.router.url }
+      queryParams: { returnUrl: this.router.url },
     });
     return true;
   }
 
   private setProductBusy(id: number, busy: boolean): void {
-    this.busyProductIds.update(current => {
+    this.busyProductIds.update((current) => {
       const next = new Set(current);
       busy ? next.add(id) : next.delete(id);
       return next;
@@ -538,9 +503,7 @@ export class Sealed implements OnInit {
 
   private ensureCurrentPageInRange(): void {
     const totalPages = this.totalPages();
-    const nextPage = totalPages <= 0
-      ? 1
-      : Math.min(this.currentPage(), totalPages);
+    const nextPage = totalPages <= 0 ? 1 : Math.min(this.currentPage(), totalPages);
 
     if (nextPage !== this.currentPage()) {
       this.currentPage.set(nextPage);
@@ -551,13 +514,13 @@ export class Sealed implements OnInit {
   private syncUrlState(): void {
     const queryParams: Record<string, string | number | null> = {
       q: this.searchQuery().trim() || null,
-      page: this.activePage() > 1 ? this.activePage() : null
+      page: this.activePage() > 1 ? this.activePage() : null,
     };
 
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams,
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 
@@ -587,7 +550,7 @@ export class Sealed implements OnInit {
       isOpenToTrade: item.isOpenToTrade,
       maySellLater: item.maySellLater,
       imageUrl: item.imageUrl,
-      notes: item.notes
+      notes: item.notes,
     };
   }
 }

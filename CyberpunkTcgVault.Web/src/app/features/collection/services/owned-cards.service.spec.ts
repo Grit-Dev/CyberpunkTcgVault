@@ -1,19 +1,11 @@
-import {
-  provideHttpClient
-} from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { API_ENDPOINTS } from '../../../core/http/api-endpoints';
-import {
-  OwnedCard,
-  UpdateOwnedCardRequest
-} from '../models/owned-card';
+import { OwnedCard, UpdateOwnedCardRequest } from '../models/owned-card';
 import { OwnedCardsService } from './owned-cards.service';
 
 const user = {
@@ -22,7 +14,7 @@ const user = {
   email: 'collector@example.com',
   roles: ['User'],
   emailConfirmed: true,
-  twoFactorEnabled: false
+  twoFactorEnabled: false,
 };
 
 const ownedCard: OwnedCard = {
@@ -43,7 +35,7 @@ const ownedCard: OwnedCard = {
   isOpenForTrade: false,
   isOpenToMessages: true,
   maySellLater: false,
-  notes: 'Keep this copy.'
+  notes: 'Keep this copy.',
 };
 
 describe('OwnedCardsService', () => {
@@ -60,10 +52,10 @@ describe('OwnedCardsService', () => {
           provide: AuthService,
           useValue: {
             currentUser,
-            isAuthenticated: signal(true)
-          }
-        }
-      ]
+            isAuthenticated: signal(true),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(OwnedCardsService);
@@ -75,7 +67,7 @@ describe('OwnedCardsService', () => {
   });
 
   it('preserves collector metadata when updating quantity', () => {
-    service.updateQuantity(ownedCard, 3).subscribe(updated => {
+    service.updateQuantity(ownedCard, 3).subscribe((updated) => {
       expect(updated.quantityOwned).toBe(3);
       expect(updated.notes).toBe('Keep this copy.');
     });
@@ -92,12 +84,12 @@ describe('OwnedCardsService', () => {
       isOpenForTrade: false,
       isOpenToMessages: true,
       maySellLater: false,
-      notes: 'Keep this copy.'
+      notes: 'Keep this copy.',
     });
 
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
   });
 
@@ -114,10 +106,10 @@ describe('OwnedCardsService', () => {
       isOpenForTrade: true,
       isOpenToMessages: false,
       maySellLater: true,
-      notes: 'Trade copy.'
+      notes: 'Trade copy.',
     };
 
-    service.updateRecord(ownedCard, update).subscribe(updated => {
+    service.updateRecord(ownedCard, update).subscribe((updated) => {
       expect(updated).toEqual({ ...ownedCard, ...update });
     });
 
@@ -126,7 +118,7 @@ describe('OwnedCardsService', () => {
     expect(request.request.body).toEqual(update);
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
 
     expect(service.items()).toEqual([{ ...ownedCard, ...update }]);
@@ -142,7 +134,7 @@ describe('OwnedCardsService', () => {
     expect(request.request.method).toBe('DELETE');
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
 
     expect(service.items()).toEqual([]);

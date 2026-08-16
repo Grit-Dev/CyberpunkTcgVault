@@ -39,7 +39,6 @@ export interface RecoveryCodeLoginRequest {
   recoveryCode: string;
 }
 
-
 export interface ForgotPasswordRequest {
   email: string;
 }

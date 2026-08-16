@@ -1,8 +1,5 @@
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -17,7 +14,7 @@ const normalUser = {
   email: 'collector@example.com',
   roles: ['User'],
   emailConfirmed: true,
-  twoFactorEnabled: false
+  twoFactorEnabled: false,
 };
 
 const demoUser = {
@@ -25,7 +22,7 @@ const demoUser = {
   userId: 'demo-1',
   userName: 'Demo',
   email: 'demo@example.com',
-  roles: ['Demo']
+  roles: ['Demo'],
 };
 
 describe('Account', () => {
@@ -38,14 +35,15 @@ describe('Account', () => {
     currentUser,
     isDemo: signal(false),
     logout: () => of(undefined),
-    clearAuthenticatedSession: vi.fn()
+    clearAuthenticatedSession: vi.fn(),
   };
 
   const accountServiceStub = {
     load: () => of(loadResult),
-    deleteAccount: () => deleteResult === 'success'
-      ? of(undefined)
-      : throwError(() => new HttpErrorResponse({ status: 400 }))
+    deleteAccount: () =>
+      deleteResult === 'success'
+        ? of(undefined)
+        : throwError(() => new HttpErrorResponse({ status: 400 })),
   };
 
   beforeEach(async () => {
@@ -75,8 +73,8 @@ describe('Account', () => {
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authServiceStub },
-        { provide: AccountService, useValue: accountServiceStub }
-      ]
+        { provide: AccountService, useValue: accountServiceStub },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Account);
@@ -96,7 +94,7 @@ describe('Account', () => {
 
   it('shows deletion for a normal User account and requires the current password in the confirmation dialog', () => {
     const deleteButton = fixture.nativeElement.querySelector(
-      '.account-delete__trigger'
+      '.account-delete__trigger',
     ) as HTMLButtonElement;
 
     expect(deleteButton).toBeTruthy();
@@ -105,15 +103,17 @@ describe('Account', () => {
     fixture.detectChanges();
 
     const dialog = fixture.nativeElement.querySelector(
-      '.account-delete-dialog'
+      '.account-delete-dialog',
     ) as HTMLDialogElement;
     const password = fixture.nativeElement.querySelector(
-      '#account-delete-password'
+      '#account-delete-password',
     ) as HTMLInputElement;
 
     expect(dialog.open).toBe(true);
     expect(password.getAttribute('autocomplete')).toBe('current-password');
-    expect(dialog.textContent).toContain('Account lifecycleDelete your account? This permanently removes your Choom Vault account and private collector records. This cannot be undone. Current password Cancel  Delete account');
+    expect(dialog.textContent).toContain(
+      'Account lifecycleDelete your account? This permanently removes your Choom Vault account and private collector records. This cannot be undone. Current password Cancel  Delete account',
+    );
     expect(dialog.textContent).toContain('This cannot be undone.');
   });
 
@@ -124,7 +124,7 @@ describe('Account', () => {
 
     expect(fixture.nativeElement.querySelector('.account-delete__trigger')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain(
-      'Account deletion is unavailable in the Demo Vault.'
+      'Account deletion is unavailable in the Demo Vault.',
     );
   });
 
@@ -132,27 +132,27 @@ describe('Account', () => {
     deleteResult = 'failure';
 
     const deleteButton = fixture.nativeElement.querySelector(
-      '.account-delete__trigger'
+      '.account-delete__trigger',
     ) as HTMLButtonElement;
     deleteButton.click();
     fixture.detectChanges();
 
     const password = fixture.nativeElement.querySelector(
-      '#account-delete-password'
+      '#account-delete-password',
     ) as HTMLInputElement;
     password.value = 'password-123';
     password.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
     const submit = fixture.nativeElement.querySelector(
-      '.account-dialog-delete'
+      '.account-dialog-delete',
     ) as HTMLButtonElement;
     submit.click();
     fixture.detectChanges();
 
     expect(authServiceStub.clearAuthenticatedSession).not.toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).toContain(
-      "We couldn't delete your account. Try again."
+      "We couldn't delete your account. Try again.",
     );
   });
 });

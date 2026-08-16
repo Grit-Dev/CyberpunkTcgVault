@@ -1,7 +1,4 @@
-import {
-  Component,
-  OnInit
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { AuthService } from './core/auth/auth.service';
@@ -18,19 +15,15 @@ import { SiteHeader } from './shared/layout/site-header/site-header';
  */
 @Component({
   selector: 'app-root',
-  imports: [
-    RouterOutlet,
-    SiteHeader,
-    SiteFooter
-  ],
+  imports: [RouterOutlet, SiteHeader, SiteFooter],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App implements OnInit {
   constructor(
     private readonly authService: AuthService,
-    private readonly capabilitiesService: CapabilitiesService
-  ) { }
+    private readonly capabilitiesService: CapabilitiesService,
+  ) {}
 
   ngOnInit(): void {
     // Both calls are one-shot HTTP requests and complete automatically.

@@ -1,8 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { API_ENDPOINTS } from '../../../core/http/api-endpoints';
@@ -14,10 +11,7 @@ describe('CardsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(CardsService);
@@ -29,28 +23,30 @@ describe('CardsService', () => {
   });
 
   it('sends combined Archive filters to the paged backend endpoint', () => {
-    service.getCardsPage(
-      {
-        name: 'v',
-        setCode: 'NCL',
-        cardType: 'Unit',
-        rarity: 'Legendary',
-        colour: 'Blue',
-        classification: 'Character',
-        tags: 'Solo',
-        cost: 7,
-        power: 5,
-        ram: 2,
-        eddies: 4,
-        sortBy: 'name',
-        sortDirection: 'desc'
-      },
-      2,
-      24
-    ).subscribe();
+    service
+      .getCardsPage(
+        {
+          name: 'v',
+          setCode: 'NCL',
+          cardType: 'Unit',
+          rarity: 'Legendary',
+          colour: 'Blue',
+          classification: 'Character',
+          tags: 'Solo',
+          cost: 7,
+          power: 5,
+          ram: 2,
+          eddies: 4,
+          sortBy: 'name',
+          sortDirection: 'desc',
+        },
+        2,
+        24,
+      )
+      .subscribe();
 
     const request = httpTesting.expectOne(
-      candidate => candidate.url === API_ENDPOINTS.cardsPaged
+      (candidate) => candidate.url === API_ENDPOINTS.cardsPaged,
     );
 
     expect(request.request.method).toBe('GET');
@@ -75,16 +71,14 @@ describe('CardsService', () => {
       page: 2,
       pageSize: 24,
       totalCount: 0,
-      totalPages: 0
+      totalPages: 0,
     });
   });
 
   it('loads genuine filter choices from the backend', () => {
     service.getFilterOptions().subscribe();
 
-    const request = httpTesting.expectOne(
-      API_ENDPOINTS.cardFilterOptions
-    );
+    const request = httpTesting.expectOne(API_ENDPOINTS.cardFilterOptions);
 
     expect(request.request.method).toBe('GET');
 
@@ -97,7 +91,7 @@ describe('CardsService', () => {
       ramValues: [],
       eddiesValues: [],
       sets: [],
-      rarities: []
+      rarities: [],
     });
   });
 });

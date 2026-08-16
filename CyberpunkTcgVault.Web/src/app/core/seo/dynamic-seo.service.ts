@@ -17,7 +17,7 @@ export interface DynamicSeoMetadata {
  * external URLs.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DynamicSeoService {
   private readonly document = inject(DOCUMENT);
@@ -28,11 +28,11 @@ export class DynamicSeoService {
     this.title.setTitle(metadata.title);
     this.meta.updateTag({
       name: 'description',
-      content: metadata.description
+      content: metadata.description,
     });
     this.meta.updateTag({
       name: 'robots',
-      content: metadata.robots
+      content: metadata.robots,
     });
 
     if (metadata.canonicalPath) {
@@ -43,9 +43,7 @@ export class DynamicSeoService {
   }
 
   removeCanonical(): void {
-    this.document
-      .querySelector<HTMLLinkElement>('link[rel="canonical"]')
-      ?.remove();
+    this.document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.remove();
   }
 
   private setCanonical(path: string): void {

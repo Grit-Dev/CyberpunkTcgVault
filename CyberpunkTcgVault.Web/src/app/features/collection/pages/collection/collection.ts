@@ -1,21 +1,8 @@
 import { ViewportScroller } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  computed,
-  OnInit,
-  signal
-} from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink
-} from '@angular/router';
+import { Component, computed, OnInit, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { FeedbackService } from '../../../../core/feedback/feedback.service';
@@ -38,13 +25,9 @@ interface ValidationProblemDetails {
 @Component({
   selector: 'app-collection',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    CardArtworkDirective
-  ],
+  imports: [ReactiveFormsModule, RouterLink, CardArtworkDirective],
   templateUrl: './collection.html',
-  styleUrl: './collection.scss'
+  styleUrl: './collection.scss',
 })
 export class Collection implements OnInit {
   readonly isLoading = signal(true);
@@ -65,8 +48,8 @@ export class Collection implements OnInit {
   readonly setOptions = computed(() => {
     const options = this.ownedCardsService
       .items()
-      .map(item => item.setName?.trim() ?? '')
-      .filter(value => this.hasMeaningfulValue(value));
+      .map((item) => item.setName?.trim() ?? '')
+      .filter((value) => this.hasMeaningfulValue(value));
 
     return [...new Set(options)].sort((a, b) => a.localeCompare(b));
   });
@@ -75,15 +58,12 @@ export class Collection implements OnInit {
     const query = this.searchQuery().trim().toLowerCase();
     const set = this.setFilter();
 
-    return this.ownedCardsService.items().filter(item => {
-      const matchesSearch = !query || [
-        item.cardName,
-        item.cardNumber,
-        item.setName,
-        item.rarity
-      ]
-        .filter((value): value is string => Boolean(value))
-        .some(value => value.toLowerCase().includes(query));
+    return this.ownedCardsService.items().filter((item) => {
+      const matchesSearch =
+        !query ||
+        [item.cardName, item.cardNumber, item.setName, item.rarity]
+          .filter((value): value is string => Boolean(value))
+          .some((value) => value.toLowerCase().includes(query));
 
       const matchesSet = !set || (item.setName?.trim() ?? '') === set;
 
@@ -91,9 +71,7 @@ export class Collection implements OnInit {
     });
   });
 
-  readonly totalPages = computed(
-    () => Math.ceil(this.filteredItems().length / this.pageSize)
-  );
+  readonly totalPages = computed(() => Math.ceil(this.filteredItems().length / this.pageSize));
 
   readonly activePage = computed(() => {
     const totalPages = this.totalPages();
@@ -108,10 +86,7 @@ export class Collection implements OnInit {
   readonly pagedItems = computed(() => {
     const startIndex = (this.activePage() - 1) * this.pageSize;
 
-    return this.filteredItems().slice(
-      startIndex,
-      startIndex + this.pageSize
-    );
+    return this.filteredItems().slice(startIndex, startIndex + this.pageSize);
   });
 
   readonly visiblePageNumbers = computed(() => {
@@ -120,47 +95,28 @@ export class Collection implements OnInit {
     const maximumVisiblePages = 5;
 
     if (totalPages <= maximumVisiblePages) {
-      return Array.from(
-        { length: totalPages },
-        (_, index) => index + 1
-      );
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
     }
 
     let startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(
-      totalPages,
-      startPage + maximumVisiblePages - 1
-    );
+    const endPage = Math.min(totalPages, startPage + maximumVisiblePages - 1);
 
     if (endPage - startPage + 1 < maximumVisiblePages) {
-      startPage = Math.max(
-        1,
-        endPage - maximumVisiblePages + 1
-      );
+      startPage = Math.max(1, endPage - maximumVisiblePages + 1);
     }
 
-    return Array.from(
-      { length: endPage - startPage + 1 },
-      (_, index) => startPage + index
-    );
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
   });
 
-  readonly firstVisibleRecord = computed(
-    () => this.filteredItems().length === 0
-      ? 0
-      : (this.activePage() - 1) * this.pageSize + 1
+  readonly firstVisibleRecord = computed(() =>
+    this.filteredItems().length === 0 ? 0 : (this.activePage() - 1) * this.pageSize + 1,
   );
 
-  readonly lastVisibleRecord = computed(
-    () => Math.min(
-      this.activePage() * this.pageSize,
-      this.filteredItems().length
-    )
+  readonly lastVisibleRecord = computed(() =>
+    Math.min(this.activePage() * this.pageSize, this.filteredItems().length),
   );
 
-  readonly hasFilters = computed(
-    () => Boolean(this.searchQuery().trim() || this.setFilter())
-  );
+  readonly hasFilters = computed(() => Boolean(this.searchQuery().trim() || this.setFilter()));
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -169,23 +125,17 @@ export class Collection implements OnInit {
     private readonly cardDetailReturnService: CardDetailReturnService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly viewportScroller: ViewportScroller
+    private readonly viewportScroller: ViewportScroller,
   ) {
     this.recordForm = this.formBuilder.nonNullable.group({
-      condition: [
-        '',
-        [Validators.maxLength(50)]
-      ],
+      condition: ['', [Validators.maxLength(50)]],
       isInMasterCollection: [false],
       isDuplicate: [false],
       isGradingCandidate: [false],
       isOpenForTrade: [false],
       isOpenToMessages: [false],
       maySellLater: [false],
-      notes: [
-        '',
-        [Validators.maxLength(2000)]
-      ]
+      notes: ['', [Validators.maxLength(2000)]],
     });
   }
 
@@ -195,11 +145,7 @@ export class Collection implements OnInit {
 
     this.searchQuery.set(queryParams.get('q') ?? '');
     this.setFilter.set(queryParams.get('set') ?? '');
-    this.currentPage.set(
-      Number.isInteger(requestedPage) && requestedPage > 0
-        ? requestedPage
-        : 1
-    );
+    this.currentPage.set(Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1);
 
     this.loadCollection();
   }
@@ -209,10 +155,7 @@ export class Collection implements OnInit {
   }
 
   rememberCardDetailReturn(): void {
-    this.cardDetailReturnService.save(
-      'collection',
-      this.router.url
-    );
+    this.cardDetailReturnService.save('collection', this.router.url);
   }
 
   updateSearch(event: Event): void {
@@ -288,9 +231,7 @@ export class Collection implements OnInit {
 
     this.ownedCardsService
       .remove(item)
-      .pipe(
-        finalize(() => this.setRecordBusy(item.id, false))
-      )
+      .pipe(finalize(() => this.setRecordBusy(item.id, false)))
       .subscribe({
         next: () => {
           if (this.editingRecordId() === item.id) {
@@ -300,7 +241,7 @@ export class Collection implements OnInit {
           this.ensureCurrentPageInRange();
           this.feedback.showStatus('Removed from Collection.');
         },
-        error: error => this.handleMutationError(error)
+        error: (error) => this.handleMutationError(error),
       });
   }
 
@@ -319,7 +260,7 @@ export class Collection implements OnInit {
       isOpenForTrade: item.isOpenForTrade,
       isOpenToMessages: item.isOpenToMessages,
       maySellLater: item.maySellLater,
-      notes: item.notes ?? ''
+      notes: item.notes ?? '',
     });
   }
 
@@ -361,20 +302,20 @@ export class Collection implements OnInit {
         isOpenForTrade: values.isOpenForTrade,
         isOpenToMessages: values.isOpenToMessages,
         maySellLater: values.maySellLater,
-        notes: this.normaliseOptionalText(values.notes)
+        notes: this.normaliseOptionalText(values.notes),
       })
       .pipe(
         finalize(() => {
           this.isSavingRecord.set(false);
           this.setRecordBusy(item.id, false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
           this.editingRecordId.set(null);
           this.feedback.showStatus('RECORD SAVED');
         },
-        error: error => this.handleSaveError(error)
+        error: (error) => this.handleSaveError(error),
       });
   }
 
@@ -391,7 +332,7 @@ export class Collection implements OnInit {
       item.isGradingCandidate ||
       item.isOpenForTrade ||
       item.isOpenToMessages ||
-      item.maySellLater
+      item.maySellLater,
     );
   }
 
@@ -400,14 +341,7 @@ export class Collection implements OnInit {
       return false;
     }
 
-    return ![
-      'unknown',
-      'n/a',
-      'null',
-      'none',
-      '-',
-      '—'
-    ].includes(value.trim().toLowerCase());
+    return !['unknown', 'n/a', 'null', 'none', '-', '—'].includes(value.trim().toLowerCase());
   }
 
   private loadCollection(forceRefresh = false): void {
@@ -419,7 +353,7 @@ export class Collection implements OnInit {
         this.isLoading.set(false);
         this.ensureCurrentPageInRange();
       },
-      error: error => {
+      error: (error) => {
         this.isLoading.set(false);
 
         if (error instanceof HttpErrorResponse && error.status === 401) {
@@ -428,7 +362,7 @@ export class Collection implements OnInit {
         }
 
         this.loadError.set(true);
-      }
+      },
     });
   }
 
@@ -437,17 +371,15 @@ export class Collection implements OnInit {
 
     this.ownedCardsService
       .updateQuantity(item, quantityOwned)
-      .pipe(
-        finalize(() => this.setRecordBusy(item.id, false))
-      )
+      .pipe(finalize(() => this.setRecordBusy(item.id, false)))
       .subscribe({
         next: () => this.feedback.showStatus('Collection updated.'),
-        error: error => this.handleMutationError(error)
+        error: (error) => this.handleMutationError(error),
       });
   }
 
   private setRecordBusy(id: number, isBusy: boolean): void {
-    this.busyRecordIds.update(current => {
+    this.busyRecordIds.update((current) => {
       const next = new Set(current);
 
       if (isBusy) {
@@ -484,16 +416,12 @@ export class Collection implements OnInit {
 
       if (error.status === 400) {
         this.applySafeValidationErrors(error.error);
-        this.saveError.set(
-          'We couldn\'t save this record. Check the details and try again.'
-        );
+        this.saveError.set("We couldn't save this record. Check the details and try again.");
         return;
       }
     }
 
-    this.saveError.set(
-      'We couldn\'t save this record. Check the details and try again.'
-    );
+    this.saveError.set("We couldn't save this record. Check the details and try again.");
   }
 
   private applySafeValidationErrors(errorBody: unknown): void {
@@ -508,15 +436,11 @@ export class Collection implements OnInit {
       const normalisedKey = key.toLowerCase();
 
       if (normalisedKey === 'condition') {
-        this.conditionServerError.set(
-          'Condition must be 50 characters or fewer.'
-        );
+        this.conditionServerError.set('Condition must be 50 characters or fewer.');
       }
 
       if (normalisedKey === 'notes') {
-        this.notesServerError.set(
-          'Notes must be 2,000 characters or fewer.'
-        );
+        this.notesServerError.set('Notes must be 2,000 characters or fewer.');
       }
     }
   }
@@ -535,7 +459,7 @@ export class Collection implements OnInit {
 
       if (error.status === 404) {
         this.feedback.showError(
-          'That collection record is no longer available. Refreshing your Collection.'
+          'That collection record is no longer available. Refreshing your Collection.',
         );
         this.loadCollection(true);
         return;
@@ -548,7 +472,7 @@ export class Collection implements OnInit {
 
       if (error.status === 400) {
         this.feedback.showError(
-          'We could not save that Collection change. Check the record and try again.'
+          'We could not save that Collection change. Check the record and try again.',
         );
         return;
       }
@@ -562,8 +486,8 @@ export class Collection implements OnInit {
 
     void this.router.navigate(['/login'], {
       queryParams: {
-        returnUrl: this.router.url
-      }
+        returnUrl: this.router.url,
+      },
     });
   }
 
@@ -588,12 +512,10 @@ export class Collection implements OnInit {
       queryParams: {
         q: this.searchQuery().trim() || null,
         set: this.setFilter() || null,
-        page: this.currentPage() > 1
-          ? this.currentPage()
-          : null
+        page: this.currentPage() > 1 ? this.currentPage() : null,
       },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 

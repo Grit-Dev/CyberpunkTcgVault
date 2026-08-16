@@ -1,359 +1,309 @@
 <div class="support-page privacy-page">
-    <main>
-        <!--
+  <main>
+    <!--
       Privacy intentionally remains one of the quietest Choom Vault pages.
       Typography, spacing and document structure carry the page.
     -->
-        <section class="support-page-hero privacy-hero">
-            <div class="container privacy-hero__inner">
-                <p class="eyebrow">
-                    PRIVACY
-                </p>
+    <section class="support-page-hero privacy-hero">
+      <div class="container privacy-hero__inner">
+        <p class="eyebrow">PRIVACY</p>
 
-                <h1 class="support-page-title">
-                    Your vault is yours.
-                </h1>
+        <h1 class="support-page-title">Your vault is yours.</h1>
 
-                <p class="support-page-hero__intro">
-                    This page explains what Choom Vault stores, what remains private and
-                    how account and collector information is handled.
-                </p>
+        <p class="support-page-hero__intro">
+          This page explains what Choom Vault stores, what remains private and how account and
+          collector information is handled.
+        </p>
+      </div>
+    </section>
+
+    <section class="support-page-section privacy-document-section">
+      <div class="container privacy-document">
+        <nav class="privacy-index" aria-label="Privacy page sections">
+          <p>On this page</p>
+
+          <a routerLink="/privacy" fragment="account-access">
+            <span>01</span>
+            Account &amp; access
+          </a>
+
+          <a routerLink="/privacy" fragment="collector-information">
+            <span>02</span>
+            Collector information
+          </a>
+
+          <a routerLink="/privacy" fragment="authentication-storage">
+            <span>03</span>
+            Cookies &amp; browser storage
+          </a>
+
+          <a routerLink="/privacy" fragment="visibility">
+            <span>04</span>
+            Visibility
+          </a>
+
+          <a routerLink="/privacy" fragment="external-services">
+            <span>05</span>
+            External services
+          </a>
+
+          <a routerLink="/privacy" fragment="account-controls">
+            <span>06</span>
+            Your controls
+          </a>
+
+          <a routerLink="/privacy" fragment="retention-rights">
+            <span>07</span>
+            Retention &amp; data rights
+          </a>
+
+          <a routerLink="/privacy" fragment="privacy-contact">
+            <span>08</span>
+            Contact
+          </a>
+        </nav>
+
+        <div class="privacy-content">
+          <aside class="privacy-status">
+            <strong>About this notice</strong>
+
+            <p>
+              This notice explains how Choom Vault handles account information, private collector
+              records and the services used to operate the application.
+            </p>
+          </aside>
+
+          <!-- 01 / ACCOUNT & ACCESS INFORMATION -->
+          <section id="account-access" class="privacy-section">
+            <div class="privacy-section__heading">
+              <span>01 / ACCOUNT &amp; ACCESS</span>
+
+              <h2>Account &amp; access information.</h2>
             </div>
-        </section>
 
-        <section class="support-page-section privacy-document-section">
-            <div class="container privacy-document">
-                <nav class="privacy-index" aria-label="Privacy page sections">
-                    <p>On this page</p>
+            <div class="privacy-section__body">
+              <p>
+                Choom Vault stores a username and email address for personal accounts so the account
+                can be identified and private collector features can be provided.
+              </p>
 
-                    <a routerLink="/privacy" fragment="account-access">
-                        <span>01</span>
-                        Account &amp; access
-                    </a>
+              <p>
+                Passwords are not stored as readable text. They are protected using the
+                password-hashing provided by the authentication system.
+              </p>
 
-                    <a routerLink="/privacy" fragment="collector-information">
-                        <span>02</span>
-                        Collector information
-                    </a>
-
-                    <a routerLink="/privacy" fragment="authentication-storage">
-                        <span>03</span>
-                        Cookies &amp; browser storage
-                    </a>
-
-                    <a routerLink="/privacy" fragment="visibility">
-                        <span>04</span>
-                        Visibility
-                    </a>
-
-                    <a routerLink="/privacy" fragment="external-services">
-                        <span>05</span>
-                        External services
-                    </a>
-
-                    <a routerLink="/privacy" fragment="account-controls">
-                        <span>06</span>
-                        Your controls
-                    </a>
-
-                    <a routerLink="/privacy" fragment="retention-rights">
-                        <span>07</span>
-                        Retention &amp; data rights
-                    </a>
-
-                    <a routerLink="/privacy" fragment="privacy-contact">
-                        <span>08</span>
-                        Contact
-                    </a>
-                </nav>
-
-                <div class="privacy-content">
-                    <aside class="privacy-status">
-                        <strong>About this notice</strong>
-
-                        <p>
-                            This notice explains how Choom Vault handles account information,
-                            private collector records and the services used to operate the
-                            application.
-                        </p>
-                    </aside>
-
-                    <!-- 01 / ACCOUNT & ACCESS INFORMATION -->
-                    <section id="account-access" class="privacy-section">
-                        <div class="privacy-section__heading">
-                            <span>01 / ACCOUNT &amp; ACCESS</span>
-
-                            <h2>
-                                Account &amp; access information.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                Choom Vault stores a username and email address for personal
-                                accounts so the account can be identified and private collector
-                                features can be provided.
-                            </p>
-
-                            <p>
-                                Passwords are not stored as readable text. They are protected
-                                using the password-hashing provided by the authentication system.
-                            </p>
-
-                            <p>
-                                Public registration is currently disabled. Demo Vault access is
-                                provided as a restricted evaluation environment and should not be
-                                used to store personal or sensitive information.
-                            </p>
-                        </div>
-                    </section>
-
-                    <!-- 02 / PRIVATE COLLECTOR INFORMATION -->
-                    <section id="collector-information" class="privacy-section">
-                        <div class="privacy-section__heading">
-                            <span>02 / COLLECTOR INFORMATION</span>
-
-                            <h2>
-                                Private collector information.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                Private collector records can include the exact card printing you
-                                own or want, quantities, condition, notes and collector preferences
-                                recorded against Collection items; wanted quantities and Wishlist
-                                information; and sealed-product information such as product details,
-                                quantity, artwork URL, storage location and notes.
-                            </p>
-
-                            <p>
-                                A storage location is text you choose to enter, such as
-                                “office cabinet” or “top shelf.”
-                            </p>
-
-                            <p>
-                                Choom Vault does not use that field to track your device location
-                                or GPS position.
-                            </p>
-
-                            <div class="privacy-example">
-                                <span>Storage location example</span>
-
-                                <strong>
-                                    Office cabinet · Top shelf
-                                </strong>
-
-                                <p>
-                                    This is collector-entered private text. It describes where you
-                                    choose to keep an item; it is not device-location tracking.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- 03 / AUTHENTICATION COOKIES & BROWSER STORAGE -->
-                    <section id="authentication-storage" class="privacy-section">
-                        <div class="privacy-section__heading">
-                            <span>03 / COOKIES &amp; BROWSER STORAGE</span>
-
-                            <h2>
-                                Authentication cookies &amp; browser storage.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                When you sign in, Choom Vault uses essential authentication and
-                                security cookies to maintain your session and protect account actions
-                                against unauthorised requests.
-                            </p>
-
-                            <p>
-                                These cookies are used for the operation and security of the signed-in
-                                service.
-                            </p>
-
-                            <p>
-                                The browser also uses short-lived session storage to preserve the
-                                current public Vault Archive view when you inspect a card and return.
-                                That temporary state contains Archive filters and page context, not
-                                authentication credentials or private collector records.
-                            </p>
-
-                            <p>
-                                Choom Vault does not currently use advertising or behavioural-tracking
-                                cookies.
-                            </p>
-                        </div>
-                    </section>
-
-                    <!-- 04 / VISIBILITY -->
-                    <section id="visibility" class="privacy-section">
-                        <div class="privacy-section__heading">
-                            <span>04 / VISIBILITY</span>
-
-                            <h2>
-                                Visibility.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                Your Collection, Wishlist and Sealed Product records are private
-                                account data and are not made public by default.
-                            </p>
-
-                            <p>
-                                This includes collector notes and user-entered storage-location
-                                information.
-                            </p>
-
-                            <p>
-                                The public Vault Archive and public Card Detail information are
-                                separate from your private collector records.
-                            </p>
-                        </div>
-                    </section>
-
-                    <!-- 05 / EXTERNAL SERVICES & HOSTING -->
-                    <section id="external-services" class="privacy-section">
-                        <div class="privacy-section__heading">
-                            <span>05 / EXTERNAL SERVICES</span>
-
-                            <h2>
-                                External services &amp; hosting.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                If you choose to save an external Artwork URL for a sealed product,
-                                your browser may contact the image host you supplied when that artwork
-                                is displayed.
-                            </p>
-
-                            <p>
-                                Choom Vault relies on external infrastructure services to host and
-                                operate the application. Information about the services used by the
-                                live deployment will be kept current in this notice.
-                            </p>
-                        </div>
-                    </section>
-
-                    <!-- 06 / YOUR CONTROLS & ACCOUNT DELETION -->
-                    <section id="account-controls" class="privacy-section">
-                        <div class="privacy-section__heading">
-                            <span>06 / YOUR CONTROLS</span>
-
-                            <h2>
-                                Your controls &amp; account deletion.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                Collection, Wishlist and Sealed Product records can be changed or
-                                removed using the controls available to your account.
-                            </p>
-
-                            <p>
-                                Eligible normal accounts can also use Delete Account from the
-                                Account page.
-                            </p>
-
-                            <p>
-                                The current application removes the account and its associated
-                                Collection, Wishlist and Sealed Product records from the active
-                                Choom Vault database and signs the session out.
-                            </p>
-
-                            <p>
-                                Demo accounts cannot use this deletion flow.
-                            </p>
-                        </div>
-                    </section>
-
-                    <!-- 07 / RETENTION & DATA RIGHTS -->
-                    <section id="retention-rights" class="privacy-section">
-                        <div class="privacy-section__heading">
-                            <span>07 / RETENTION &amp; DATA RIGHTS</span>
-
-                            <h2>
-                                Retention &amp; data rights.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                Account and private collector information remains part of the active
-                                Choom Vault service until it is changed, removed or the account is
-                                deleted, subject to any retention that may be required for operating
-                                and securing the service.
-                            </p>
-
-                            <p>
-                                Depending on the circumstances, data-protection law may give you
-                                rights relating to your personal information, including access,
-                                correction, deletion or restriction of its use.
-                            </p>
-
-                            <p>
-                                For questions or requests relating to information held by Choom Vault,
-                                contact
-                                <a class="privacy-inline-link" href="mailto:hello.choomvault@outlook.com">
-                                    hello.choomvault@outlook.com.
-                                </a>
-                            </p>
-
-                            <p>
-                                If you have a concern about how Choom Vault handles your personal
-                                information, please contact Choom Vault first so the issue can be
-                                reviewed. You also have the right to raise a data-protection complaint
-                                with the Information Commissioner's Office (ICO).
-                            </p>
-
-                            <p>
-                                <a
-                                    class="privacy-inline-link"
-                                    href="https://ico.org.uk/make-a-complaint/"
-                                >
-                                    Make a complaint to the ICO
-                                </a>
-                            </p>
-                        </div>
-                    </section>
-
-                    <!-- 08 / CONTACT -->
-                    <section id="privacy-contact" class="privacy-section privacy-section--last">
-                        <div class="privacy-section__heading">
-                            <span>08 / CONTACT</span>
-
-                            <h2>
-                                Questions and data requests.
-                            </h2>
-                        </div>
-
-                        <div class="privacy-section__body">
-                            <p>
-                                For privacy questions, data-related requests or rights concerns,
-                                visit the
-                                <a class="privacy-inline-link" routerLink="/contact">
-                                    Contact / Rights
-                                </a>
-                                page.
-                            </p>
-
-                            <p>
-                                You can also contact Choom Vault directly at
-                                <a class="privacy-inline-link" href="mailto:hello.choomvault@outlook.com">
-                                    hello.choomvault@outlook.com.
-                                </a>
-                            </p>
-                        </div>
-                    </section>
-                </div>
+              <p>
+                Public registration is currently disabled. Demo Vault access is provided as a
+                restricted evaluation environment and should not be used to store personal or
+                sensitive information.
+              </p>
             </div>
-        </section>
-    </main>
+          </section>
+
+          <!-- 02 / PRIVATE COLLECTOR INFORMATION -->
+          <section id="collector-information" class="privacy-section">
+            <div class="privacy-section__heading">
+              <span>02 / COLLECTOR INFORMATION</span>
+
+              <h2>Private collector information.</h2>
+            </div>
+
+            <div class="privacy-section__body">
+              <p>
+                Private collector records can include the exact card printing you own or want,
+                quantities, condition, notes and collector preferences recorded against Collection
+                items; wanted quantities and Wishlist information; and sealed-product information
+                such as product details, quantity, artwork URL, storage location and notes.
+              </p>
+
+              <p>
+                A storage location is text you choose to enter, such as “office cabinet” or “top
+                shelf.”
+              </p>
+
+              <p>
+                Choom Vault does not use that field to track your device location or GPS position.
+              </p>
+
+              <div class="privacy-example">
+                <span>Storage location example</span>
+
+                <strong> Office cabinet · Top shelf </strong>
+
+                <p>
+                  This is collector-entered private text. It describes where you choose to keep an
+                  item; it is not device-location tracking.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 03 / AUTHENTICATION COOKIES & BROWSER STORAGE -->
+          <section id="authentication-storage" class="privacy-section">
+            <div class="privacy-section__heading">
+              <span>03 / COOKIES &amp; BROWSER STORAGE</span>
+
+              <h2>Authentication cookies &amp; browser storage.</h2>
+            </div>
+
+            <div class="privacy-section__body">
+              <p>
+                When you sign in, Choom Vault uses essential authentication and security cookies to
+                maintain your session and protect account actions against unauthorised requests.
+              </p>
+
+              <p>These cookies are used for the operation and security of the signed-in service.</p>
+
+              <p>
+                The browser also uses short-lived session storage to preserve the current public
+                Vault Archive view when you inspect a card and return. That temporary state contains
+                Archive filters and page context, not authentication credentials or private
+                collector records.
+              </p>
+
+              <p>Choom Vault does not currently use advertising or behavioural-tracking cookies.</p>
+            </div>
+          </section>
+
+          <!-- 04 / VISIBILITY -->
+          <section id="visibility" class="privacy-section">
+            <div class="privacy-section__heading">
+              <span>04 / VISIBILITY</span>
+
+              <h2>Visibility.</h2>
+            </div>
+
+            <div class="privacy-section__body">
+              <p>
+                Your Collection, Wishlist and Sealed Product records are private account data and
+                are not made public by default.
+              </p>
+
+              <p>This includes collector notes and user-entered storage-location information.</p>
+
+              <p>
+                The public Vault Archive and public Card Detail information are separate from your
+                private collector records.
+              </p>
+            </div>
+          </section>
+
+          <!-- 05 / EXTERNAL SERVICES & HOSTING -->
+          <section id="external-services" class="privacy-section">
+            <div class="privacy-section__heading">
+              <span>05 / EXTERNAL SERVICES</span>
+
+              <h2>External services &amp; hosting.</h2>
+            </div>
+
+            <div class="privacy-section__body">
+              <p>
+                If you choose to save an external Artwork URL for a sealed product, your browser may
+                contact the image host you supplied when that artwork is displayed.
+              </p>
+
+              <p>
+                Choom Vault relies on external infrastructure services to host and operate the
+                application. Information about the services used by the live deployment will be kept
+                current in this notice.
+              </p>
+            </div>
+          </section>
+
+          <!-- 06 / YOUR CONTROLS & ACCOUNT DELETION -->
+          <section id="account-controls" class="privacy-section">
+            <div class="privacy-section__heading">
+              <span>06 / YOUR CONTROLS</span>
+
+              <h2>Your controls &amp; account deletion.</h2>
+            </div>
+
+            <div class="privacy-section__body">
+              <p>
+                Collection, Wishlist and Sealed Product records can be changed or removed using the
+                controls available to your account.
+              </p>
+
+              <p>Eligible normal accounts can also use Delete Account from the Account page.</p>
+
+              <p>
+                The current application removes the account and its associated Collection, Wishlist
+                and Sealed Product records from the active Choom Vault database and signs the
+                session out.
+              </p>
+
+              <p>Demo accounts cannot use this deletion flow.</p>
+            </div>
+          </section>
+
+          <!-- 07 / RETENTION & DATA RIGHTS -->
+          <section id="retention-rights" class="privacy-section">
+            <div class="privacy-section__heading">
+              <span>07 / RETENTION &amp; DATA RIGHTS</span>
+
+              <h2>Retention &amp; data rights.</h2>
+            </div>
+
+            <div class="privacy-section__body">
+              <p>
+                Account and private collector information remains part of the active Choom Vault
+                service until it is changed, removed or the account is deleted, subject to any
+                retention that may be required for operating and securing the service.
+              </p>
+
+              <p>
+                Depending on the circumstances, data-protection law may give you rights relating to
+                your personal information, including access, correction, deletion or restriction of
+                its use.
+              </p>
+
+              <p>
+                For questions or requests relating to information held by Choom Vault, contact
+                <a class="privacy-inline-link" href="mailto:hello.choomvault@outlook.com">
+                  hello.choomvault@outlook.com.
+                </a>
+              </p>
+
+              <p>
+                If you have a concern about how Choom Vault handles your personal information,
+                please contact Choom Vault first so the issue can be reviewed. You also have the
+                right to raise a data-protection complaint with the Information Commissioner's
+                Office (ICO).
+              </p>
+
+              <p>
+                <a class="privacy-inline-link" href="https://ico.org.uk/make-a-complaint/">
+                  Make a complaint to the ICO
+                </a>
+              </p>
+            </div>
+          </section>
+
+          <!-- 08 / CONTACT -->
+          <section id="privacy-contact" class="privacy-section privacy-section--last">
+            <div class="privacy-section__heading">
+              <span>08 / CONTACT</span>
+
+              <h2>Questions and data requests.</h2>
+            </div>
+
+            <div class="privacy-section__body">
+              <p>
+                For privacy questions, data-related requests or rights concerns, visit the
+                <a class="privacy-inline-link" routerLink="/contact"> Contact / Rights </a>
+                page.
+              </p>
+
+              <p>
+                You can also contact Choom Vault directly at
+                <a class="privacy-inline-link" href="mailto:hello.choomvault@outlook.com">
+                  hello.choomvault@outlook.com.
+                </a>
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>

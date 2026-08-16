@@ -1,19 +1,6 @@
-import {
-  HttpClient,
-  HttpErrorResponse
-} from '@angular/common/http';
-import {
-  inject,
-  Injectable
-} from '@angular/core';
-import {
-  catchError,
-  finalize,
-  Observable,
-  of,
-  shareReplay,
-  tap
-} from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, finalize, Observable, of, shareReplay, tap } from 'rxjs';
 
 import { API_ENDPOINTS } from '../http/api-endpoints';
 import { CsrfService } from '../http/csrf.service';
@@ -26,7 +13,7 @@ import {
   RecoveryCodeLoginRequest,
   RegisterRequest,
   ResetPasswordRequest,
-  RegisterResponse
+  RegisterResponse,
 } from './auth.models';
 import { AuthStateService } from './auth-state.service';
 
@@ -38,7 +25,7 @@ import { AuthStateService } from './auth-state.service';
  * of truth.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -65,95 +52,79 @@ export class AuthService {
       return this.restoreRequest$;
     }
 
-    this.restoreRequest$ = this.http
-      .get<AuthUser>(API_ENDPOINTS.auth.me)
-      .pipe(
-        tap(user => this.authState.setUser(user)),
-        catchError((error: unknown) => {
-          // A missing/expired session is an expected anonymous state.
-          // Other startup failures also fail closed rather than inventing an
-          // authenticated browser identity.
-          if (
-            error instanceof HttpErrorResponse &&
-            error.status !== 401
-          ) {
-            console.error('Unable to restore the Choom Vault session.');
-          }
+    this.restoreRequest$ = this.http.get<AuthUser>(API_ENDPOINTS.auth.me).pipe(
+      tap((user) => this.authState.setUser(user)),
+      catchError((error: unknown) => {
+        // A missing/expired session is an expected anonymous state.
+        // Other startup failures also fail closed rather than inventing an
+        // authenticated browser identity.
+        if (error instanceof HttpErrorResponse && error.status !== 401) {
+          console.error('Unable to restore the Choom Vault session.');
+        }
 
-          this.authState.clearUser();
-          return of(null);
-        }),
-        finalize(() => {
-          this.restoreRequest$ = undefined;
-        }),
-        shareReplay({
-          bufferSize: 1,
-          refCount: false
-        })
-      );
+        this.authState.clearUser();
+        return of(null);
+      }),
+      finalize(() => {
+        this.restoreRequest$ = undefined;
+      }),
+      shareReplay({
+        bufferSize: 1,
+        refCount: false,
+      }),
+    );
 
     return this.restoreRequest$;
   }
 
   login(request: LoginRequest): Observable<LoginResponse> {
-    return this.http
-      .post<LoginResponse>(API_ENDPOINTS.auth.login, request)
-      .pipe(
-        tap(response => {
-          this.csrfService.invalidate();
+    return this.http.post<LoginResponse>(API_ENDPOINTS.auth.login, request).pipe(
+      tap((response) => {
+        this.csrfService.invalidate();
 
-          if (response.user) {
-            this.authState.setUser(response.user);
-          }
-        })
-      );
+        if (response.user) {
+          this.authState.setUser(response.user);
+        }
+      }),
+    );
   }
 
   loginDemo(): Observable<AuthUser> {
-    return this.http
-      .post<AuthUser>(API_ENDPOINTS.auth.demo, {})
-      .pipe(
-        tap(user => {
-          this.csrfService.invalidate();
-          this.authState.setUser(user);
-        })
-      );
+    return this.http.post<AuthUser>(API_ENDPOINTS.auth.demo, {}).pipe(
+      tap((user) => {
+        this.csrfService.invalidate();
+        this.authState.setUser(user);
+      }),
+    );
   }
 
   completeMfa(code: string): Observable<AuthUser> {
     const request: MfaLoginRequest = { code };
 
-    return this.http
-      .post<AuthUser>(API_ENDPOINTS.auth.mfa, request)
-      .pipe(
-        tap(user => {
-          this.csrfService.invalidate();
-          this.authState.setUser(user);
-        })
-      );
+    return this.http.post<AuthUser>(API_ENDPOINTS.auth.mfa, request).pipe(
+      tap((user) => {
+        this.csrfService.invalidate();
+        this.authState.setUser(user);
+      }),
+    );
   }
 
   completeRecoveryLogin(recoveryCode: string): Observable<AuthUser> {
     const request: RecoveryCodeLoginRequest = { recoveryCode };
 
-    return this.http
-      .post<AuthUser>(API_ENDPOINTS.auth.mfaRecovery, request)
-      .pipe(
-        tap(user => {
-          this.csrfService.invalidate();
-          this.authState.setUser(user);
-        })
-      );
+    return this.http.post<AuthUser>(API_ENDPOINTS.auth.mfaRecovery, request).pipe(
+      tap((user) => {
+        this.csrfService.invalidate();
+        this.authState.setUser(user);
+      }),
+    );
   }
 
   register(request: RegisterRequest): Observable<RegisterResponse> {
     return this.http
       .post<RegisterResponse>(API_ENDPOINTS.auth.register, request)
-      .pipe(
-        tap(() => this.csrfService.invalidate())
-      );
+      .pipe(tap(() => this.csrfService.invalidate()));
   }
-
 
   /**
    * Requests password recovery without revealing whether an account exists.
@@ -162,10 +133,7 @@ export class AuthService {
   forgotPassword(email: string): Observable<void> {
     const request: ForgotPasswordRequest = { email: email.trim() };
 
-    return this.http.post<void>(
-      API_ENDPOINTS.auth.forgotPassword,
-      request
-    );
+    return this.http.post<void>(API_ENDPOINTS.auth.forgotPassword, request);
   }
 
   /**
@@ -173,18 +141,13 @@ export class AuthService {
    * backend-generated reset link. Angular never creates or validates tokens.
    */
   resetPassword(request: ResetPasswordRequest): Observable<void> {
-    return this.http.post<void>(
-      API_ENDPOINTS.auth.resetPassword,
-      request
-    );
+    return this.http.post<void>(API_ENDPOINTS.auth.resetPassword, request);
   }
 
   logout(): Observable<void> {
     return this.http
       .post<void>(API_ENDPOINTS.auth.logout, {})
-      .pipe(
-        tap(() => this.clearAuthenticatedSession())
-      );
+      .pipe(tap(() => this.clearAuthenticatedSession()));
   }
 
   /**

@@ -1,6 +1,6 @@
 :root {
-  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
-  --font-body: "Inter", Arial, sans-serif;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', Arial, sans-serif;
 
   --colour-background: #06080d;
   --colour-background-soft: #0b0f16;
@@ -99,7 +99,7 @@ svg {
   width: 30px;
   height: 3px;
   background: var(--colour-yellow);
-  content: "";
+  content: '';
 }
 
 .btn {
@@ -110,12 +110,14 @@ svg {
   gap: 12px;
   padding: 0 23px;
   border: 1px solid transparent;
-  clip-path: polygon(0 0,
-      calc(100% - 10px) 0,
-      100% 10px,
-      100% 100%,
-      10px 100%,
-      0 calc(100% - 10px));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
   cursor: pointer;
   font-family: var(--font-display);
   font-size: 0.92rem;
@@ -213,18 +215,13 @@ svg {
   place-items: center;
   color: var(--colour-background);
   background: var(--colour-yellow);
-  clip-path: polygon(0 0,
-      78% 0,
-      100% 22%,
-      100% 100%,
-      22% 100%,
-      0 78%);
+  clip-path: polygon(0 0, 78% 0, 100% 22%, 100% 100%, 22% 100%, 0 78%);
   font-family: var(--font-display);
   font-weight: 900;
   line-height: 1;
 }
 
-.brand-symbol>span {
+.brand-symbol > span {
   font-size: 1.15rem;
   letter-spacing: -0.05em;
 }
@@ -276,7 +273,7 @@ svg {
   background: var(--colour-background);
 }
 
-.support-page>main {
+.support-page > main {
   flex: 1;
 }
 
@@ -341,7 +338,7 @@ svg {
   border-top: 1px solid var(--colour-border-strong);
 }
 
-.support-section-label>span {
+.support-section-label > span {
   display: block;
   margin-top: 14px;
   color: var(--colour-yellow);
@@ -351,7 +348,7 @@ svg {
   letter-spacing: 0.16em;
 }
 
-.support-section-label>p {
+.support-section-label > p {
   margin: 8px 0 0;
   color: var(--colour-text-muted);
   font-family: var(--font-display);
@@ -501,7 +498,7 @@ svg {
   outline-offset: 3px;
 }
 
-.form-control[aria-invalid="true"] {
+.form-control[aria-invalid='true'] {
   border-color: var(--colour-red);
 }
 

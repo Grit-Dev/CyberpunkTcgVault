@@ -1,10 +1,8 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/auth/auth.guard';
-import { ForgotPassword } from './features/auth/pages/forgot-password/forgot-password';
 import { Login } from './features/auth/pages/login/login';
 import { Register } from './features/auth/pages/register/register';
-import { ResetPassword } from './features/auth/pages/reset-password/reset-password';
 import { Account } from './features/account/pages/account/account';
 import { CardCatalogue } from './features/cards/pages/card-catalogue/card-catalogue';
 import { CardDetail } from './features/cards/pages/card-detail/card-detail';
@@ -16,6 +14,7 @@ import { Contact } from './pages/contact/contact';
 import { Home } from './pages/home/home';
 import { NotFound } from './pages/not-found/not-found';
 import { Privacy } from './pages/privacy/privacy';
+import { Terms } from './pages/terms/terms';
 
 /**
  * Choom Vault routes.
@@ -31,8 +30,8 @@ export const routes: Routes = [
     data: {
       description:
         'Choom Vault is an independent, fan-made Cyberpunk TCG collector companion for discovering cards and exploring a physical card collection.',
-      robots: 'index, follow'
-    }
+      robots: 'index, follow',
+    },
   },
   {
     path: 'cards',
@@ -41,17 +40,18 @@ export const routes: Routes = [
     data: {
       description:
         'Browse the Cyberpunk TCG cards currently archived in Choom Vault using the public card catalogue, search and filters.',
-      robots: 'index, follow'
-    }
+      robots: 'index, follow',
+    },
   },
   {
     path: 'cards/:id',
     title: 'Card Detail | Choom Vault',
     component: CardDetail,
     data: {
-      description: 'Inspect a Cyberpunk TCG card and its available physical printings in the public Choom Vault Archive.',
-      robots: 'index, follow'
-    }
+      description:
+        'Inspect a Cyberpunk TCG card and its available physical printings in the public Choom Vault Archive.',
+      robots: 'index, follow',
+    },
   },
   {
     path: 'collection',
@@ -61,8 +61,8 @@ export const routes: Routes = [
     data: {
       description:
         'Manage the exact Cyberpunk TCG card printings in your private Choom Vault collection.',
-      robots: 'noindex, nofollow'
-    }
+      robots: 'noindex, nofollow',
+    },
   },
   {
     path: 'wishlist',
@@ -72,8 +72,8 @@ export const routes: Routes = [
     data: {
       description:
         'Track the exact Cyberpunk TCG card printings you still want in your private Choom Vault Wishlist.',
-      robots: 'noindex, nofollow'
-    }
+      robots: 'noindex, nofollow',
+    },
   },
   {
     path: 'sealed',
@@ -83,8 +83,8 @@ export const routes: Routes = [
     data: {
       description:
         'Manage the unopened physical products recorded in your private Choom Vault collection.',
-      robots: 'noindex, nofollow'
-    }
+      robots: 'noindex, nofollow',
+    },
   },
   {
     path: 'account',
@@ -94,46 +94,36 @@ export const routes: Routes = [
     data: {
       description:
         'Review the account details connected to your private Choom Vault collector account.',
-      robots: 'noindex, nofollow'
-    }
+      robots: 'noindex, nofollow',
+    },
   },
   {
     path: 'login',
     title: 'Log In | Choom Vault',
     component: Login,
     data: {
-      description:
-        'Sign in to access your private Choom Vault collection records.',
-      robots: 'noindex, nofollow'
-    }
+      description: 'Sign in to access your private Choom Vault collection records.',
+      robots: 'noindex, nofollow',
+    },
   },
   {
     path: 'register',
     title: 'Register | Choom Vault',
     component: Register,
     data: {
-      description:
-        'Create a Choom Vault collector account when public registration is available.',
-      robots: 'noindex, nofollow'
-    }
+      description: 'Create a Choom Vault collector account when public registration is available.',
+      robots: 'noindex, nofollow',
+    },
   },
   {
     path: 'forgot-password',
-    title: 'Forgot Password | Choom Vault',
-    component: ForgotPassword,
-    data: {
-      description: 'Request a password reset link for a Choom Vault collector account.',
-      robots: 'noindex, nofollow'
-    }
+    redirectTo: 'login',
+    pathMatch: 'full',
   },
   {
     path: 'reset-password',
-    title: 'Reset Password | Choom Vault',
-    component: ResetPassword,
-    data: {
-      description: 'Set a new password using a Choom Vault password reset link.',
-      robots: 'noindex, nofollow'
-    }
+    redirectTo: 'login',
+    pathMatch: 'full',
   },
   {
     path: 'about',
@@ -142,8 +132,8 @@ export const routes: Routes = [
     data: {
       description:
         'Learn about Choom Vault, an independent, fan-made Cyberpunk TCG collector companion built around physical card collecting.',
-      robots: 'index, follow'
-    }
+      robots: 'index, follow',
+    },
   },
   {
     path: 'privacy',
@@ -152,8 +142,17 @@ export const routes: Routes = [
     data: {
       description:
         'Read how Choom Vault handles account, collection and privacy information as the collector companion develops.',
-      robots: 'index, follow'
-    }
+      robots: 'index, follow',
+    },
+  },
+  {
+    path: 'terms',
+    title: 'Terms of Use | Choom Vault',
+    component: Terms,
+    data: {
+      description: 'Terms governing use of Choom Vault and the Demo Vault collector experience.',
+      robots: 'index, follow',
+    },
   },
   {
     path: 'contact',
@@ -162,8 +161,8 @@ export const routes: Routes = [
     data: {
       description:
         'Contact Choom Vault for project enquiries, feedback, rights, attribution or removal requests.',
-      robots: 'index, follow'
-    }
+      robots: 'index, follow',
+    },
   },
   {
     path: '**',
@@ -171,7 +170,7 @@ export const routes: Routes = [
     component: NotFound,
     data: {
       description: 'The requested page could not be found in Choom Vault.',
-      robots: 'noindex, nofollow'
-    }
-  }
+      robots: 'noindex, nofollow',
+    },
+  },
 ];

@@ -30,7 +30,6 @@ export interface CreateOwnedCardRequest {
   quantityOwned: number;
 }
 
-
 /** Full backend update contract. Keep existing metadata when changing quantity. */
 export interface UpdateOwnedCardRequest {
   quantityOwned: number;

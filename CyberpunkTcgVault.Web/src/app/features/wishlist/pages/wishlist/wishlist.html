@@ -32,9 +32,7 @@
         <p class="wishlist-state__label">Wishlist unavailable</p>
         <h2 id="wishlist-error-title">We couldn't load your Wishlist.</h2>
         <p>Your existing wanted records have not been changed. Try again.</p>
-        <button class="btn btn--secondary" type="button" (click)="retry()">
-          Try again
-        </button>
+        <button class="btn btn--secondary" type="button" (click)="retry()">Try again</button>
       </section>
     } @else if (wishlistService.items().length === 0) {
       <section class="wishlist-state wishlist-state--empty" aria-labelledby="wishlist-empty-title">
@@ -78,12 +76,15 @@
         <div class="wishlist-results-rail" aria-live="polite">
           <div class="wishlist-results-rail__summary">
             <span class="wishlist-results-rail__count">
-              {{ filteredItems().length }} {{ filteredItems().length === 1 ? 'printing' : 'printings' }}
+              {{ filteredItems().length }}
+              {{ filteredItems().length === 1 ? 'printing' : 'printings' }}
             </span>
 
             @if (totalPages() > 1) {
               <span class="wishlist-results-rail__separator" aria-hidden="true">·</span>
-              <span class="wishlist-results-rail__page">Page {{ activePage() }} of {{ totalPages() }}</span>
+              <span class="wishlist-results-rail__page"
+                >Page {{ activePage() }} of {{ totalPages() }}</span
+              >
             }
           </div>
 
@@ -173,14 +174,18 @@
                         [disabled]="item.wantedQuantity <= 1 || isRecordBusy(item.id)"
                         [attr.aria-label]="'Decrease wanted quantity from ' + item.wantedQuantity"
                         (click)="decreaseQuantity(item)"
-                      >−</button>
+                      >
+                        −
+                      </button>
                       <span aria-live="polite">{{ item.wantedQuantity }}</span>
                       <button
                         type="button"
                         [disabled]="item.wantedQuantity >= 999 || isRecordBusy(item.id)"
                         [attr.aria-label]="'Increase wanted quantity from ' + item.wantedQuantity"
                         (click)="increaseQuantity(item)"
-                      >+</button>
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
 
@@ -190,7 +195,9 @@
                       <strong>{{ quantityOwned }}</strong>
                     </p>
                   } @else {
-                    <p class="wishlist-record__owned-reference wishlist-record__owned-reference--empty">
+                    <p
+                      class="wishlist-record__owned-reference wishlist-record__owned-reference--empty"
+                    >
                       <span>Not yet owned</span>
                     </p>
                   }

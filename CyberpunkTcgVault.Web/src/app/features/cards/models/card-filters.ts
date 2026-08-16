@@ -24,7 +24,4 @@ export interface CardFilters {
   sortDirection?: CardSortDirection;
 }
 
-export type CardFilterKey = Exclude<
-  keyof CardFilters,
-  'name' | 'sortBy' | 'sortDirection'
->;
+export type CardFilterKey = Exclude<keyof CardFilters, 'name' | 'sortBy' | 'sortDirection'>;

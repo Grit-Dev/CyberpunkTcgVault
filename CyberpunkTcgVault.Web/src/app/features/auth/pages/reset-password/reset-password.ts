@@ -1,32 +1,20 @@
-import {
-  Location
-} from '@angular/common';
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  OnInit,
-  signal
-} from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators
+  Validators,
 } from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink
-} from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 
-const matchingPasswords: ValidatorFn = (
-  control: AbstractControl
-): ValidationErrors | null => {
+const matchingPasswords: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('newPassword')?.value as string | undefined;
   const confirmPassword = control.get('confirmPassword')?.value as string | undefined;
 
@@ -34,9 +22,7 @@ const matchingPasswords: ValidatorFn = (
     return null;
   }
 
-  return password === confirmPassword
-    ? null
-    : { passwordMismatch: true };
+  return password === confirmPassword ? null : { passwordMismatch: true };
 };
 
 /**
@@ -49,12 +35,9 @@ const matchingPasswords: ValidatorFn = (
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './reset-password.html',
-  styleUrl: '../../styles/auth-recovery.scss'
+  styleUrl: '../../styles/auth-recovery.scss',
 })
 export class ResetPassword implements OnInit {
   readonly resetPasswordForm;
@@ -70,24 +53,17 @@ export class ResetPassword implements OnInit {
     private readonly authService: AuthService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly location: Location
+    private readonly location: Location,
   ) {
     this.resetPasswordForm = this.formBuilder.nonNullable.group(
       {
         newPassword: [
           '',
-          [
-            Validators.required,
-            Validators.minLength(8),
-            Validators.maxLength(128)
-          ]
+          [Validators.required, Validators.minLength(8), Validators.maxLength(128)],
         ],
-        confirmPassword: [
-          '',
-          [Validators.required]
-        ]
+        confirmPassword: ['', [Validators.required]],
       },
-      { validators: matchingPasswords }
+      { validators: matchingPasswords },
     );
   }
 
@@ -113,11 +89,7 @@ export class ResetPassword implements OnInit {
     this.resetError.set('');
     this.resetPasswordForm.markAllAsTouched();
 
-    if (
-      !this.hasValidLink() ||
-      this.resetPasswordForm.invalid ||
-      this.isSubmitting()
-    ) {
+    if (!this.hasValidLink() || this.resetPasswordForm.invalid || this.isSubmitting()) {
       return;
     }
 
@@ -127,12 +99,12 @@ export class ResetPassword implements OnInit {
       .resetPassword({
         userId: this.userId(),
         token: this.token(),
-        newPassword: this.resetPasswordForm.controls.newPassword.value
+        newPassword: this.resetPasswordForm.controls.newPassword.value,
       })
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -140,12 +112,12 @@ export class ResetPassword implements OnInit {
           this.userId.set('');
           this.token.set('');
           void this.router.navigate(['/login'], {
-            queryParams: { passwordReset: '1' }
+            queryParams: { passwordReset: '1' },
           });
         },
-        error: error => {
+        error: (error) => {
           this.resetError.set(this.getResetError(error));
-        }
+        },
       });
   }
 
@@ -161,8 +133,10 @@ export class ResetPassword implements OnInit {
     if (error.status === 400) {
       const validationMessage = this.getSafeValidationMessage(error.error);
 
-      return validationMessage ??
-        'This reset link is invalid or has expired. Request a new password reset link.';
+      return (
+        validationMessage ??
+        'This reset link is invalid or has expired. Request a new password reset link.'
+      );
     }
 
     return 'We could not reset your password. Request a new reset link and try again.';
@@ -176,9 +150,7 @@ export class ResetPassword implements OnInit {
     const errors = (body as { errors?: unknown }).errors;
 
     if (Array.isArray(errors)) {
-      const messages = errors.filter(
-        (value): value is string => typeof value === 'string'
-      );
+      const messages = errors.filter((value): value is string => typeof value === 'string');
 
       return messages.length > 0 ? messages.join(' ') : null;
     }
@@ -188,7 +160,7 @@ export class ResetPassword implements OnInit {
     }
 
     const messages = Object.values(errors)
-      .flatMap(value => Array.isArray(value) ? value : [])
+      .flatMap((value) => (Array.isArray(value) ? value : []))
       .filter((value): value is string => typeof value === 'string');
 
     return messages.length > 0 ? messages.join(' ') : null;

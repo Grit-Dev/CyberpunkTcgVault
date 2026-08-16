@@ -1,33 +1,18 @@
 import { HttpClient } from '@angular/common/http';
-import {
-  effect,
-  inject,
-  Injectable,
-  signal
-} from '@angular/core';
-import {
-  finalize,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  tap
-} from 'rxjs';
+import { effect, inject, Injectable, signal } from '@angular/core';
+import { finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
-import {
-  API_ENDPOINTS,
-  toApiUrl
-} from '../../../core/http/api-endpoints';
+import { API_ENDPOINTS, toApiUrl } from '../../../core/http/api-endpoints';
 import {
   CollectionProduct,
   CreateCollectionProductRequest,
-  UpdateCollectionProductRequest
+  UpdateCollectionProductRequest,
 } from '../models/collection-product';
 
 /** Authenticated sealed/collection-product API state scoped to one user. */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CollectionProductsService {
   private readonly http = inject(HttpClient);
@@ -67,36 +52,32 @@ export class CollectionProductsService {
       return this.loadRequest$;
     }
 
-    this.loadRequest$ = this.http
-      .get<CollectionProduct[]>(API_ENDPOINTS.collectionProducts)
-      .pipe(
-        tap(items => {
-          this.itemsState.set(items);
-          this.loadedState.set(true);
-        }),
-        finalize(() => {
-          this.loadRequest$ = undefined;
-        }),
-        shareReplay({
-          bufferSize: 1,
-          refCount: false
-        })
-      );
+    this.loadRequest$ = this.http.get<CollectionProduct[]>(API_ENDPOINTS.collectionProducts).pipe(
+      tap((items) => {
+        this.itemsState.set(items);
+        this.loadedState.set(true);
+      }),
+      finalize(() => {
+        this.loadRequest$ = undefined;
+      }),
+      shareReplay({
+        bufferSize: 1,
+        refCount: false,
+      }),
+    );
 
     return this.loadRequest$;
   }
 
   create(request: CreateCollectionProductRequest): Observable<CollectionProduct> {
-    return this.http
-      .post<CollectionProduct>(API_ENDPOINTS.collectionProducts, request)
-      .pipe(
-        tap(item => {
-          this.itemsState.update(items => [
-            ...items.filter(existing => existing.id !== item.id),
-            item
-          ]);
-        })
-      );
+    return this.http.post<CollectionProduct>(API_ENDPOINTS.collectionProducts, request).pipe(
+      tap((item) => {
+        this.itemsState.update((items) => [
+          ...items.filter((existing) => existing.id !== item.id),
+          item,
+        ]);
+      }),
+    );
   }
 
   /**
@@ -104,44 +85,33 @@ export class CollectionProductsService {
    * existing private product metadata rather than resetting fields that are
    * intentionally not shown in the default Sealed row.
    */
-  updateQuantity(
-    item: CollectionProduct,
-    quantity: number
-  ): Observable<CollectionProduct> {
+  updateQuantity(item: CollectionProduct, quantity: number): Observable<CollectionProduct> {
     return this.update(item, {
       ...this.toUpdateRequest(item),
-      quantity
+      quantity,
     });
   }
 
   update(
     item: CollectionProduct,
-    request: UpdateCollectionProductRequest
+    request: UpdateCollectionProductRequest,
   ): Observable<CollectionProduct> {
-    return this.http
-      .put<void>(API_ENDPOINTS.collectionProductById(item.id), request)
-      .pipe(
-        map(() => ({ ...item, ...request })),
-        tap(updated => {
-          this.itemsState.update(items =>
-            items.map(existing =>
-              existing.id === updated.id ? updated : existing
-            )
-          );
-        })
-      );
+    return this.http.put<void>(API_ENDPOINTS.collectionProductById(item.id), request).pipe(
+      map(() => ({ ...item, ...request })),
+      tap((updated) => {
+        this.itemsState.update((items) =>
+          items.map((existing) => (existing.id === updated.id ? updated : existing)),
+        );
+      }),
+    );
   }
 
   remove(item: CollectionProduct): Observable<void> {
-    return this.http
-      .delete<void>(API_ENDPOINTS.collectionProductById(item.id))
-      .pipe(
-        tap(() => {
-          this.itemsState.update(items =>
-            items.filter(existing => existing.id !== item.id)
-          );
-        })
-      );
+    return this.http.delete<void>(API_ENDPOINTS.collectionProductById(item.id)).pipe(
+      tap(() => {
+        this.itemsState.update((items) => items.filter((existing) => existing.id !== item.id));
+      }),
+    );
   }
 
   getImageUrl(imageUrl: string | null): string | null {
@@ -170,7 +140,7 @@ export class CollectionProductsService {
       isOpenToTrade: item.isOpenToTrade,
       maySellLater: item.maySellLater,
       imageUrl: item.imageUrl,
-      notes: item.notes
+      notes: item.notes,
     };
   }
 }

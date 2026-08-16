@@ -1,8 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -17,7 +14,7 @@ const user = {
   email: 'collector@example.com',
   roles: ['User'],
   emailConfirmed: true,
-  twoFactorEnabled: false
+  twoFactorEnabled: false,
 };
 
 const wishlistItem: WishlistItem = {
@@ -37,7 +34,7 @@ const wishlistItem: WishlistItem = {
   wantGraded: false,
   preferredGradingCompany: null,
   isOpenToTrade: true,
-  notes: 'Prefer clean copy.'
+  notes: 'Prefer clean copy.',
 };
 
 describe('WishlistService', () => {
@@ -54,10 +51,10 @@ describe('WishlistService', () => {
           provide: AuthService,
           useValue: {
             currentUser,
-            isAuthenticated: signal(true)
-          }
-        }
-      ]
+            isAuthenticated: signal(true),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(WishlistService);
@@ -69,7 +66,7 @@ describe('WishlistService', () => {
   });
 
   it('preserves wishlist metadata when updating wanted quantity', () => {
-    service.updateQuantity(wishlistItem, 3).subscribe(updated => {
+    service.updateQuantity(wishlistItem, 3).subscribe((updated) => {
       expect(updated.wantedQuantity).toBe(3);
       expect(updated.priority).toBe('High');
     });
@@ -85,12 +82,12 @@ describe('WishlistService', () => {
       wantGraded: false,
       preferredGradingCompany: null,
       isOpenToTrade: true,
-      notes: 'Prefer clean copy.'
+      notes: 'Prefer clean copy.',
     });
 
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
   });
 
@@ -104,7 +101,7 @@ describe('WishlistService', () => {
     expect(request.request.method).toBe('DELETE');
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
 
     expect(service.items()).toEqual([]);

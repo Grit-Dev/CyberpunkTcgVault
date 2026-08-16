@@ -9,7 +9,7 @@ describe('SiteFooter', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SiteFooter],
-      providers: [provideRouter([])]
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SiteFooter);
@@ -20,11 +20,28 @@ describe('SiteFooter', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent?.replace(/\s+/g, ' ') ?? '';
 
     expect(text).toContain(
-      'Choom Vault is an independent, non-commercial fan-made collector companion created as a personal project for Cyberpunk TCG collectors.'
+      'Choom Vault is an independent, non-commercial fan-made collector companion created as a personal project for Cyberpunk TCG collectors.',
     );
     expect(text).toContain(
-      'It is not affiliated with, endorsed by, or sponsored by WeirdCo or CD PROJEKT RED.'
+      'It is not affiliated with, endorsed by, or sponsored by WeirdCo or CD PROJEKT RED.',
     );
     expect(text).toContain('No ownership of third-party intellectual property is claimed.');
+  });
+
+  it('keeps Terms in the supporting trust navigation between Privacy and Contact', () => {
+    const links = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>(
+        '.footer-navigation a',
+      ),
+    );
+
+    expect(links.map((link) => link.textContent?.trim())).toEqual([
+      'Catalogue',
+      'About',
+      'Privacy',
+      'Terms',
+      'Contact',
+    ]);
+    expect(links[3].getAttribute('href')).toBe('/terms');
   });
 });

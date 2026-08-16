@@ -1,15 +1,6 @@
-import {
-  HttpBackend,
-  HttpClient
-} from '@angular/common/http';
+import { HttpBackend, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  finalize,
-  map,
-  Observable,
-  of,
-  shareReplay
-} from 'rxjs';
+import { finalize, map, Observable, of, shareReplay } from 'rxjs';
 
 import { API_ENDPOINTS } from './api-endpoints';
 
@@ -25,7 +16,7 @@ interface CsrfTokenResponse {
  * through the API security interceptor that depends on this service.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CsrfService {
   private readonly rawHttp: HttpClient;
@@ -50,12 +41,9 @@ export class CsrfService {
     }
 
     this.tokenRequest$ = this.rawHttp
-      .get<CsrfTokenResponse>(
-        API_ENDPOINTS.auth.csrf,
-        { withCredentials: true }
-      )
+      .get<CsrfTokenResponse>(API_ENDPOINTS.auth.csrf, { withCredentials: true })
       .pipe(
-        map(response => {
+        map((response) => {
           this.requestToken = response.requestToken;
           return response.requestToken;
         }),
@@ -64,8 +52,8 @@ export class CsrfService {
         }),
         shareReplay({
           bufferSize: 1,
-          refCount: false
-        })
+          refCount: false,
+        }),
       );
 
     return this.tokenRequest$;

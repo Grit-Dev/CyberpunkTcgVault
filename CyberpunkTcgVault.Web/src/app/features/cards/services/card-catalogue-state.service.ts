@@ -14,21 +14,17 @@ export interface CardCatalogueState {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CardCatalogueStateService {
-  private readonly storageKey =
-    'choom-vault:card-catalogue-return-state';
+  private readonly storageKey = 'choom-vault:card-catalogue-return-state';
 
   /**
    * Remembers the current Archive view immediately before card inspection.
    */
   save(state: CardCatalogueState): void {
     try {
-      sessionStorage.setItem(
-        this.storageKey,
-        JSON.stringify(state)
-      );
+      sessionStorage.setItem(this.storageKey, JSON.stringify(state));
     } catch {
       // Browsing the Archive must still work if storage is unavailable.
     }
@@ -40,31 +36,19 @@ export class CardCatalogueStateService {
    */
   consume(): CardCatalogueState | null {
     try {
-      const storedState = sessionStorage.getItem(
-        this.storageKey
-      );
+      const storedState = sessionStorage.getItem(this.storageKey);
 
       if (!storedState) {
         return null;
       }
 
-      sessionStorage.removeItem(
-        this.storageKey
-      );
+      sessionStorage.removeItem(this.storageKey);
 
-      const parsedState = JSON.parse(
-        storedState
-      ) as Partial<CardCatalogueState>;
+      const parsedState = JSON.parse(storedState) as Partial<CardCatalogueState>;
 
-      const currentPage = Number(
-        parsedState.currentPage
-      );
+      const currentPage = Number(parsedState.currentPage);
 
-      if (
-        !Number.isInteger(currentPage) ||
-        currentPage < 1 ||
-        !parsedState.filters
-      ) {
+      if (!Number.isInteger(currentPage) || currentPage < 1 || !parsedState.filters) {
         return null;
       }
 
@@ -75,43 +59,23 @@ export class CardCatalogueStateService {
           cardType: parsedState.filters.cardType ?? '',
           rarity: parsedState.filters.rarity ?? '',
           colour: parsedState.filters.colour ?? '',
-          classification:
-            parsedState.filters.classification ?? '',
+          classification: parsedState.filters.classification ?? '',
           tags: parsedState.filters.tags ?? '',
-          cost: this.normaliseNumber(
-            parsedState.filters.cost
-          ),
-          power: this.normaliseNumber(
-            parsedState.filters.power
-          ),
-          ram: this.normaliseNumber(
-            parsedState.filters.ram
-          ),
-          eddies: this.normaliseNumber(
-            parsedState.filters.eddies
-          ),
-          sortBy:
-            parsedState.filters.sortBy === 'name'
-              ? 'name'
-              : 'setOrder',
-          sortDirection:
-            parsedState.filters.sortDirection === 'desc'
-              ? 'desc'
-              : 'asc'
+          cost: this.normaliseNumber(parsedState.filters.cost),
+          power: this.normaliseNumber(parsedState.filters.power),
+          ram: this.normaliseNumber(parsedState.filters.ram),
+          eddies: this.normaliseNumber(parsedState.filters.eddies),
+          sortBy: parsedState.filters.sortBy === 'name' ? 'name' : 'setOrder',
+          sortDirection: parsedState.filters.sortDirection === 'desc' ? 'desc' : 'asc',
         },
-        currentPage
+        currentPage,
       };
     } catch {
       return null;
     }
   }
 
-  private normaliseNumber(
-    value: number | null | undefined
-  ): number | null {
-    return typeof value === 'number' &&
-      Number.isFinite(value)
-      ? value
-      : null;
+  private normaliseNumber(value: number | null | undefined): number | null {
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
   }
 }

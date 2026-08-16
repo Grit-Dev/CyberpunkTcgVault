@@ -1,8 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import {
-  inject,
-  Injectable
-} from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { AuthUser } from '../../../core/auth/auth.models';
@@ -21,7 +18,7 @@ export interface DeleteAccountRequest {
  * no username/email update method because the backend does not provide one.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AccountService {
   private readonly http = inject(HttpClient);
@@ -33,11 +30,11 @@ export class AccountService {
   deleteAccount(currentPassword: string): Observable<void> {
     const request: DeleteAccountRequest = {
       currentPassword,
-      authenticatorCode: null
+      authenticatorCode: null,
     };
 
     return this.http.delete<void>(API_ENDPOINTS.account, {
-      body: request
+      body: request,
     });
   }
 }

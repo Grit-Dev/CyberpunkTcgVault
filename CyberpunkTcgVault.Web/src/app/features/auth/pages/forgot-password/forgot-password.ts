@@ -1,13 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  signal
-} from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { Component, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -22,12 +15,9 @@ import { AuthService } from '../../../../core/auth/auth.service';
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './forgot-password.html',
-  styleUrl: '../../styles/auth-recovery.scss'
+  styleUrl: '../../styles/auth-recovery.scss',
 })
 export class ForgotPassword {
   readonly forgotPasswordForm;
@@ -37,17 +27,10 @@ export class ForgotPassword {
 
   constructor(
     private readonly formBuilder: FormBuilder,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
   ) {
     this.forgotPasswordForm = this.formBuilder.nonNullable.group({
-      email: [
-        '',
-        [
-          Validators.required,
-          Validators.email,
-          Validators.maxLength(256)
-        ]
-      ]
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
     });
   }
 
@@ -66,15 +49,15 @@ export class ForgotPassword {
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
           this.isComplete.set(true);
         },
-        error: error => {
+        error: (error) => {
           this.requestError.set(this.getRequestError(error));
-        }
+        },
       });
   }
 

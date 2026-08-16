@@ -1,26 +1,50 @@
 import { CardAnatomyField } from '../../../features/cards/models/card-anatomy';
 
 /*
- * Fields used by the V StreetKid homepage showcase.
+ * Fields used by the Vesper Ryne // Crimson Echo homepage study card.
  *
  * The order of this array controls Guided mode and
  * also controls the Show All marker numbering.
- *
- * Region values are percentages of the complete card image.
- * Marker values control where the numbered Show All
- * buttons sit around the perimeter of the card.
  */
-export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
+
+/**
+ * VAULT LENS ALIGNMENT NOTES
+ *
+ * Each anatomy field has two separate coordinate sets:
+ *
+ * region
+ *   Controls the yellow highlight rectangle shown in Guided mode.
+ *   - top / left = where the highlight begins
+ *   - width / height = size of the highlight
+ *
+ * marker
+ *   Controls the numbered callout position used by Show All mode.
+ *   Moving a marker does NOT move the Guided highlight region.
+ *
+ * All values are percentages relative to the rendered card image so the
+ * alignment scales with the card at different viewport sizes.
+ *
+ * When manually tuning a field:
+ *   1. Adjust region first until the yellow box hugs the intended card field.
+ *   2. Only adjust marker if the numbered Show All marker is also misplaced.
+ *   3. Change one field at a time and check desktop + mobile before moving on.
+ *
+ * The Vesper coordinates are specific to the Vesper Ryne study-card artwork.
+ * Yes, manually aligning eleven rectangles is exactly as exciting as it
+ * sounds. Future me: sorry.
+ */
+
+export const VESPER_CRIMSON_ECHO_ANATOMY: CardAnatomyField[] = [
   {
     id: 'cost',
     title: 'Cost',
     description:
       'Spend Eddies equal to this value to play the card. Legends can also be spent as 1 Eddie each.',
     region: {
-      top: 3.8,
-      left: 4.8,
-      width: 14.2,
-      height: 10,
+      top: 4,
+      left: 7.5,
+      width: 14,
+      height: 10.5,
     },
     marker: {
       top: 5,
@@ -34,9 +58,9 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
       'Once per turn, a card with this symbol can be sold from your hand to create 1 Eddie.',
     region: {
       top: 16.8,
-      left: 8,
-      width: 10.2,
-      height: 4.6,
+      left: 9.5,
+      width: 10.8,
+      height: 5,
     },
     marker: {
       top: 17,
@@ -48,10 +72,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     title: 'Type',
     description: 'Identifies the card as a Legend, Unit, Program or Gear.',
     region: {
-      top: 3.8,
-      left: 76,
-      width: 17.5,
-      height: 3.6,
+      top: 2.6,
+      left: 80,
+      width: 15.5,
+      height: 4,
     },
     marker: {
       top: 4,
@@ -64,10 +88,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     description:
       'Your Legends set the RAM limits for your deck. A card can only be included when its colour and RAM value fit within that limit.',
     region: {
-      top: 8.7,
-      left: 82,
-      width: 10.2,
-      height: 5.9,
+      top: 6.4,
+      left: 80,
+      width: 13,
+      height: 9.2,
     },
     marker: {
       top: 11,
@@ -79,10 +103,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     title: 'Tags',
     description: 'Affiliations and traits that other card effects may reference.',
     region: {
-      top: 64.5,
-      left: 10.7,
-      width: 9.8,
-      height: 2.9,
+      top: 66.4,
+      left: 12,
+      width: 10.8,
+      height: 3.2,
     },
     marker: {
       top: 64,
@@ -95,10 +119,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     description:
       'Used when attacking. Higher power wins fights, and Units steal an additional Gig for every 10 power.',
     region: {
-      top: 88.8,
-      left: 82,
-      width: 13,
-      height: 6.5,
+      top: 89.5,
+      left: 81.6,
+      width: 11.7,
+      height: 7.0,
     },
     marker: {
       top: 89,
@@ -111,14 +135,14 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     description:
       'Explains the card’s abilities and instructions. Card text takes priority if it conflicts with the general rules.',
     region: {
-      top: 67.4,
-      left: 9.5,
-      width: 70,
-      height: 24.8,
+      top: 69.6,
+      left: 9.0,
+      width: 82.5,
+      height: 21.2,
     },
     marker: {
-      top: 75,
-      left: -2,
+      top: 69,
+      left: 102,
     },
   },
   {
@@ -126,25 +150,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     title: 'Set Code',
     description: 'Identifies the set or printing this card belongs to.',
     region: {
-      top: 84.1,
-      left: 3,
-      width: 4.2,
-      height: 12.1,
-    },
-    marker: {
-      top: 86,
-      left: -2,
-    },
-  },
-  {
-    id: 'cardNumber',
-    title: 'Card Number',
-    description: 'The card’s unique number within that set or printing.',
-    region: {
-      top: 92.1,
-      left: 6,
-      width: 7.4,
-      height: 4.5,
+      top: 89.8,
+      left: 7.5,
+      width: 9.5,
+      height: 6.7,
     },
     marker: {
       top: 98,
@@ -152,14 +161,29 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     },
   },
   {
+    id: 'cardNumber',
+    title: 'Card Number',
+    description: 'The card’s unique number within that set or printing.',
+    region: {
+      top: 80,
+      left: 3.8,
+      width: 3.8,
+      height: 9.8,
+    },
+    marker: {
+      top: 86,
+      left: -2,
+    },
+  },
+  {
     id: 'rarity',
     title: 'Rarity',
     description: 'Shows the rarity assigned to this card printing.',
     region: {
-      top: 92.9,
-      left: 47.4,
-      width: 5.9,
-      height: 4.4,
+      top: 92.3,
+      left: 46.8,
+      width: 6.0,
+      height: 3.4,
     },
     marker: {
       top: 98,
@@ -171,10 +195,10 @@ export const V_STREETKID_ANATOMY: CardAnatomyField[] = [
     title: 'Artist Credit',
     description: 'Credits the artist who created the card illustration.',
     region: {
-      top: 43.8,
-      left: 94.8,
-      width: 2.9,
-      height: 19.6,
+      top: 49.0,
+      left: 93.7,
+      width: 3.2,
+      height: 19.0,
     },
     marker: {
       top: 53,

@@ -257,7 +257,7 @@
 .collection-record__printing > * + *::before {
   margin-inline: 10px;
   color: #59616d;
-  content: "·";
+  content: '·';
 }
 
 .collection-record__printing strong {
@@ -872,7 +872,6 @@
     justify-content: center;
     margin-top: 4px;
   }
-
 }
 
 @media (max-width: 420px) {
@@ -915,7 +914,6 @@
   .record-editor__actions .btn {
     width: 100%;
   }
-
 }
 
 @media (max-width: 560px) {

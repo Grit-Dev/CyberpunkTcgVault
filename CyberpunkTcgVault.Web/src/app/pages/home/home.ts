@@ -1,8 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { CardAnatomyShowcase } from '../../features/cards/components/card-anatomy-showcase/card-anatomy-showcase';
@@ -18,7 +14,6 @@ import { CardsService } from '../../features/cards/services/cards.service';
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
-
   // Stores the six cards displayed in the curated homepage catalogue preview.
   featuredCards: Card[] = [];
 
@@ -28,8 +23,8 @@ export class Home implements OnInit {
 
   constructor(
     private readonly cardsService: CardsService,
-    private readonly changeDetectorRef: ChangeDetectorRef
-  ) { }
+    private readonly changeDetectorRef: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
     this.loadFeaturedCards();
@@ -44,15 +39,9 @@ export class Home implements OnInit {
       return false;
     }
 
-    return ![
-      'unknown',
-      'no-id',
-      'n/a',
-      'null',
-      'none',
-      '-',
-      '—'
-    ].includes(value.trim().toLowerCase());
+    return !['unknown', 'no-id', 'n/a', 'null', 'none', '-', '—'].includes(
+      value.trim().toLowerCase(),
+    );
   }
 
   /**
@@ -60,57 +49,48 @@ export class Home implements OnInit {
    * The full searchable/filterable experience remains on the catalogue page.
    */
   private loadFeaturedCards(): void {
-    this.cardsService.getCards()
-      .subscribe({
-        next: cards => {
-          const featuredNames = [
-            'Black Clinic Miracle',
-            'Kai Blackwire Sato',
-            'Malcolm Vereen',
-            'Orbital Drop',
-            'The Last Broadcast',
-            'Void Geisha'
-          ];
+    this.cardsService.getCards().subscribe({
+      next: (cards) => {
+        const featuredNames = [
+          'Black Clinic Miracle',
+          'Kai Blackwire Sato',
+          'Malcolm Vereen',
+          'Orbital Drop',
+          'The Last Broadcast',
+          'Void Geisha',
+        ];
 
-          const cardsByName = new Map<string, Card>();
+        const cardsByName = new Map<string, Card>();
 
-          for (const card of cards) {
-            if (!card.name) {
-              continue;
-            }
-
-            cardsByName.set(
-              card.name.trim().toLowerCase(),
-              card
-            );
+        for (const card of cards) {
+          if (!card.name) {
+            continue;
           }
 
-          // Preserve the curated display order instead of relying on API ordering.
-          this.featuredCards = featuredNames
-            .map(name => cardsByName.get(name.toLowerCase()))
-            .filter((card): card is Card => card !== undefined);
-
-          this.collectionExampleCard =
-            cardsByName.get('black clinic miracle') ?? null;
-
-          this.wishlistExampleCard =
-            cardsByName.get('void geisha') ?? null;
-
-          // The API response arrives asynchronously, so refresh the template state.
-          this.changeDetectorRef.markForCheck();
-        },
-        error: error => {
-          console.error(
-            'Unable to load featured cards',
-            error
-          );
-
-          this.featuredCards = [];
-          this.collectionExampleCard = null;
-          this.wishlistExampleCard = null;
-
-          this.changeDetectorRef.markForCheck();
+          cardsByName.set(card.name.trim().toLowerCase(), card);
         }
-      });
+
+        // Preserve the curated display order instead of relying on API ordering.
+        this.featuredCards = featuredNames
+          .map((name) => cardsByName.get(name.toLowerCase()))
+          .filter((card): card is Card => card !== undefined);
+
+        this.collectionExampleCard = cardsByName.get('black clinic miracle') ?? null;
+
+        this.wishlistExampleCard = cardsByName.get('void geisha') ?? null;
+
+        // The API response arrives asynchronously, so refresh the template state.
+        this.changeDetectorRef.markForCheck();
+      },
+      error: (error) => {
+        console.error('Unable to load featured cards', error);
+
+        this.featuredCards = [];
+        this.collectionExampleCard = null;
+        this.wishlistExampleCard = null;
+
+        this.changeDetectorRef.markForCheck();
+      },
+    });
   }
 }

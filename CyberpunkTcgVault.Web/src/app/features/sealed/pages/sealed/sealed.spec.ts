@@ -1,8 +1,5 @@
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -40,7 +37,7 @@ describe('Sealed', () => {
     isOpenToTrade: false,
     maySellLater: false,
     imageUrl: `https://images.example.test/products/product-${id}.png`,
-    notes: null
+    notes: null,
   });
 
   const serviceMock = {
@@ -50,16 +47,16 @@ describe('Sealed', () => {
     updateQuantity: (item: CollectionProduct, quantity: number) => {
       updateQuantityCalls += 1;
       const updated = { ...item, quantity };
-      items.update(current => current.map(existing =>
-        existing.id === item.id ? updated : existing
-      ));
+      items.update((current) =>
+        current.map((existing) => (existing.id === item.id ? updated : existing)),
+      );
       return of(updated);
     },
     update: (item: CollectionProduct, request: any) => {
       const updated = { ...item, ...request };
-      items.update(current => current.map(existing =>
-        existing.id === item.id ? updated : existing
-      ));
+      items.update((current) =>
+        current.map((existing) => (existing.id === item.id ? updated : existing)),
+      );
       return of(updated);
     },
     create: () => {
@@ -67,10 +64,10 @@ describe('Sealed', () => {
       return of(createProduct(99));
     },
     remove: (item: CollectionProduct) => {
-      items.update(current => current.filter(existing => existing.id !== item.id));
+      items.update((current) => current.filter((existing) => existing.id !== item.id));
       return of(undefined);
     },
-    getImageUrl: (path: string | null) => path
+    getImageUrl: (path: string | null) => path,
   };
 
   beforeEach(async () => {
@@ -81,7 +78,7 @@ describe('Sealed', () => {
 
     Object.defineProperty(serviceMock, 'items', {
       value: items.asReadonly(),
-      configurable: true
+      configurable: true,
     });
 
     await TestBed.configureTestingModule({
@@ -93,14 +90,14 @@ describe('Sealed', () => {
           provide: AuthService,
           useValue: {
             isDemo,
-            isAuthenticated: signal(true)
-          }
+            isAuthenticated: signal(true),
+          },
         },
         {
           provide: CollectionProductsService,
-          useValue: serviceMock
-        }
-      ]
+          useValue: serviceMock,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Sealed);
@@ -132,7 +129,7 @@ describe('Sealed', () => {
     fixture.componentInstance.goToPage(2);
 
     fixture.componentInstance.updateSearch({
-      target: { value: 'Product 1' }
+      target: { value: 'Product 1' },
     } as unknown as Event);
 
     expect(fixture.componentInstance.activePage()).toBe(1);
@@ -191,7 +188,7 @@ describe('Sealed', () => {
 
     expect(createCalls).toBe(0);
     expect(fixture.nativeElement.textContent).toContain(
-      'Enter a valid artwork URL or leave this field empty.'
+      'Enter a valid artwork URL or leave this field empty.',
     );
   });
 
@@ -199,8 +196,12 @@ describe('Sealed', () => {
     items.set([{ ...createProduct(1), imageUrl: 'https://images.example.test/product.webp' }]);
     fixture.detectChanges();
 
-    let fallback = fixture.nativeElement.querySelector('.sealed-record__art-fallback') as HTMLElement;
-    let image = fixture.nativeElement.querySelector('.sealed-record__art-image') as HTMLImageElement;
+    let fallback = fixture.nativeElement.querySelector(
+      '.sealed-record__art-fallback',
+    ) as HTMLElement;
+    let image = fixture.nativeElement.querySelector(
+      '.sealed-record__art-image',
+    ) as HTMLImageElement;
 
     expect(fallback.textContent?.trim()).toBe('Product artwork unavailable');
     expect(image.alt).toBe('');
@@ -230,13 +231,11 @@ describe('Sealed', () => {
 
   it('shows filtered empty separately from the true empty state', () => {
     fixture.componentInstance.updateSearch({
-      target: { value: 'not-a-product' }
+      target: { value: 'not-a-product' },
     } as unknown as Event);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain(
-      'No sealed products match these filters.'
-    );
+    expect(fixture.nativeElement.textContent).toContain('No sealed products match these filters.');
     expect(fixture.nativeElement.textContent).not.toContain('The shelf is clear.');
   });
 });

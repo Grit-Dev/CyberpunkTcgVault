@@ -1,12 +1,5 @@
-import {
-  HttpClient,
-  provideHttpClient,
-  withInterceptors
-} from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { API_ENDPOINTS } from './api-endpoints';
@@ -19,11 +12,9 @@ describe('apiSecurityInterceptor', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(
-          withInterceptors([apiSecurityInterceptor])
-        ),
-        provideHttpClientTesting()
-      ]
+        provideHttpClient(withInterceptors([apiSecurityInterceptor])),
+        provideHttpClientTesting(),
+      ],
     });
 
     http = TestBed.inject(HttpClient);
@@ -53,18 +44,17 @@ describe('apiSecurityInterceptor', () => {
     expect(csrfRequest.request.withCredentials).toBe(true);
 
     csrfRequest.flush({
-      requestToken: 'csrf-token'
+      requestToken: 'csrf-token',
     });
 
     const loginRequest = httpTesting.expectOne(API_ENDPOINTS.auth.login);
 
     expect(loginRequest.request.withCredentials).toBe(true);
-    expect(loginRequest.request.headers.get('X-XSRF-TOKEN'))
-      .toBe('csrf-token');
+    expect(loginRequest.request.headers.get('X-XSRF-TOKEN')).toBe('csrf-token');
 
     loginRequest.flush({
       requiresTwoFactor: false,
-      user: null
+      user: null,
     });
   });
 

@@ -1,8 +1,5 @@
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -17,19 +14,21 @@ describe('SiteHeader', () => {
   const currentUser = signal<AuthUser | null>(null);
   const isAuthenticated = signal(false);
   const isDemo = signal(false);
+  const publicRegistrationEnabled = signal(false);
 
   const authServiceStub = {
     currentUser,
     isInitialized: signal(true),
     isAuthenticated,
     isDemo,
-    logout: () => of(undefined)
+    logout: () => of(undefined),
   };
 
   beforeEach(async () => {
     currentUser.set(null);
     isAuthenticated.set(false);
     isDemo.set(false);
+    publicRegistrationEnabled.set(false);
 
     await TestBed.configureTestingModule({
       imports: [SiteHeader],
@@ -37,19 +36,42 @@ describe('SiteHeader', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: authServiceStub
+          useValue: authServiceStub,
         },
         {
           provide: CapabilitiesService,
           useValue: {
-            publicRegistrationEnabled: signal(false)
-          }
-        }
-      ]
+            publicRegistrationEnabled,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SiteHeader);
     fixture.detectChanges();
+  });
+
+  it('keeps public registration out of the signed-out header when the capability is disabled', () => {
+    const login = fixture.nativeElement.querySelector('.header-login') as HTMLAnchorElement | null;
+    const register = fixture.nativeElement.querySelector(
+      '.header-register',
+    ) as HTMLAnchorElement | null;
+
+    expect(login?.textContent?.trim()).toBe('Log in');
+    expect(login?.getAttribute('href')).toBe('/login');
+    expect(register).toBeFalsy();
+  });
+
+  it('shows Join the Vault only when public registration is enabled', () => {
+    publicRegistrationEnabled.set(true);
+    fixture.detectChanges();
+
+    const register = fixture.nativeElement.querySelector(
+      '.header-register',
+    ) as HTMLAnchorElement | null;
+
+    expect(register?.textContent?.trim()).toBe('Join the Vault');
+    expect(register?.getAttribute('href')).toBe('/register');
   });
 
   it('keeps Catalogue public and hides private collector navigation anonymously', () => {
@@ -68,7 +90,7 @@ describe('SiteHeader', () => {
       email: 'paul@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
@@ -81,7 +103,6 @@ describe('SiteHeader', () => {
     expect(navigationText).toContain('Sealed');
   });
 
-
   it('uses the authenticated username as the direct Account entry without adding Account to primary navigation', () => {
     currentUser.set({
       userId: 'collector-1',
@@ -89,18 +110,19 @@ describe('SiteHeader', () => {
       email: 'paul@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    const identity = fixture.nativeElement.querySelector(
-      '.header-identity'
-    ) as HTMLAnchorElement;
+    const identity = fixture.nativeElement.querySelector('.header-identity') as HTMLAnchorElement;
 
     expect(identity.tagName).toBe('A');
+    const context = fixture.nativeElement.querySelector('.header-identity-context') as HTMLElement;
+
     expect(identity.getAttribute('href')).toBe('/account');
     expect(identity.textContent).toContain('paul');
+    expect(context.textContent?.trim()).toBe('Account');
     expect(getNavigationText()).not.toContain('Account');
   });
 
@@ -111,23 +133,17 @@ describe('SiteHeader', () => {
       email: 'demo@example.com',
       roles: ['Demo'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     isDemo.set(true);
     fixture.detectChanges();
 
-    const identity = fixture.nativeElement.querySelector(
-      '.header-identity'
-    ) as HTMLElement;
-    const username = fixture.nativeElement.querySelector(
-      '.header-username'
-    ) as HTMLElement;
+    const username = fixture.nativeElement.querySelector('.header-username') as HTMLElement;
     const demoContexts = fixture.nativeElement.querySelectorAll(
-      '.header-demo-context'
+      '.header-identity-context',
     ) as NodeListOf<HTMLElement>;
 
-    expect(identity.classList.contains('header-identity--demo')).toBe(true);
     expect(username.textContent?.trim()).toBe('demo-vault');
     expect(demoContexts).toHaveLength(1);
     expect(demoContexts[0].textContent?.trim()).toBe('Demo Vault');
@@ -144,23 +160,15 @@ describe('SiteHeader', () => {
       email: 'collector@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    const headerInner = fixture.nativeElement.querySelector(
-      '.header-inner'
-    ) as HTMLElement;
-    const navigation = fixture.nativeElement.querySelector(
-      '.site-navigation'
-    ) as HTMLElement;
-    const actions = fixture.nativeElement.querySelector(
-      '.header-actions'
-    ) as HTMLElement;
-    const logout = fixture.nativeElement.querySelector(
-      '.header-logout'
-    ) as HTMLButtonElement;
+    const headerInner = fixture.nativeElement.querySelector('.header-inner') as HTMLElement;
+    const navigation = fixture.nativeElement.querySelector('.site-navigation') as HTMLElement;
+    const actions = fixture.nativeElement.querySelector('.header-actions') as HTMLElement;
+    const logout = fixture.nativeElement.querySelector('.header-logout') as HTMLButtonElement;
 
     const gridBefore = getComputedStyle(headerInner).gridTemplateColumns;
     const heightBefore = getComputedStyle(headerInner).minHeight;
@@ -172,7 +180,7 @@ describe('SiteHeader', () => {
       email: 'collector@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     fixture.detectChanges();
 
@@ -193,20 +201,14 @@ describe('SiteHeader', () => {
       email: 'legacy@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    const identity = fixture.nativeElement.querySelector(
-      '.header-identity'
-    ) as HTMLElement;
-    const username = fixture.nativeElement.querySelector(
-      '.header-username'
-    ) as HTMLElement;
-    const actions = fixture.nativeElement.querySelector(
-      '.header-actions'
-    ) as HTMLElement;
+    const identity = fixture.nativeElement.querySelector('.header-identity') as HTMLElement;
+    const username = fixture.nativeElement.querySelector('.header-username') as HTMLElement;
+    const actions = fixture.nativeElement.querySelector('.header-actions') as HTMLElement;
 
     const identityStyle = getComputedStyle(identity);
     const usernameStyle = getComputedStyle(username);
@@ -222,26 +224,20 @@ describe('SiteHeader', () => {
   });
 
   it('renders the header brand mark as fixed SVG geometry', () => {
-    const symbol = fixture.nativeElement.querySelector(
-      '.brand-symbol'
-    ) as HTMLElement;
-    const shape = symbol.querySelector(
-      '.brand-symbol-shape'
-    ) as SVGElement;
+    const symbol = fixture.nativeElement.querySelector('.brand-symbol') as HTMLElement;
+    const shape = symbol.querySelector('.brand-symbol-shape') as SVGElement;
     const path = shape.querySelector('path') as SVGPathElement;
 
     expect(shape).toBeTruthy();
     expect(shape.getAttribute('viewBox')).toBe('0 0 48 48');
-    expect(path.getAttribute('d')).toBe(
-      'M0 0H37.44L48 10.56V48H10.56L0 37.44V0Z'
-    );
+    expect(path.getAttribute('d')).toBe('M0 0H37.44L48 10.56V48H10.56L0 37.44V0Z');
   });
 
   it('does not let a mouse press leave focus on the brand link', () => {
     const brand = fixture.nativeElement.querySelector('.brand') as HTMLAnchorElement;
     const pointerPress = new MouseEvent('mousedown', {
       bubbles: true,
-      cancelable: true
+      cancelable: true,
     });
 
     brand.dispatchEvent(pointerPress);
@@ -250,12 +246,8 @@ describe('SiteHeader', () => {
   });
 
   it('keeps the same brand presentation when authentication state changes', () => {
-    const brandBefore = fixture.nativeElement.querySelector(
-      '.brand'
-    ) as HTMLElement;
-    const symbolBefore = fixture.nativeElement.querySelector(
-      '.brand-symbol'
-    ) as HTMLElement;
+    const brandBefore = fixture.nativeElement.querySelector('.brand') as HTMLElement;
+    const symbolBefore = fixture.nativeElement.querySelector('.brand-symbol') as HTMLElement;
 
     currentUser.set({
       userId: 'collector-1',
@@ -263,7 +255,7 @@ describe('SiteHeader', () => {
       email: 'paul@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
@@ -275,7 +267,7 @@ describe('SiteHeader', () => {
 
   function getNavigationText(): string {
     return (
-      fixture.nativeElement.querySelector('.site-navigation') as HTMLElement
-    ).textContent ?? '';
+      (fixture.nativeElement.querySelector('.site-navigation') as HTMLElement).textContent ?? ''
+    );
   }
 });

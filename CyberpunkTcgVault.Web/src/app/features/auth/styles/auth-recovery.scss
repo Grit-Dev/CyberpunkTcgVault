@@ -16,16 +16,10 @@
   position: absolute;
   z-index: 0;
   inset-block: 0;
-  right: max(
-    var(--page-padding),
-    calc((100% - 1420px) / 2)
-  );
-  width: min(
-    calc((100% - (var(--page-padding) * 2)) * 0.42),
-    596px
-  );
+  right: max(var(--page-padding), calc((100% - 1420px) / 2));
+  width: min(calc((100% - (var(--page-padding) * 2)) * 0.42), 596px);
   background: var(--colour-background-soft);
-  content: "";
+  content: '';
   pointer-events: none;
 }
 
@@ -80,7 +74,7 @@
   width: 3px;
   height: 40px;
   background: var(--colour-yellow);
-  content: "";
+  content: '';
 }
 
 .auth-recovery-form-heading h2 {
