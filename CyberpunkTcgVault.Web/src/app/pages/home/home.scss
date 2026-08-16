@@ -6,12 +6,8 @@
   overflow: hidden;
   color: var(--colour-text);
   background:
-    radial-gradient(circle at 14% 18%,
-      rgba(242, 233, 0, 0.055),
-      transparent 27%),
-    radial-gradient(circle at 85% 32%,
-      rgba(34, 225, 209, 0.045),
-      transparent 30%),
+    radial-gradient(circle at 14% 18%, rgba(242, 233, 0, 0.055), transparent 27%),
+    radial-gradient(circle at 85% 32%, rgba(34, 225, 209, 0.045), transparent 30%),
     var(--colour-background);
 }
 
@@ -55,7 +51,6 @@
   background: var(--colour-cyan);
 }
 
-
 /*
  * Keeps the hero spacious without allowing excessive
  * empty space beneath the main content.
@@ -65,8 +60,7 @@
 
   min-height: 720px;
 
-  grid-template-columns:
-    minmax(0, 0.82fr) minmax(580px, 1.18fr);
+  grid-template-columns: minmax(0, 0.82fr) minmax(580px, 1.18fr);
 
   align-items: center;
 
@@ -88,9 +82,7 @@
 
   font-family: var(--font-display);
 
-  font-size: clamp(4.2rem,
-      7.2vw,
-      7.2rem);
+  font-size: clamp(4.2rem, 7.2vw, 7.2rem);
 
   font-weight: 900;
   line-height: 0.88;
@@ -109,9 +101,7 @@
 
   color: transparent;
 
-  background: linear-gradient(105deg,
-      var(--colour-yellow),
-      var(--colour-yellow-light));
+  background: linear-gradient(105deg, var(--colour-yellow), var(--colour-yellow-light));
 
   background-clip: text;
   -webkit-background-clip: text;
@@ -138,7 +128,6 @@
   margin-top: 36px;
 }
 
-
 /*
  * Keeps the three hero benefits aligned as a compact
  * supporting row beneath the main hero actions.
@@ -149,8 +138,7 @@
   width: 100%;
   max-width: 600px;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 28px;
 
@@ -160,13 +148,12 @@
   border-top: 1px solid var(--colour-border);
 }
 
-.hero-stats>div {
+.hero-stats > div {
   display: grid;
 
   min-width: 0;
 
-  grid-template-rows:
-    minmax(2.4em, auto) auto;
+  grid-template-rows: minmax(2.4em, auto) auto;
 
   align-content: start;
 
@@ -202,7 +189,6 @@
   text-transform: uppercase;
 }
 
-
 /*
  * Card catalogue preview.
  */
@@ -212,18 +198,17 @@
   min-width: 0;
   padding: 17px;
   background:
-    linear-gradient(145deg,
-      rgba(255, 255, 255, 0.045),
-      transparent 33%),
-    rgba(13, 18, 26, 0.95);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.045), transparent 33%), rgba(13, 18, 26, 0.95);
   border: 1px solid var(--colour-border-strong);
   box-shadow: var(--shadow-panel);
-  clip-path: polygon(0 0,
-      calc(100% - 24px) 0,
-      100% 24px,
-      100% 100%,
-      24px 100%,
-      0 calc(100% - 24px));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 24px) 0,
+    100% 24px,
+    100% 100%,
+    24px 100%,
+    0 calc(100% - 24px)
+  );
 }
 
 .database-preview::before {
@@ -237,10 +222,9 @@
 
   background: var(--colour-yellow);
 
-  box-shadow:
-    0 0 20px rgba(242, 233, 0, 0.55);
+  box-shadow: 0 0 20px rgba(242, 233, 0, 0.55);
 
-  content: "";
+  content: '';
 }
 
 .database-topbar {
@@ -252,7 +236,7 @@
   padding: 7px 7px 18px;
 }
 
-.database-topbar>div {
+.database-topbar > div {
   display: flex;
 
   flex-direction: column;
@@ -304,7 +288,7 @@
   text-transform: uppercase;
 }
 
-.database-status>span {
+.database-status > span {
   width: 6px;
   height: 6px;
 
@@ -312,15 +296,13 @@
 
   border-radius: 50%;
 
-  box-shadow:
-    0 0 10px var(--colour-cyan);
+  box-shadow: 0 0 10px var(--colour-cyan);
 }
 
 .database-preview-notice {
   display: grid;
 
-  grid-template-columns:
-    auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
 
   align-items: center;
 
@@ -350,7 +332,7 @@
   font-size: 1rem;
 }
 
-.database-preview-notice>div {
+.database-preview-notice > div {
   display: flex;
 
   min-width: 0;
@@ -367,14 +349,14 @@
   font-weight: 700;
 }
 
-.database-preview-notice>div>span {
+.database-preview-notice > div > span {
   color: var(--colour-text-muted);
 
   font-size: 0.61rem;
   line-height: 1.45;
 }
 
-.database-preview-notice>a {
+.database-preview-notice > a {
   display: inline-flex;
 
   align-items: center;
@@ -393,12 +375,12 @@
   text-transform: uppercase;
 }
 
-.database-preview-notice>a:hover {
+.database-preview-notice > a:hover {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
-.database-preview-notice>a:focus-visible {
+.database-preview-notice > a:focus-visible {
   border-radius: 2px;
 
   outline: 2px solid var(--colour-cyan);
@@ -414,7 +396,7 @@
   padding: 19px 2px 11px;
 }
 
-.database-heading>div {
+.database-heading > div {
   display: flex;
 
   flex-direction: column;
@@ -459,12 +441,10 @@
 .prototype-card-grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 9px;
 }
-
 
 /*
  * Homepage catalogue cards remain quiet at rest.
@@ -489,18 +469,19 @@
 
   border: 1px solid var(--colour-border);
 
-  clip-path: polygon(0 0,
-      calc(100% - 10px) 0,
-      100% 10px,
-      100% 100%,
-      10px 100%,
-      0 calc(100% - 10px));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
 
   transition:
     border-color 160ms ease,
     transform 160ms ease;
 }
-
 
 /*
  * Keep the yellow hover state available everywhere.
@@ -512,23 +493,18 @@
   border-color: var(--colour-yellow);
 }
 
-
 /*
  * Restrained physical response for desktop mouse users.
  */
 @media (hover: hover) and (pointer: fine) {
-
   .prototype-card:hover {
-    transform:
-      translateY(-3px) scale(1.01);
+    transform: translateY(-3px) scale(1.01);
   }
 
   .prototype-card:hover .card-visual img {
     transform: scale(1.01);
   }
-
 }
-
 
 /*
  * Keyboard focus is deliberately cyan so it cannot be
@@ -570,7 +546,6 @@
   font-size: 0.72rem;
 }
 
-
 /*
  * The artwork frame is deliberately neutral.
  *
@@ -607,7 +582,6 @@
 
   transition: transform 160ms ease;
 }
-
 
 .card-information {
   display: flex;
@@ -670,7 +644,7 @@
   padding: 15px 2px 1px;
 }
 
-.database-footer>span {
+.database-footer > span {
   color: var(--colour-text-muted);
 
   font-size: 0.53rem;
@@ -705,7 +679,6 @@
   outline-offset: 4px;
 }
 
-
 /*
  * Personal Vault section.
  *
@@ -719,8 +692,7 @@
 .section-introduction {
   display: grid;
 
-  grid-template-columns:
-    minmax(0, 1.15fr) minmax(280px, 0.65fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.65fr);
 
   align-items: end;
 
@@ -728,7 +700,6 @@
 
   margin-bottom: 46px;
 }
-
 
 /*
  * Reusable section-heading grammar for future major product surfaces.
@@ -740,9 +711,7 @@
 
   font-family: var(--font-display);
 
-  font-size: clamp(3rem,
-      5.5vw,
-      5.4rem);
+  font-size: clamp(3rem, 5.5vw, 5.4rem);
 
   font-weight: 900;
   line-height: 0.96;
@@ -761,12 +730,10 @@
 }
 
 .section-heading--compact h2 {
-  font-size: clamp(2.45rem,
-      4.2vw,
-      4rem);
+  font-size: clamp(2.45rem, 4.2vw, 4rem);
 }
 
-.section-introduction>p {
+.section-introduction > p {
   margin: 0;
 
   color: var(--colour-text-muted);
@@ -784,19 +751,20 @@
 .vault-snapshot {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   background: rgba(255, 255, 255, 0.018);
 
   border: 1px solid var(--colour-border);
 
-  clip-path: polygon(0 0,
-      calc(100% - 18px) 0,
-      100% 18px,
-      100% 100%,
-      18px 100%,
-      0 calc(100% - 18px));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% 100%,
+    18px 100%,
+    0 calc(100% - 18px)
+  );
 }
 
 .vault-snapshot__feature {
@@ -856,7 +824,6 @@
   line-height: 1.68;
 }
 
-
 /*
  * Reusable Vault record visual language.
  *
@@ -869,8 +836,7 @@
 
   min-width: 0;
 
-  grid-template-columns:
-    72px minmax(0, 1fr) auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
 
   align-items: center;
 
@@ -917,11 +883,7 @@
 
   color: var(--colour-yellow);
 
-  background:
-    linear-gradient(145deg,
-      rgba(242, 233, 0, 0.065),
-      transparent 62%),
-    #090d13;
+  background: linear-gradient(145deg, rgba(242, 233, 0, 0.065), transparent 62%), #090d13;
 
   border-color: rgba(242, 233, 0, 0.18);
 }
@@ -937,7 +899,7 @@
 
   background: var(--colour-yellow);
 
-  content: "";
+  content: '';
 }
 
 .vault-record__content {
@@ -979,7 +941,7 @@
   white-space: nowrap;
 }
 
-.vault-record__content>span:last-child {
+.vault-record__content > span:last-child {
   overflow: hidden;
 
   color: var(--colour-text-muted);
@@ -1024,7 +986,6 @@
   outline-offset: 3px;
 }
 
-
 /*
  * Privacy and trust section.
  *
@@ -1038,8 +999,7 @@
 .security-layout {
   display: grid;
 
-  grid-template-columns:
-    minmax(0, 1fr) minmax(360px, 0.72fr);
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
 
   align-items: center;
 
@@ -1051,15 +1011,17 @@
 
   border: 1px solid var(--colour-border);
 
-  clip-path: polygon(0 0,
-      calc(100% - 18px) 0,
-      100% 18px,
-      100% 100%,
-      18px 100%,
-      0 calc(100% - 18px));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 18px,
+    100% 100%,
+    18px 100%,
+    0 calc(100% - 18px)
+  );
 }
 
-.security-copy>p:not(.eyebrow) {
+.security-copy > p:not(.eyebrow) {
   max-width: 650px;
 
   margin: 22px 0 0;
@@ -1073,8 +1035,7 @@
 .security-copy ul {
   display: grid;
 
-  grid-template-columns:
-    1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 
   gap: 10px 18px;
 
@@ -1097,7 +1058,7 @@
   font-size: 0.74rem;
 }
 
-.security-copy li>span {
+.security-copy li > span {
   display: grid;
 
   width: 20px;
@@ -1114,7 +1075,6 @@
   font-size: 0.58rem;
   font-weight: 800;
 }
-
 
 /*
  * Private Vault record.
@@ -1137,7 +1097,7 @@
   border-bottom: 1px solid var(--colour-border);
 }
 
-.trust-surface__header>span {
+.trust-surface__header > span {
   display: block;
 
   color: var(--colour-text-muted);
@@ -1163,8 +1123,7 @@
 .trust-surface__records {
   display: grid;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 14px 28px;
 
@@ -1216,7 +1175,6 @@
   line-height: 1.55;
 }
 
-
 /*
  * Final player-facing call to action.
  */
@@ -1235,19 +1193,18 @@
   padding: 56px;
 
   background:
-    linear-gradient(115deg,
-      rgba(242, 233, 0, 0.13),
-      transparent 48%),
-    var(--colour-surface);
+    linear-gradient(115deg, rgba(242, 233, 0, 0.13), transparent 48%), var(--colour-surface);
 
   border: 1px solid rgba(242, 233, 0, 0.18);
 
-  clip-path: polygon(0 0,
-      calc(100% - 20px) 0,
-      100% 20px,
-      100% 100%,
-      20px 100%,
-      0 calc(100% - 20px));
+  clip-path: polygon(
+    0 0,
+    calc(100% - 20px) 0,
+    100% 20px,
+    100% 100%,
+    20px 100%,
+    0 calc(100% - 20px)
+  );
 }
 
 .cta-code {
@@ -1266,9 +1223,7 @@
 
   font-family: var(--font-display);
 
-  font-size: clamp(2.4rem,
-      4.5vw,
-      4.1rem);
+  font-size: clamp(2.4rem, 4.5vw, 4.1rem);
 
   line-height: 1;
 
@@ -1290,13 +1245,10 @@
   line-height: 1.7;
 }
 
-
 /*
  * Smaller desktop and tablet.
  */
 @media (max-width: 1120px) {
-
-
   .hero-layout {
     grid-template-columns: 1fr;
   }
@@ -1314,16 +1266,12 @@
 
     gap: 40px;
   }
-
 }
-
 
 /*
  * Tablet.
  */
 @media (max-width: 820px) {
-
-
   .hero-layout {
     min-height: auto;
 
@@ -1331,22 +1279,18 @@
   }
 
   .hero-copy h1 {
-    font-size: clamp(4rem,
-        17vw,
-        6.4rem);
+    font-size: clamp(4rem, 17vw, 6.4rem);
   }
 
   .prototype-card-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .database-preview-notice {
-    grid-template-columns:
-      auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
-  .database-preview-notice>a {
+  .database-preview-notice > a {
     grid-column: 2;
 
     width: fit-content;
@@ -1384,21 +1328,14 @@
 
     padding: 40px 30px;
   }
-
-
 }
-
 
 /*
  * Mobile.
  */
 @media (max-width: 560px) {
-
-
   .hero-copy h1 {
-    font-size: clamp(3.8rem,
-        19vw,
-        5.2rem);
+    font-size: clamp(3.8rem, 19vw, 5.2rem);
   }
 
   .hero-description {
@@ -1415,7 +1352,6 @@
     width: 100%;
   }
 
-
   /*
    * Turns the desktop benefit columns into compact
    * mobile rows without wasting vertical space.
@@ -1431,9 +1367,8 @@
     padding-top: 18px;
   }
 
-  .hero-stats>div {
-    grid-template-columns:
-      minmax(0, 1fr) auto;
+  .hero-stats > div {
+    grid-template-columns: minmax(0, 1fr) auto;
 
     grid-template-rows: auto;
 
@@ -1446,7 +1381,7 @@
     border-bottom: 1px solid var(--colour-border);
   }
 
-  .hero-stats>div:last-child {
+  .hero-stats > div:last-child {
     border-bottom: 0;
   }
 
@@ -1465,13 +1400,11 @@
   }
 
   .prototype-card-grid {
-    grid-template-columns:
-      1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .database-preview-notice {
-    grid-template-columns:
-      auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
 
     align-items: start;
   }
@@ -1481,7 +1414,7 @@
     height: 30px;
   }
 
-  .database-preview-notice>a {
+  .database-preview-notice > a {
     grid-column: 1 / -1;
 
     margin-left: 43px;
@@ -1522,8 +1455,7 @@
   }
 
   .vault-record {
-    grid-template-columns:
-      62px minmax(0, 1fr) auto;
+    grid-template-columns: 62px minmax(0, 1fr) auto;
 
     gap: 12px;
 
@@ -1561,16 +1493,13 @@
   .final-cta {
     padding-bottom: 92px;
   }
-
 }
-
 
 /*
  * Removes unnecessary movement for users who prefer
  * a reduced-motion experience.
  */
 @media (prefers-reduced-motion: reduce) {
-
   .prototype-card {
     transition: border-color 160ms ease;
   }
@@ -1588,5 +1517,4 @@
   .prototype-card:hover .card-visual img {
     transform: none;
   }
-
 }

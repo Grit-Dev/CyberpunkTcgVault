@@ -1,8 +1,4 @@
-import {
-  computed,
-  Injectable,
-  signal
-} from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 import { AuthUser } from './auth.models';
 
@@ -13,7 +9,7 @@ import { AuthUser } from './auth.models';
  * authentication credential remains in the browser-managed HttpOnly cookie.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthStateService {
   private readonly currentUserState = signal<AuthUser | null>(null);
@@ -21,15 +17,9 @@ export class AuthStateService {
 
   readonly currentUser = this.currentUserState.asReadonly();
   readonly isInitialized = this.initializedState.asReadonly();
-  readonly isAuthenticated = computed(
-    () => this.currentUserState() !== null
-  );
-  readonly isDemo = computed(
-    () => this.currentUserState()?.roles.includes('Demo') ?? false
-  );
-  readonly isAdmin = computed(
-    () => this.currentUserState()?.roles.includes('Admin') ?? false
-  );
+  readonly isAuthenticated = computed(() => this.currentUserState() !== null);
+  readonly isDemo = computed(() => this.currentUserState()?.roles.includes('Demo') ?? false);
+  readonly isAdmin = computed(() => this.currentUserState()?.roles.includes('Admin') ?? false);
 
   setUser(user: AuthUser): void {
     this.currentUserState.set(user);

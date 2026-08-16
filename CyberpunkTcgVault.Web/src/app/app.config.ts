@@ -1,16 +1,6 @@
-import {
-  ApplicationConfig,
-  provideBrowserGlobalErrorListeners
-} from '@angular/core';
-import {
-  provideHttpClient,
-  withInterceptors
-} from '@angular/common/http';
-import {
-  provideRouter,
-  TitleStrategy,
-  withInMemoryScrolling
-} from '@angular/router';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideRouter, TitleStrategy, withInMemoryScrolling } from '@angular/router';
 
 import { routes } from './app.routes';
 import { apiSecurityInterceptor } from './core/http/api-security.interceptor';
@@ -19,15 +9,13 @@ import { SeoTitleStrategy } from './core/seo/seo-title-strategy';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(
-      withInterceptors([apiSecurityInterceptor])
-    ),
+    provideHttpClient(withInterceptors([apiSecurityInterceptor])),
     provideRouter(
       routes,
       withInMemoryScrolling({
         scrollPositionRestoration: 'enabled',
-        anchorScrolling: 'enabled'
-      })
+        anchorScrolling: 'enabled',
+      }),
     ),
 
     /*
@@ -36,7 +24,7 @@ export const appConfig: ApplicationConfig = {
      */
     {
       provide: TitleStrategy,
-      useClass: SeoTitleStrategy
-    }
-  ]
+      useClass: SeoTitleStrategy,
+    },
+  ],
 };

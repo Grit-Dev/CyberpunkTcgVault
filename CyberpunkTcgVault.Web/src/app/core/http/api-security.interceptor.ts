@@ -1,27 +1,12 @@
-import {
-  HttpErrorResponse,
-  HttpEvent,
-  HttpInterceptorFn,
-  HttpRequest
-} from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
-import {
-  catchError,
-  Observable,
-  switchMap,
-  throwError
-} from 'rxjs';
+import { catchError, Observable, switchMap, throwError } from 'rxjs';
 
 import { AuthStateService } from '../auth/auth-state.service';
 import { isChoomVaultApiRequest } from './api-endpoints';
 import { CsrfService } from './csrf.service';
 
-const UNSAFE_METHODS = new Set([
-  'POST',
-  'PUT',
-  'PATCH',
-  'DELETE'
-]);
+const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 /**
  * Applies the browser-security contract required by the Choom Vault API.
@@ -41,24 +26,19 @@ export const apiSecurityInterceptor: HttpInterceptorFn = (request, next) => {
   const csrfService = inject(CsrfService);
   const authState = inject(AuthStateService);
 
-  const send = (
-    securedRequest: HttpRequest<unknown>
-  ): Observable<HttpEvent<unknown>> =>
+  const send = (securedRequest: HttpRequest<unknown>): Observable<HttpEvent<unknown>> =>
     next(securedRequest).pipe(
       catchError((error: unknown) => {
-        if (
-          error instanceof HttpErrorResponse &&
-          error.status === 401
-        ) {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
           authState.clearUser();
         }
 
         return throwError(() => error);
-      })
+      }),
     );
 
   const credentialedRequest = request.clone({
-    withCredentials: true
+    withCredentials: true,
   });
 
   if (!UNSAFE_METHODS.has(request.method.toUpperCase())) {
@@ -66,14 +46,14 @@ export const apiSecurityInterceptor: HttpInterceptorFn = (request, next) => {
   }
 
   return csrfService.getRequestToken().pipe(
-    switchMap(requestToken =>
+    switchMap((requestToken) =>
       send(
         credentialedRequest.clone({
           setHeaders: {
-            'X-XSRF-TOKEN': requestToken
-          }
-        })
-      )
-    )
+            'X-XSRF-TOKEN': requestToken,
+          },
+        }),
+      ),
+    ),
   );
 };

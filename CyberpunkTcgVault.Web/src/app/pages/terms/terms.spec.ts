@@ -1,7 +1,4 @@
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { Terms } from './terms';
@@ -12,7 +9,7 @@ describe('Terms', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Terms],
-      providers: [provideRouter([])]
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Terms);
@@ -29,7 +26,7 @@ describe('Terms', () => {
 
   it('contains the nine Terms sections in order', () => {
     const sections = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('.terms-section')
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.terms-section'),
     ).map((section) => section.id);
 
     expect(sections).toEqual([
@@ -41,7 +38,7 @@ describe('Terms', () => {
       'external-resources',
       'service-availability',
       'terms-privacy',
-      'terms-contact'
+      'terms-contact',
     ]);
   });
 
@@ -54,9 +51,7 @@ describe('Terms', () => {
 
   it('links to Privacy, Contact / Rights and the public contact email', () => {
     const root = fixture.nativeElement as HTMLElement;
-    const hrefs = Array.from(root.querySelectorAll('a')).map(
-      (link) => link.getAttribute('href')
-    );
+    const hrefs = Array.from(root.querySelectorAll('a')).map((link) => link.getAttribute('href'));
 
     expect(hrefs).toContain('/privacy');
     expect(hrefs).toContain('/contact');
@@ -65,7 +60,7 @@ describe('Terms', () => {
 
   it('keeps Terms editorial links text-only without directional arrow glyphs', () => {
     const termsLinks = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('.terms-link')
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.terms-link'),
     ) as HTMLElement[];
 
     expect(termsLinks.length).toBeGreaterThan(0);
@@ -77,6 +72,8 @@ describe('Terms', () => {
 
     expect(text).not.toContain('by using choom vault, you agree');
     expect(text).not.toContain('i agree to the terms');
-    expect((fixture.nativeElement as HTMLElement).querySelector('input[type="checkbox"]')).toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('input[type="checkbox"]'),
+    ).toBeNull();
   });
 });

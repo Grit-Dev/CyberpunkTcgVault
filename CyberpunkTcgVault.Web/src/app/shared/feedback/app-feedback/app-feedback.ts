@@ -6,8 +6,8 @@ import { FeedbackService } from '../../../core/feedback/feedback.service';
   selector: 'app-feedback',
   standalone: true,
   templateUrl: './app-feedback.html',
-  styleUrl: './app-feedback.scss'
+  styleUrl: './app-feedback.scss',
 })
 export class AppFeedback {
-  constructor(readonly feedbackService: FeedbackService) { }
+  constructor(readonly feedbackService: FeedbackService) {}
 }

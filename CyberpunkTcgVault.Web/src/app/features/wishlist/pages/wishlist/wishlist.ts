@@ -1,23 +1,8 @@
 import { ViewportScroller } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  computed,
-  OnInit,
-  signal
-} from '@angular/core';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink
-} from '@angular/router';
-import {
-  catchError,
-  finalize,
-  forkJoin,
-  of,
-  throwError
-} from 'rxjs';
+import { Component, computed, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { catchError, finalize, forkJoin, of, throwError } from 'rxjs';
 
 import { FeedbackService } from '../../../../core/feedback/feedback.service';
 import { CardArtworkDirective } from '../../../cards/directives/card-artwork.directive';
@@ -36,12 +21,9 @@ import { WishlistService } from '../../services/wishlist.service';
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [
-    RouterLink,
-    CardArtworkDirective
-  ],
+  imports: [RouterLink, CardArtworkDirective],
   templateUrl: './wishlist.html',
-  styleUrl: './wishlist.scss'
+  styleUrl: './wishlist.scss',
 })
 export class Wishlist implements OnInit {
   readonly isLoading = signal(true);
@@ -55,8 +37,8 @@ export class Wishlist implements OnInit {
   readonly setOptions = computed(() => {
     const options = this.wishlistService
       .items()
-      .map(item => item.setName?.trim() ?? '')
-      .filter(value => this.hasMeaningfulValue(value));
+      .map((item) => item.setName?.trim() ?? '')
+      .filter((value) => this.hasMeaningfulValue(value));
 
     return [...new Set(options)].sort((a, b) => a.localeCompare(b));
   });
@@ -65,15 +47,12 @@ export class Wishlist implements OnInit {
     const query = this.searchQuery().trim().toLowerCase();
     const set = this.setFilter();
 
-    return this.wishlistService.items().filter(item => {
-      const matchesSearch = !query || [
-        item.cardName,
-        item.cardNumber,
-        item.setName,
-        item.rarity
-      ]
-        .filter((value): value is string => Boolean(value))
-        .some(value => value.toLowerCase().includes(query));
+    return this.wishlistService.items().filter((item) => {
+      const matchesSearch =
+        !query ||
+        [item.cardName, item.cardNumber, item.setName, item.rarity]
+          .filter((value): value is string => Boolean(value))
+          .some((value) => value.toLowerCase().includes(query));
 
       const matchesSet = !set || (item.setName?.trim() ?? '') === set;
 
@@ -81,9 +60,7 @@ export class Wishlist implements OnInit {
     });
   });
 
-  readonly totalPages = computed(
-    () => Math.ceil(this.filteredItems().length / this.pageSize)
-  );
+  readonly totalPages = computed(() => Math.ceil(this.filteredItems().length / this.pageSize));
 
   readonly activePage = computed(() => {
     const totalPages = this.totalPages();
@@ -98,10 +75,7 @@ export class Wishlist implements OnInit {
   readonly pagedItems = computed(() => {
     const startIndex = (this.activePage() - 1) * this.pageSize;
 
-    return this.filteredItems().slice(
-      startIndex,
-      startIndex + this.pageSize
-    );
+    return this.filteredItems().slice(startIndex, startIndex + this.pageSize);
   });
 
   readonly visiblePageNumbers = computed(() => {
@@ -110,47 +84,28 @@ export class Wishlist implements OnInit {
     const maximumVisiblePages = 5;
 
     if (totalPages <= maximumVisiblePages) {
-      return Array.from(
-        { length: totalPages },
-        (_, index) => index + 1
-      );
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
     }
 
     let startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(
-      totalPages,
-      startPage + maximumVisiblePages - 1
-    );
+    const endPage = Math.min(totalPages, startPage + maximumVisiblePages - 1);
 
     if (endPage - startPage + 1 < maximumVisiblePages) {
-      startPage = Math.max(
-        1,
-        endPage - maximumVisiblePages + 1
-      );
+      startPage = Math.max(1, endPage - maximumVisiblePages + 1);
     }
 
-    return Array.from(
-      { length: endPage - startPage + 1 },
-      (_, index) => startPage + index
-    );
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
   });
 
-  readonly firstVisibleRecord = computed(
-    () => this.filteredItems().length === 0
-      ? 0
-      : (this.activePage() - 1) * this.pageSize + 1
+  readonly firstVisibleRecord = computed(() =>
+    this.filteredItems().length === 0 ? 0 : (this.activePage() - 1) * this.pageSize + 1,
   );
 
-  readonly lastVisibleRecord = computed(
-    () => Math.min(
-      this.activePage() * this.pageSize,
-      this.filteredItems().length
-    )
+  readonly lastVisibleRecord = computed(() =>
+    Math.min(this.activePage() * this.pageSize, this.filteredItems().length),
   );
 
-  readonly hasFilters = computed(
-    () => Boolean(this.searchQuery().trim() || this.setFilter())
-  );
+  readonly hasFilters = computed(() => Boolean(this.searchQuery().trim() || this.setFilter()));
 
   readonly ownedQuantityByPrinting = computed(() => {
     const quantities = new Map<number, number>();
@@ -169,8 +124,8 @@ export class Wishlist implements OnInit {
     private readonly cardDetailReturnService: CardDetailReturnService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly viewportScroller: ViewportScroller
-  ) { }
+    private readonly viewportScroller: ViewportScroller,
+  ) {}
 
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParamMap;
@@ -178,11 +133,7 @@ export class Wishlist implements OnInit {
 
     this.searchQuery.set(queryParams.get('q') ?? '');
     this.setFilter.set(queryParams.get('set') ?? '');
-    this.currentPage.set(
-      Number.isInteger(requestedPage) && requestedPage > 0
-        ? requestedPage
-        : 1
-    );
+    this.currentPage.set(Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1);
 
     this.loadWishlist();
   }
@@ -192,10 +143,7 @@ export class Wishlist implements OnInit {
   }
 
   rememberCardDetailReturn(): void {
-    this.cardDetailReturnService.save(
-      'wishlist',
-      this.router.url
-    );
+    this.cardDetailReturnService.save('wishlist', this.router.url);
   }
 
   updateSearch(event: Event): void {
@@ -270,15 +218,13 @@ export class Wishlist implements OnInit {
 
     this.wishlistService
       .remove(item)
-      .pipe(
-        finalize(() => this.setRecordBusy(item.id, false))
-      )
+      .pipe(finalize(() => this.setRecordBusy(item.id, false)))
       .subscribe({
         next: () => {
           this.ensureCurrentPageInRange();
           this.feedback.showStatus('Removed from Wishlist.');
         },
-        error: error => this.handleMutationError(error)
+        error: (error) => this.handleMutationError(error),
       });
   }
 
@@ -295,14 +241,7 @@ export class Wishlist implements OnInit {
       return false;
     }
 
-    return ![
-      'unknown',
-      'n/a',
-      'null',
-      'none',
-      '-',
-      '—'
-    ].includes(value.trim().toLowerCase());
+    return !['unknown', 'n/a', 'null', 'none', '-', '—'].includes(value.trim().toLowerCase());
   }
 
   private loadWishlist(forceRefresh = false): void {
@@ -312,7 +251,7 @@ export class Wishlist implements OnInit {
     forkJoin({
       wishlist: this.wishlistService.load(forceRefresh),
       owned: this.ownedCardsService.load(forceRefresh).pipe(
-        catchError(error => {
+        catchError((error) => {
           if (error instanceof HttpErrorResponse && error.status === 401) {
             return throwError(() => error);
           }
@@ -320,14 +259,14 @@ export class Wishlist implements OnInit {
           // OWNED crossover is useful secondary context, but a non-auth
           // Collection failure must not make the primary Wishlist unusable.
           return of([]);
-        })
-      )
+        }),
+      ),
     }).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.ensureCurrentPageInRange();
       },
-      error: error => {
+      error: (error) => {
         this.isLoading.set(false);
 
         if (error instanceof HttpErrorResponse && error.status === 401) {
@@ -336,7 +275,7 @@ export class Wishlist implements OnInit {
         }
 
         this.loadError.set(true);
-      }
+      },
     });
   }
 
@@ -345,17 +284,15 @@ export class Wishlist implements OnInit {
 
     this.wishlistService
       .updateQuantity(item, wantedQuantity)
-      .pipe(
-        finalize(() => this.setRecordBusy(item.id, false))
-      )
+      .pipe(finalize(() => this.setRecordBusy(item.id, false)))
       .subscribe({
         next: () => this.feedback.showStatus('Wishlist updated.'),
-        error: error => this.handleMutationError(error)
+        error: (error) => this.handleMutationError(error),
       });
   }
 
   private setRecordBusy(id: number, isBusy: boolean): void {
-    this.busyRecordIds.update(current => {
+    this.busyRecordIds.update((current) => {
       const next = new Set(current);
 
       if (isBusy) {
@@ -382,7 +319,7 @@ export class Wishlist implements OnInit {
 
       if (error.status === 404) {
         this.feedback.showError(
-          'That Wishlist record is no longer available. Refreshing your Wishlist.'
+          'That Wishlist record is no longer available. Refreshing your Wishlist.',
         );
         this.loadWishlist(true);
         return;
@@ -395,7 +332,7 @@ export class Wishlist implements OnInit {
 
       if (error.status === 400) {
         this.feedback.showError(
-          'We could not save that Wishlist change. Check the record and try again.'
+          'We could not save that Wishlist change. Check the record and try again.',
         );
         return;
       }
@@ -409,8 +346,8 @@ export class Wishlist implements OnInit {
 
     void this.router.navigate(['/login'], {
       queryParams: {
-        returnUrl: this.currentWishlistUrl()
-      }
+        returnUrl: this.currentWishlistUrl(),
+      },
     });
   }
 
@@ -434,12 +371,10 @@ export class Wishlist implements OnInit {
       queryParams: {
         q: this.searchQuery().trim() || null,
         set: this.setFilter() || null,
-        page: this.currentPage() > 1
-          ? this.currentPage()
-          : null
+        page: this.currentPage() > 1 ? this.currentPage() : null,
       },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 
@@ -449,11 +384,9 @@ export class Wishlist implements OnInit {
         queryParams: {
           q: this.searchQuery().trim() || null,
           set: this.setFilter() || null,
-          page: this.currentPage() > 1
-            ? this.currentPage()
-            : null
-        }
-      })
+          page: this.currentPage() > 1 ? this.currentPage() : null,
+        },
+      }),
     );
   }
 }

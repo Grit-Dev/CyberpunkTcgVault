@@ -169,9 +169,7 @@ describe('CardDetail', () => {
   });
 
   it('falls back to Vault Archive for a direct Card Detail visit', () => {
-    const backLink = fixture.nativeElement.querySelector(
-      '.card-detail-back'
-    ) as HTMLAnchorElement;
+    const backLink = fixture.nativeElement.querySelector('.card-detail-back') as HTMLAnchorElement;
 
     expect(backLink.textContent?.trim()).toContain('Vault Archive');
     expect(backLink.getAttribute('href')).toBe('/cards');
@@ -181,18 +179,13 @@ describe('CardDetail', () => {
     fixture.destroy();
 
     const returnService = TestBed.inject(CardDetailReturnService);
-    returnService.save(
-      'collection',
-      '/collection?q=echo&set=Choom%20Vault%20Origins&page=2'
-    );
+    returnService.save('collection', '/collection?q=echo&set=Choom%20Vault%20Origins&page=2');
 
     fixture = TestBed.createComponent(CardDetail);
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const backLink = fixture.nativeElement.querySelector(
-      '.card-detail-back'
-    ) as HTMLAnchorElement;
+    const backLink = fixture.nativeElement.querySelector('.card-detail-back') as HTMLAnchorElement;
 
     expect(backLink.textContent?.trim()).toContain('Collection');
     expect(backLink.getAttribute('href')).toContain('/collection?');
@@ -211,21 +204,20 @@ describe('CardDetail', () => {
     const sparseCard: Card = {
       ...card,
       rarity: null,
-      printings: [{
-        ...card.printings[0],
-        rarity: null,
-        languageCode: 'Unknown',
-        setCode: 'Unknown'
-      }]
+      printings: [
+        {
+          ...card.printings[0],
+          rarity: null,
+          languageCode: 'Unknown',
+          setCode: 'Unknown',
+        },
+      ],
     };
 
     fixture.componentInstance.card.set(sparseCard);
     fixture.componentInstance.selectedPrinting.set(sparseCard.printings[0]);
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('.printing-record__line')
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('.printing-record__line')).toBeNull();
   });
-
 });

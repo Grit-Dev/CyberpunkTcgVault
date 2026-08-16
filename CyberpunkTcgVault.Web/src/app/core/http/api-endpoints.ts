@@ -8,8 +8,7 @@ import { environment } from '../../../environments/environment';
  */
 const apiBaseUrl = environment.apiUrl.replace(/\/+$/, '');
 
-const apiUrl = (path: string): string =>
-  `${apiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+const apiUrl = (path: string): string => `${apiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 
 export const API_ENDPOINTS = {
   capabilities: apiUrl('/api/Capabilities'),
@@ -34,8 +33,8 @@ export const API_ENDPOINTS = {
     mfaRecovery: apiUrl('/api/Auth/mfa/recovery'),
     demo: apiUrl('/api/Auth/demo'),
     me: apiUrl('/api/Auth/me'),
-    logout: apiUrl('/api/Auth/logout')
-  }
+    logout: apiUrl('/api/Auth/logout'),
+  },
 } as const;
 
 /**
@@ -51,10 +50,7 @@ export const isChoomVaultApiRequest = (url: string): boolean =>
  * external URLs unchanged.
  */
 export const toApiUrl = (path: string): string => {
-  if (
-    path.startsWith('http://') ||
-    path.startsWith('https://')
-  ) {
+  if (path.startsWith('http://') || path.startsWith('https://')) {
     return path;
   }
 

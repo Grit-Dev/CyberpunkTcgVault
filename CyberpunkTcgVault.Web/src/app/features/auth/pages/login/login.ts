@@ -1,19 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  OnInit,
-  signal
-} from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink
-} from '@angular/router';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -24,12 +12,9 @@ type MfaMode = 'authenticator' | 'recovery' | null;
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
-  styleUrl: './login.scss'
+  styleUrl: './login.scss',
 })
 export class Login implements OnInit {
   readonly loginForm;
@@ -48,45 +33,19 @@ export class Login implements OnInit {
     readonly authService: AuthService,
     readonly capabilitiesService: CapabilitiesService,
     private readonly route: ActivatedRoute,
-    private readonly router: Router
+    private readonly router: Router,
   ) {
     this.loginForm = this.formBuilder.nonNullable.group({
-      email: [
-        '',
-        [
-          Validators.required,
-          Validators.email,
-          Validators.maxLength(256)
-        ]
-      ],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(128)
-        ]
-      ]
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     });
 
     this.mfaForm = this.formBuilder.nonNullable.group({
-      code: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(20)
-        ]
-      ]
+      code: ['', [Validators.required, Validators.maxLength(20)]],
     });
 
     this.recoveryForm = this.formBuilder.nonNullable.group({
-      recoveryCode: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(100)
-        ]
-      ]
+      recoveryCode: ['', [Validators.required, Validators.maxLength(100)]],
     });
   }
 
@@ -115,14 +74,15 @@ export class Login implements OnInit {
 
     this.isSubmitting.set(true);
 
-    this.authService.login(this.loginForm.getRawValue())
+    this.authService
+      .login(this.loginForm.getRawValue())
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
-        })
+        }),
       )
       .subscribe({
-        next: response => {
+        next: (response) => {
           if (response.requiresTwoFactor) {
             this.mfaMode.set('authenticator');
             this.mfaForm.reset();
@@ -132,9 +92,9 @@ export class Login implements OnInit {
 
           this.navigateAfterAuthentication();
         },
-        error: error => {
+        error: (error) => {
           this.authError.set(this.getLoginError(error));
-        }
+        },
       });
   }
 
@@ -148,21 +108,20 @@ export class Login implements OnInit {
 
     this.isSubmitting.set(true);
 
-    this.authService.completeMfa(
-      this.mfaForm.controls.code.value
-    )
+    this.authService
+      .completeMfa(this.mfaForm.controls.code.value)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
           this.navigateAfterAuthentication();
         },
-        error: error => {
+        error: (error) => {
           this.authError.set(this.getMfaError(error, 'authenticator'));
-        }
+        },
       });
   }
 
@@ -176,49 +135,46 @@ export class Login implements OnInit {
 
     this.isSubmitting.set(true);
 
-    this.authService.completeRecoveryLogin(
-      this.recoveryForm.controls.recoveryCode.value
-    )
+    this.authService
+      .completeRecoveryLogin(this.recoveryForm.controls.recoveryCode.value)
       .pipe(
         finalize(() => {
           this.isSubmitting.set(false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
           this.navigateAfterAuthentication();
         },
-        error: error => {
+        error: (error) => {
           this.authError.set(this.getMfaError(error, 'recovery'));
-        }
+        },
       });
   }
 
   enterDemoVault(): void {
     this.authError.set('');
 
-    if (
-      this.isDemoSubmitting() ||
-      !this.capabilitiesService.demoAccessEnabled()
-    ) {
+    if (this.isDemoSubmitting() || !this.capabilitiesService.demoAccessEnabled()) {
       return;
     }
 
     this.isDemoSubmitting.set(true);
 
-    this.authService.loginDemo()
+    this.authService
+      .loginDemo()
       .pipe(
         finalize(() => {
           this.isDemoSubmitting.set(false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
           this.navigateAfterAuthentication('/collection');
         },
-        error: error => {
+        error: (error) => {
           this.authError.set(this.getDemoError(error));
-        }
+        },
       });
   }
 
@@ -232,12 +188,9 @@ export class Login implements OnInit {
     this.mfaMode.set('authenticator');
   }
 
-  private navigateAfterAuthentication(
-    fallbackDestination = '/cards'
-  ): void {
+  private navigateAfterAuthentication(fallbackDestination = '/cards'): void {
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-    const destination =
-      this.getValidAuthenticationReturnUrl(returnUrl) ?? fallbackDestination;
+    const destination = this.getValidAuthenticationReturnUrl(returnUrl) ?? fallbackDestination;
 
     void this.router.navigateByUrl(destination);
   }
@@ -248,9 +201,7 @@ export class Login implements OnInit {
    * stale pre-MVP route (for example /my-vault) from authenticating correctly
    * and then dropping the collector onto the global 404 page.
    */
-  private getValidAuthenticationReturnUrl(
-    returnUrl: string | null
-  ): string | null {
+  private getValidAuthenticationReturnUrl(returnUrl: string | null): string | null {
     if (
       !returnUrl ||
       !returnUrl.startsWith('/') ||
@@ -263,13 +214,16 @@ export class Login implements OnInit {
     try {
       const urlTree = this.router.parseUrl(returnUrl);
       const primarySegments =
-        urlTree.root.children['primary']?.segments.map(segment => segment.path) ?? [];
+        urlTree.root.children['primary']?.segments.map((segment) => segment.path) ?? [];
 
       // Implemented private MVP utilities preserve their query state so a
       // guarded Collection/Wishlist/Sealed URL can return to the same page/filter.
       if (
         primarySegments.length === 1 &&
-        (primarySegments[0] === 'collection' || primarySegments[0] === 'wishlist' || primarySegments[0] === 'sealed' || primarySegments[0] === 'account')
+        (primarySegments[0] === 'collection' ||
+          primarySegments[0] === 'wishlist' ||
+          primarySegments[0] === 'sealed' ||
+          primarySegments[0] === 'account')
       ) {
         return returnUrl;
       }
@@ -306,10 +260,7 @@ export class Login implements OnInit {
     return 'We could not sign you in. Try again.';
   }
 
-  private getMfaError(
-    error: unknown,
-    mode: 'authenticator' | 'recovery'
-  ): string {
+  private getMfaError(error: unknown, mode: 'authenticator' | 'recovery'): string {
     if (error instanceof HttpErrorResponse && error.status === 429) {
       return 'Too many verification attempts. Try again shortly.';
     }
@@ -328,10 +279,7 @@ export class Login implements OnInit {
       return 'Demo access has been requested too often. Try again shortly.';
     }
 
-    if (
-      error instanceof HttpErrorResponse &&
-      (error.status === 404 || error.status === 503)
-    ) {
+    if (error instanceof HttpErrorResponse && (error.status === 404 || error.status === 503)) {
       return 'Demo access is temporarily unavailable.';
     }
 

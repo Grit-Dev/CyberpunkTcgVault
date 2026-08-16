@@ -1,13 +1,6 @@
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
-import {
-  ActivatedRoute,
-  provideRouter,
-  Router
-} from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -22,32 +15,34 @@ describe('Login', () => {
 
   const capabilitiesServiceStub = {
     demoAccessEnabled: signal(true),
-    publicRegistrationEnabled: signal(false)
+    publicRegistrationEnabled: signal(false),
   };
 
   const authServiceStub = {
     isAuthenticated: signal(false),
-    login: () => of({
-      requiresTwoFactor: false,
-      user: {
-        userId: '1',
-        userName: 'collector',
-        email: 'collector@example.com',
-        roles: ['User'],
-        emailConfirmed: false,
-        twoFactorEnabled: false
-      }
-    }),
-    loginDemo: () => of({
-      userId: '2',
-      userName: 'demo',
-      email: 'demo@example.com',
-      roles: ['Demo'],
-      emailConfirmed: true,
-      twoFactorEnabled: false
-    }),
+    login: () =>
+      of({
+        requiresTwoFactor: false,
+        user: {
+          userId: '1',
+          userName: 'collector',
+          email: 'collector@example.com',
+          roles: ['User'],
+          emailConfirmed: false,
+          twoFactorEnabled: false,
+        },
+      }),
+    loginDemo: () =>
+      of({
+        userId: '2',
+        userName: 'demo',
+        email: 'demo@example.com',
+        roles: ['Demo'],
+        emailConfirmed: true,
+        twoFactorEnabled: false,
+      }),
     completeMfa: () => of({}),
-    completeRecoveryLogin: () => of({})
+    completeRecoveryLogin: () => of({}),
   };
 
   beforeEach(async () => {
@@ -57,13 +52,13 @@ describe('Login', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: authServiceStub
+          useValue: authServiceStub,
         },
         {
           provide: CapabilitiesService,
-          useValue: capabilitiesServiceStub
-        }
-      ]
+          useValue: capabilitiesServiceStub,
+        },
+      ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -86,17 +81,14 @@ describe('Login', () => {
 
   it('should expose Demo access only when the capability is enabled', () => {
     const demoAction = fixture.nativeElement.querySelector(
-      '.login-demo__action'
+      '.login-demo__action',
     ) as HTMLButtonElement | null;
 
     expect(demoAction).toBeTruthy();
   });
 
-
   it('sends a direct successful Demo login to Collection', () => {
-    const navigateByUrl = vi
-      .spyOn(router, 'navigateByUrl')
-      .mockResolvedValue(true);
+    const navigateByUrl = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     fixture.componentInstance.enterDemoVault();
 
@@ -105,57 +97,43 @@ describe('Login', () => {
   });
 
   it('preserves a valid implemented Collection return destination for Demo', () => {
-    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
-      key === 'returnUrl' ? '/collection?page=3&q=echo&set=CVO' : null
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation((key) =>
+      key === 'returnUrl' ? '/collection?page=3&q=echo&set=CVO' : null,
     );
-    const navigateByUrl = vi
-      .spyOn(router, 'navigateByUrl')
-      .mockResolvedValue(true);
+    const navigateByUrl = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     fixture.componentInstance.enterDemoVault();
 
-    expect(navigateByUrl).toHaveBeenCalledWith(
-      '/collection?page=3&q=echo&set=CVO'
-    );
+    expect(navigateByUrl).toHaveBeenCalledWith('/collection?page=3&q=echo&set=CVO');
   });
 
   it('preserves a valid implemented Wishlist return destination for Demo', () => {
-    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
-      key === 'returnUrl' ? '/wishlist?page=2&q=echo&set=CVO' : null
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation((key) =>
+      key === 'returnUrl' ? '/wishlist?page=2&q=echo&set=CVO' : null,
     );
-    const navigateByUrl = vi
-      .spyOn(router, 'navigateByUrl')
-      .mockResolvedValue(true);
+    const navigateByUrl = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     fixture.componentInstance.enterDemoVault();
 
-    expect(navigateByUrl).toHaveBeenCalledWith(
-      '/wishlist?page=2&q=echo&set=CVO'
-    );
+    expect(navigateByUrl).toHaveBeenCalledWith('/wishlist?page=2&q=echo&set=CVO');
   });
 
   it('preserves a valid implemented Sealed return destination for Demo', () => {
-    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
-      key === 'returnUrl' ? '/sealed?page=2&q=display' : null
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation((key) =>
+      key === 'returnUrl' ? '/sealed?page=2&q=display' : null,
     );
-    const navigateByUrl = vi
-      .spyOn(router, 'navigateByUrl')
-      .mockResolvedValue(true);
+    const navigateByUrl = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     fixture.componentInstance.enterDemoVault();
 
-    expect(navigateByUrl).toHaveBeenCalledWith(
-      '/sealed?page=2&q=display'
-    );
+    expect(navigateByUrl).toHaveBeenCalledWith('/sealed?page=2&q=display');
   });
 
   it('falls back to Collection when Demo receives a stale return destination', () => {
-    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation(key =>
-      key === 'returnUrl' ? '/my-vault' : null
+    vi.spyOn(route.snapshot.queryParamMap, 'get').mockImplementation((key) =>
+      key === 'returnUrl' ? '/my-vault' : null,
     );
-    const navigateByUrl = vi
-      .spyOn(router, 'navigateByUrl')
-      .mockResolvedValue(true);
+    const navigateByUrl = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     fixture.componentInstance.enterDemoVault();
 
@@ -181,9 +159,7 @@ describe('Login', () => {
   });
 
   it('should not expose registration when public registration is disabled', () => {
-    const registerLink = fixture.nativeElement.querySelector(
-      '.login-register-link'
-    );
+    const registerLink = fixture.nativeElement.querySelector('.login-register-link');
 
     expect(registerLink).toBeFalsy();
   });

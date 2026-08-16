@@ -16,10 +16,10 @@ describe('ForgotPassword', () => {
         {
           provide: AuthService,
           useValue: {
-            forgotPassword: () => of(undefined)
-          }
-        }
-      ]
+            forgotPassword: () => of(undefined),
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ForgotPassword);
@@ -29,7 +29,7 @@ describe('ForgotPassword', () => {
   it('shows the same neutral completion message after a successful request', () => {
     const component = fixture.componentInstance;
     component.forgotPasswordForm.setValue({
-      email: 'collector@example.com'
+      email: 'collector@example.com',
     });
 
     component.submit();
@@ -37,7 +37,7 @@ describe('ForgotPassword', () => {
 
     expect(component.isComplete()).toBe(true);
     expect(fixture.nativeElement.textContent).toContain(
-      'If an account exists for that email, a password reset link has been sent.'
+      'If an account exists for that email, a password reset link has been sent.',
     );
   });
 });

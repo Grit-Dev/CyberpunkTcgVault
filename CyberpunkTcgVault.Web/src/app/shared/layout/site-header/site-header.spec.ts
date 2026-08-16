@@ -1,8 +1,5 @@
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -24,7 +21,7 @@ describe('SiteHeader', () => {
     isInitialized: signal(true),
     isAuthenticated,
     isDemo,
-    logout: () => of(undefined)
+    logout: () => of(undefined),
   };
 
   beforeEach(async () => {
@@ -39,15 +36,15 @@ describe('SiteHeader', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: authServiceStub
+          useValue: authServiceStub,
         },
         {
           provide: CapabilitiesService,
           useValue: {
-            publicRegistrationEnabled
-          }
-        }
-      ]
+            publicRegistrationEnabled,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SiteHeader);
@@ -55,11 +52,9 @@ describe('SiteHeader', () => {
   });
 
   it('keeps public registration out of the signed-out header when the capability is disabled', () => {
-    const login = fixture.nativeElement.querySelector(
-      '.header-login'
-    ) as HTMLAnchorElement | null;
+    const login = fixture.nativeElement.querySelector('.header-login') as HTMLAnchorElement | null;
     const register = fixture.nativeElement.querySelector(
-      '.header-register'
+      '.header-register',
     ) as HTMLAnchorElement | null;
 
     expect(login?.textContent?.trim()).toBe('Log in');
@@ -72,7 +67,7 @@ describe('SiteHeader', () => {
     fixture.detectChanges();
 
     const register = fixture.nativeElement.querySelector(
-      '.header-register'
+      '.header-register',
     ) as HTMLAnchorElement | null;
 
     expect(register?.textContent?.trim()).toBe('Join the Vault');
@@ -95,7 +90,7 @@ describe('SiteHeader', () => {
       email: 'paul@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
@@ -108,7 +103,6 @@ describe('SiteHeader', () => {
     expect(navigationText).toContain('Sealed');
   });
 
-
   it('uses the authenticated username as the direct Account entry without adding Account to primary navigation', () => {
     currentUser.set({
       userId: 'collector-1',
@@ -116,14 +110,12 @@ describe('SiteHeader', () => {
       email: 'paul@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    const identity = fixture.nativeElement.querySelector(
-      '.header-identity'
-    ) as HTMLAnchorElement;
+    const identity = fixture.nativeElement.querySelector('.header-identity') as HTMLAnchorElement;
 
     expect(identity.tagName).toBe('A');
     expect(identity.getAttribute('href')).toBe('/account');
@@ -138,20 +130,16 @@ describe('SiteHeader', () => {
       email: 'demo@example.com',
       roles: ['Demo'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     isDemo.set(true);
     fixture.detectChanges();
 
-    const identity = fixture.nativeElement.querySelector(
-      '.header-identity'
-    ) as HTMLElement;
-    const username = fixture.nativeElement.querySelector(
-      '.header-username'
-    ) as HTMLElement;
+    const identity = fixture.nativeElement.querySelector('.header-identity') as HTMLElement;
+    const username = fixture.nativeElement.querySelector('.header-username') as HTMLElement;
     const demoContexts = fixture.nativeElement.querySelectorAll(
-      '.header-demo-context'
+      '.header-demo-context',
     ) as NodeListOf<HTMLElement>;
 
     expect(identity.classList.contains('header-identity--demo')).toBe(true);
@@ -171,23 +159,15 @@ describe('SiteHeader', () => {
       email: 'collector@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    const headerInner = fixture.nativeElement.querySelector(
-      '.header-inner'
-    ) as HTMLElement;
-    const navigation = fixture.nativeElement.querySelector(
-      '.site-navigation'
-    ) as HTMLElement;
-    const actions = fixture.nativeElement.querySelector(
-      '.header-actions'
-    ) as HTMLElement;
-    const logout = fixture.nativeElement.querySelector(
-      '.header-logout'
-    ) as HTMLButtonElement;
+    const headerInner = fixture.nativeElement.querySelector('.header-inner') as HTMLElement;
+    const navigation = fixture.nativeElement.querySelector('.site-navigation') as HTMLElement;
+    const actions = fixture.nativeElement.querySelector('.header-actions') as HTMLElement;
+    const logout = fixture.nativeElement.querySelector('.header-logout') as HTMLButtonElement;
 
     const gridBefore = getComputedStyle(headerInner).gridTemplateColumns;
     const heightBefore = getComputedStyle(headerInner).minHeight;
@@ -199,7 +179,7 @@ describe('SiteHeader', () => {
       email: 'collector@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     fixture.detectChanges();
 
@@ -220,20 +200,14 @@ describe('SiteHeader', () => {
       email: 'legacy@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    const identity = fixture.nativeElement.querySelector(
-      '.header-identity'
-    ) as HTMLElement;
-    const username = fixture.nativeElement.querySelector(
-      '.header-username'
-    ) as HTMLElement;
-    const actions = fixture.nativeElement.querySelector(
-      '.header-actions'
-    ) as HTMLElement;
+    const identity = fixture.nativeElement.querySelector('.header-identity') as HTMLElement;
+    const username = fixture.nativeElement.querySelector('.header-username') as HTMLElement;
+    const actions = fixture.nativeElement.querySelector('.header-actions') as HTMLElement;
 
     const identityStyle = getComputedStyle(identity);
     const usernameStyle = getComputedStyle(username);
@@ -249,26 +223,20 @@ describe('SiteHeader', () => {
   });
 
   it('renders the header brand mark as fixed SVG geometry', () => {
-    const symbol = fixture.nativeElement.querySelector(
-      '.brand-symbol'
-    ) as HTMLElement;
-    const shape = symbol.querySelector(
-      '.brand-symbol-shape'
-    ) as SVGElement;
+    const symbol = fixture.nativeElement.querySelector('.brand-symbol') as HTMLElement;
+    const shape = symbol.querySelector('.brand-symbol-shape') as SVGElement;
     const path = shape.querySelector('path') as SVGPathElement;
 
     expect(shape).toBeTruthy();
     expect(shape.getAttribute('viewBox')).toBe('0 0 48 48');
-    expect(path.getAttribute('d')).toBe(
-      'M0 0H37.44L48 10.56V48H10.56L0 37.44V0Z'
-    );
+    expect(path.getAttribute('d')).toBe('M0 0H37.44L48 10.56V48H10.56L0 37.44V0Z');
   });
 
   it('does not let a mouse press leave focus on the brand link', () => {
     const brand = fixture.nativeElement.querySelector('.brand') as HTMLAnchorElement;
     const pointerPress = new MouseEvent('mousedown', {
       bubbles: true,
-      cancelable: true
+      cancelable: true,
     });
 
     brand.dispatchEvent(pointerPress);
@@ -277,12 +245,8 @@ describe('SiteHeader', () => {
   });
 
   it('keeps the same brand presentation when authentication state changes', () => {
-    const brandBefore = fixture.nativeElement.querySelector(
-      '.brand'
-    ) as HTMLElement;
-    const symbolBefore = fixture.nativeElement.querySelector(
-      '.brand-symbol'
-    ) as HTMLElement;
+    const brandBefore = fixture.nativeElement.querySelector('.brand') as HTMLElement;
+    const symbolBefore = fixture.nativeElement.querySelector('.brand-symbol') as HTMLElement;
 
     currentUser.set({
       userId: 'collector-1',
@@ -290,7 +254,7 @@ describe('SiteHeader', () => {
       email: 'paul@example.com',
       roles: ['User'],
       emailConfirmed: true,
-      twoFactorEnabled: false
+      twoFactorEnabled: false,
     });
     isAuthenticated.set(true);
     fixture.detectChanges();
@@ -302,7 +266,7 @@ describe('SiteHeader', () => {
 
   function getNavigationText(): string {
     return (
-      fixture.nativeElement.querySelector('.site-navigation') as HTMLElement
-    ).textContent ?? '';
+      (fixture.nativeElement.querySelector('.site-navigation') as HTMLElement).textContent ?? ''
+    );
   }
 });

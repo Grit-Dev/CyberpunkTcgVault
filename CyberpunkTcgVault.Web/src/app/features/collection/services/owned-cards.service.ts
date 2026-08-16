@@ -1,26 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import {
-  effect,
-  inject,
-  Injectable,
-  signal
-} from '@angular/core';
-import {
-  finalize,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  tap
-} from 'rxjs';
+import { effect, inject, Injectable, signal } from '@angular/core';
+import { finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { API_ENDPOINTS } from '../../../core/http/api-endpoints';
-import {
-  CreateOwnedCardRequest,
-  OwnedCard,
-  UpdateOwnedCardRequest
-} from '../models/owned-card';
+import { CreateOwnedCardRequest, OwnedCard, UpdateOwnedCardRequest } from '../models/owned-card';
 
 /**
  * Reusable private Collection API state.
@@ -30,7 +14,7 @@ import {
  * account cannot remain visible after logout/account switching.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OwnedCardsService {
   private readonly http = inject(HttpClient);
@@ -70,21 +54,19 @@ export class OwnedCardsService {
       return this.loadRequest$;
     }
 
-    this.loadRequest$ = this.http
-      .get<OwnedCard[]>(API_ENDPOINTS.ownedCards)
-      .pipe(
-        tap(items => {
-          this.itemsState.set(items);
-          this.loadedState.set(true);
-        }),
-        finalize(() => {
-          this.loadRequest$ = undefined;
-        }),
-        shareReplay({
-          bufferSize: 1,
-          refCount: false
-        })
-      );
+    this.loadRequest$ = this.http.get<OwnedCard[]>(API_ENDPOINTS.ownedCards).pipe(
+      tap((items) => {
+        this.itemsState.set(items);
+        this.loadedState.set(true);
+      }),
+      finalize(() => {
+        this.loadRequest$ = undefined;
+      }),
+      shareReplay({
+        bufferSize: 1,
+        refCount: false,
+      }),
+    );
 
     return this.loadRequest$;
   }
@@ -92,19 +74,17 @@ export class OwnedCardsService {
   addPrinting(cardPrintingId: number): Observable<OwnedCard> {
     const request: CreateOwnedCardRequest = {
       cardPrintingId,
-      quantityOwned: 1
+      quantityOwned: 1,
     };
 
-    return this.http
-      .post<OwnedCard>(API_ENDPOINTS.ownedCards, request)
-      .pipe(
-        tap(item => {
-          this.itemsState.update(items => [
-            ...items.filter(existing => existing.id !== item.id),
-            item
-          ]);
-        })
-      );
+    return this.http.post<OwnedCard>(API_ENDPOINTS.ownedCards, request).pipe(
+      tap((item) => {
+        this.itemsState.update((items) => [
+          ...items.filter((existing) => existing.id !== item.id),
+          item,
+        ]);
+      }),
+    );
   }
 
   /**
@@ -123,7 +103,7 @@ export class OwnedCardsService {
       isOpenForTrade: item.isOpenForTrade,
       isOpenToMessages: item.isOpenToMessages,
       maySellLater: item.maySellLater,
-      notes: item.notes
+      notes: item.notes,
     };
 
     return this.updateRecord(item, request);
@@ -135,35 +115,23 @@ export class OwnedCardsService {
    * The API returns 204 No Content, so the updated record is reconstructed
    * from the current item and the request before the local cache is replaced.
    */
-  updateRecord(
-    item: OwnedCard,
-    request: UpdateOwnedCardRequest
-  ): Observable<OwnedCard> {
-    return this.http
-      .put<void>(API_ENDPOINTS.ownedCardById(item.id), request)
-      .pipe(
-        map(() => ({ ...item, ...request })),
-        tap(updated => {
-          this.itemsState.update(items =>
-            items.map(existing =>
-              existing.id === updated.id ? updated : existing
-            )
-          );
-        })
-      );
+  updateRecord(item: OwnedCard, request: UpdateOwnedCardRequest): Observable<OwnedCard> {
+    return this.http.put<void>(API_ENDPOINTS.ownedCardById(item.id), request).pipe(
+      map(() => ({ ...item, ...request })),
+      tap((updated) => {
+        this.itemsState.update((items) =>
+          items.map((existing) => (existing.id === updated.id ? updated : existing)),
+        );
+      }),
+    );
   }
 
   /** Removes only the authenticated collector's OwnedCard record. */
   remove(item: OwnedCard): Observable<void> {
-    return this.http
-      .delete<void>(API_ENDPOINTS.ownedCardById(item.id))
-      .pipe(
-        tap(() => {
-          this.itemsState.update(items =>
-            items.filter(existing => existing.id !== item.id)
-          );
-        })
-      );
+    return this.http.delete<void>(API_ENDPOINTS.ownedCardById(item.id)).pipe(
+      tap(() => {
+        this.itemsState.update((items) => items.filter((existing) => existing.id !== item.id));
+      }),
+    );
   }
-
 }

@@ -1,8 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { API_ENDPOINTS } from '../http/api-endpoints';
@@ -14,10 +11,7 @@ describe('CapabilitiesService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
 
     service = TestBed.inject(CapabilitiesService);
@@ -37,7 +31,7 @@ describe('CapabilitiesService', () => {
 
     request.flush({
       publicRegistrationEnabled: false,
-      demoAccessEnabled: true
+      demoAccessEnabled: true,
     });
 
     expect(service.publicRegistrationEnabled()).toBe(false);
@@ -54,8 +48,8 @@ describe('CapabilitiesService', () => {
       {},
       {
         status: 500,
-        statusText: 'Server Error'
-      }
+        statusText: 'Server Error',
+      },
     );
 
     expect(service.publicRegistrationEnabled()).toBe(false);

@@ -1,8 +1,5 @@
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -37,7 +34,7 @@ describe('Wishlist', () => {
     wantGraded: false,
     preferredGradingCompany: null,
     isOpenToTrade: false,
-    notes: null
+    notes: null,
   });
 
   const wishlistServiceMock = {
@@ -47,54 +44,56 @@ describe('Wishlist', () => {
     updateQuantity: (item: WishlistItem, wantedQuantity: number) => {
       updateQuantityCalls += 1;
       const updated = { ...item, wantedQuantity };
-      items.update(current => current.map(existing =>
-        existing.id === item.id ? updated : existing
-      ));
+      items.update((current) =>
+        current.map((existing) => (existing.id === item.id ? updated : existing)),
+      );
       return of(updated);
     },
     remove: (item: WishlistItem) => {
-      items.update(current => current.filter(existing => existing.id !== item.id));
+      items.update((current) => current.filter((existing) => existing.id !== item.id));
       return of(undefined);
-    }
+    },
   };
 
   const ownedCardsServiceMock = {
     items: ownedItems.asReadonly(),
     isLoaded: signal(true),
-    load: () => of(ownedItems())
+    load: () => of(ownedItems()),
   };
 
   beforeEach(async () => {
     items = signal(Array.from({ length: 12 }, (_, index) => createWishlistItem(index + 1)));
-    ownedItems = signal<OwnedCard[]>([{
-      id: 88,
-      cardPrintingId: 101,
-      cardId: 201,
-      cardName: 'Wanted Card 1',
-      setName: 'Night City Legends',
-      cardNumber: 'CVO-001',
-      rarity: 'Rare',
-      colour: null,
-      imageUrl: '/images/cards/wanted-1.png',
-      quantityOwned: 1,
-      condition: null,
-      isInMasterCollection: false,
-      isDuplicate: false,
-      isGradingCandidate: false,
-      isOpenForTrade: false,
-      isOpenToMessages: false,
-      maySellLater: false,
-      notes: null
-    }]);
+    ownedItems = signal<OwnedCard[]>([
+      {
+        id: 88,
+        cardPrintingId: 101,
+        cardId: 201,
+        cardName: 'Wanted Card 1',
+        setName: 'Night City Legends',
+        cardNumber: 'CVO-001',
+        rarity: 'Rare',
+        colour: null,
+        imageUrl: '/images/cards/wanted-1.png',
+        quantityOwned: 1,
+        condition: null,
+        isInMasterCollection: false,
+        isDuplicate: false,
+        isGradingCandidate: false,
+        isOpenForTrade: false,
+        isOpenToMessages: false,
+        maySellLater: false,
+        notes: null,
+      },
+    ]);
     updateQuantityCalls = 0;
 
     Object.defineProperty(wishlistServiceMock, 'items', {
       value: items.asReadonly(),
-      configurable: true
+      configurable: true,
     });
     Object.defineProperty(ownedCardsServiceMock, 'items', {
       value: ownedItems.asReadonly(),
-      configurable: true
+      configurable: true,
     });
 
     await TestBed.configureTestingModule({
@@ -104,19 +103,19 @@ describe('Wishlist', () => {
         FeedbackService,
         {
           provide: WishlistService,
-          useValue: wishlistServiceMock
+          useValue: wishlistServiceMock,
         },
         {
           provide: OwnedCardsService,
-          useValue: ownedCardsServiceMock
+          useValue: ownedCardsServiceMock,
         },
         {
           provide: CardsService,
           useValue: {
-            getImageUrl: (path: string | null) => path ?? '/images/cards/placeholder.png'
-          }
-        }
-      ]
+            getImageUrl: (path: string | null) => path ?? '/images/cards/placeholder.png',
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Wishlist);
@@ -124,7 +123,6 @@ describe('Wishlist', () => {
     await fixture.whenStable();
     fixture.detectChanges();
   });
-
 
   it('uses the approved chase identity and shows passive ownership context for unowned Printings', () => {
     const text = fixture.nativeElement.textContent as string;
@@ -142,7 +140,6 @@ describe('Wishlist', () => {
     expect(text).toContain('Wanted');
     expect(text).toContain('Owned');
   });
-
 
   it('renders the shared compact desktop pagination rail when multiple pages exist', () => {
     const pagination = fixture.nativeElement.querySelector('.wishlist-pagination') as HTMLElement;
@@ -171,7 +168,7 @@ describe('Wishlist', () => {
     fixture.componentInstance.goToPage(2);
 
     fixture.componentInstance.updateSearch({
-      target: { value: 'Wanted Card 1' }
+      target: { value: 'Wanted Card 1' },
     } as unknown as Event);
 
     expect(fixture.componentInstance.activePage()).toBe(1);
@@ -200,15 +197,11 @@ describe('Wishlist', () => {
 
   it('shows the filtered-empty state separately from the true-empty state', () => {
     fixture.componentInstance.updateSearch({
-      target: { value: 'not-a-card' }
+      target: { value: 'not-a-card' },
     } as unknown as Event);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain(
-      'No wanted printings match these filters.'
-    );
-    expect(fixture.nativeElement.textContent).not.toContain(
-      'Nothing on the chase list.'
-    );
+    expect(fixture.nativeElement.textContent).toContain('No wanted printings match these filters.');
+    expect(fixture.nativeElement.textContent).not.toContain('Nothing on the chase list.');
   });
 });

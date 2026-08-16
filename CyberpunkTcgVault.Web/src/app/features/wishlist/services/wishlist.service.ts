@@ -1,30 +1,18 @@
 import { HttpClient } from '@angular/common/http';
-import {
-  effect,
-  inject,
-  Injectable,
-  signal
-} from '@angular/core';
-import {
-  finalize,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  tap
-} from 'rxjs';
+import { effect, inject, Injectable, signal } from '@angular/core';
+import { finalize, map, Observable, of, shareReplay, tap } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { API_ENDPOINTS } from '../../../core/http/api-endpoints';
 import {
   CreateWishlistItemRequest,
   UpdateWishlistItemRequest,
-  WishlistItem
+  WishlistItem,
 } from '../models/wishlist-item';
 
 /** Wishlist API state scoped to the current authenticated user. */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WishlistService {
   private readonly http = inject(HttpClient);
@@ -64,21 +52,19 @@ export class WishlistService {
       return this.loadRequest$;
     }
 
-    this.loadRequest$ = this.http
-      .get<WishlistItem[]>(API_ENDPOINTS.wishlist)
-      .pipe(
-        tap(items => {
-          this.itemsState.set(items);
-          this.loadedState.set(true);
-        }),
-        finalize(() => {
-          this.loadRequest$ = undefined;
-        }),
-        shareReplay({
-          bufferSize: 1,
-          refCount: false
-        })
-      );
+    this.loadRequest$ = this.http.get<WishlistItem[]>(API_ENDPOINTS.wishlist).pipe(
+      tap((items) => {
+        this.itemsState.set(items);
+        this.loadedState.set(true);
+      }),
+      finalize(() => {
+        this.loadRequest$ = undefined;
+      }),
+      shareReplay({
+        bufferSize: 1,
+        refCount: false,
+      }),
+    );
 
     return this.loadRequest$;
   }
@@ -86,26 +72,21 @@ export class WishlistService {
   addPrinting(cardPrintingId: number): Observable<WishlistItem> {
     const request: CreateWishlistItemRequest = {
       cardPrintingId,
-      wantedQuantity: 1
+      wantedQuantity: 1,
     };
 
-    return this.http
-      .post<WishlistItem>(API_ENDPOINTS.wishlist, request)
-      .pipe(
-        tap(item => {
-          this.itemsState.update(items => [
-            ...items.filter(existing => existing.id !== item.id),
-            item
-          ]);
-        })
-      );
+    return this.http.post<WishlistItem>(API_ENDPOINTS.wishlist, request).pipe(
+      tap((item) => {
+        this.itemsState.update((items) => [
+          ...items.filter((existing) => existing.id !== item.id),
+          item,
+        ]);
+      }),
+    );
   }
 
   /** Updates wanted quantity while preserving the record's other metadata. */
-  updateQuantity(
-    item: WishlistItem,
-    wantedQuantity: number
-  ): Observable<WishlistItem> {
+  updateQuantity(item: WishlistItem, wantedQuantity: number): Observable<WishlistItem> {
     const request: UpdateWishlistItemRequest = {
       wantedQuantity,
       priority: item.priority,
@@ -114,34 +95,25 @@ export class WishlistService {
       wantGraded: item.wantGraded,
       preferredGradingCompany: item.preferredGradingCompany,
       isOpenToTrade: item.isOpenToTrade,
-      notes: item.notes
+      notes: item.notes,
     };
 
-    return this.http
-      .put<void>(API_ENDPOINTS.wishlistItemById(item.id), request)
-      .pipe(
-        map(() => ({ ...item, wantedQuantity })),
-        tap(updated => {
-          this.itemsState.update(items =>
-            items.map(existing =>
-              existing.id === updated.id ? updated : existing
-            )
-          );
-        })
-      );
+    return this.http.put<void>(API_ENDPOINTS.wishlistItemById(item.id), request).pipe(
+      map(() => ({ ...item, wantedQuantity })),
+      tap((updated) => {
+        this.itemsState.update((items) =>
+          items.map((existing) => (existing.id === updated.id ? updated : existing)),
+        );
+      }),
+    );
   }
 
   /** Removes only the authenticated collector's Wishlist row. */
   remove(item: WishlistItem): Observable<void> {
-    return this.http
-      .delete<void>(API_ENDPOINTS.wishlistItemById(item.id))
-      .pipe(
-        tap(() => {
-          this.itemsState.update(items =>
-            items.filter(existing => existing.id !== item.id)
-          );
-        })
-      );
+    return this.http.delete<void>(API_ENDPOINTS.wishlistItemById(item.id)).pipe(
+      tap(() => {
+        this.itemsState.update((items) => items.filter((existing) => existing.id !== item.id));
+      }),
+    );
   }
-
 }

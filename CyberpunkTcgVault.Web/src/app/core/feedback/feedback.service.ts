@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  signal
-} from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 export type FeedbackTone = 'status' | 'error';
 
@@ -17,7 +14,7 @@ export interface FeedbackMessage {
  * etc.). This service only acknowledges completed work or explains a failure.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FeedbackService {
   private readonly messageState = signal<FeedbackMessage | null>(null);

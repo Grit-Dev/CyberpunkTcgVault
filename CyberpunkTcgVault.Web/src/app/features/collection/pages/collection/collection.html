@@ -5,9 +5,7 @@
       <div class="collection-intro__copy">
         <p class="collection-intro__label">Collection</p>
         <h1 id="collection-title">Your cards. Your printings.</h1>
-        <p>
-          Manage the exact physical printings archived to your private collection.
-        </p>
+        <p>Manage the exact physical printings archived to your private collection.</p>
       </div>
     </header>
 
@@ -34,12 +32,13 @@
         <p class="collection-state__label">Collection unavailable</p>
         <h2 id="collection-error-title">We couldn't load your collection.</h2>
         <p>Your existing records have not been changed.</p>
-        <button class="btn btn--secondary" type="button" (click)="retry()">
-          Try again
-        </button>
+        <button class="btn btn--secondary" type="button" (click)="retry()">Try again</button>
       </section>
     } @else if (ownedCardsService.items().length === 0) {
-      <section class="collection-state collection-state--empty" aria-labelledby="collection-empty-title">
+      <section
+        class="collection-state collection-state--empty"
+        aria-labelledby="collection-empty-title"
+      >
         <p class="collection-state__label">Private collection</p>
         <h2 id="collection-empty-title">Your collection starts with a card.</h2>
         <p>Add an exact physical printing from Card Detail to begin your collection.</p>
@@ -75,18 +74,20 @@
               }
             </select>
           </div>
-
         </div>
 
         <div class="collection-results-rail" aria-live="polite">
           <div class="collection-results-rail__summary">
             <span class="collection-results-rail__count">
-              {{ filteredItems().length }} {{ filteredItems().length === 1 ? 'printing' : 'printings' }}
+              {{ filteredItems().length }}
+              {{ filteredItems().length === 1 ? 'printing' : 'printings' }}
             </span>
 
             @if (totalPages() > 1) {
               <span class="collection-results-rail__separator" aria-hidden="true">·</span>
-              <span class="collection-results-rail__page">Page {{ activePage() }} of {{ totalPages() }}</span>
+              <span class="collection-results-rail__page"
+                >Page {{ activePage() }} of {{ totalPages() }}</span
+              >
             }
           </div>
 
@@ -179,14 +180,18 @@
                         [disabled]="item.quantityOwned <= 1 || isRecordBusy(item.id)"
                         [attr.aria-label]="'Decrease owned quantity from ' + item.quantityOwned"
                         (click)="decreaseQuantity(item)"
-                      >−</button>
+                      >
+                        −
+                      </button>
                       <span aria-live="polite">{{ item.quantityOwned }}</span>
                       <button
                         type="button"
                         [disabled]="item.quantityOwned >= 999 || isRecordBusy(item.id)"
                         [attr.aria-label]="'Increase owned quantity from ' + item.quantityOwned"
                         (click)="increaseQuantity(item)"
-                      >+</button>
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
 
@@ -233,7 +238,9 @@
 
                     <div class="record-editor__fields">
                       <div class="form-field">
-                        <label class="form-label" [attr.for]="'condition-' + item.id">Condition</label>
+                        <label class="form-label" [attr.for]="'condition-' + item.id"
+                          >Condition</label
+                        >
                         <input
                           class="form-control record-editor__control"
                           [id]="'condition-' + item.id"
@@ -247,18 +254,16 @@
                             !!conditionServerError()
                           "
                           [attr.aria-describedby]="
-                            conditionServerError()
-                              ? 'condition-server-error-' + item.id
-                              : null
+                            conditionServerError() ? 'condition-server-error-' + item.id : null
                           "
                         />
-                        @if (recordForm.controls.condition.touched && recordForm.controls.condition.invalid) {
+                        @if (
+                          recordForm.controls.condition.touched &&
+                          recordForm.controls.condition.invalid
+                        ) {
                           <p class="form-error">Condition must be 50 characters or fewer.</p>
                         } @else if (conditionServerError()) {
-                          <p
-                            class="form-error"
-                            [id]="'condition-server-error-' + item.id"
-                          >
+                          <p class="form-error" [id]="'condition-server-error-' + item.id">
                             {{ conditionServerError() }}
                           </p>
                         }
@@ -278,18 +283,15 @@
                             !!notesServerError()
                           "
                           [attr.aria-describedby]="
-                            notesServerError()
-                              ? 'notes-server-error-' + item.id
-                              : null
+                            notesServerError() ? 'notes-server-error-' + item.id : null
                           "
                         ></textarea>
-                        @if (recordForm.controls.notes.touched && recordForm.controls.notes.invalid) {
+                        @if (
+                          recordForm.controls.notes.touched && recordForm.controls.notes.invalid
+                        ) {
                           <p class="form-error">Notes must be 2,000 characters or fewer.</p>
                         } @else if (notesServerError()) {
-                          <p
-                            class="form-error"
-                            [id]="'notes-server-error-' + item.id"
-                          >
+                          <p class="form-error" [id]="'notes-server-error-' + item.id">
                             {{ notesServerError() }}
                           </p>
                         }
@@ -340,11 +342,7 @@
                       <button
                         class="btn btn--primary"
                         type="submit"
-                        [disabled]="
-                          recordForm.invalid ||
-                          isSavingRecord() ||
-                          isRecordBusy(item.id)
-                        "
+                        [disabled]="recordForm.invalid || isSavingRecord() || isRecordBusy(item.id)"
                       >
                         {{ isSavingRecord() ? 'Saving…' : 'Save record' }}
                       </button>

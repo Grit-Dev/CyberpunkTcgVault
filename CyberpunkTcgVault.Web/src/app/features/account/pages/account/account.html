@@ -21,9 +21,7 @@
       <section class="account-state" aria-labelledby="account-error-title">
         <p class="account-section-label">Account unavailable</p>
         <h2 id="account-error-title">We couldn't load your account. Try again.</h2>
-        <button class="btn btn--secondary" type="button" (click)="retry()">
-          Try again
-        </button>
+        <button class="btn btn--secondary" type="button" (click)="retry()">Try again</button>
       </section>
     } @else if (account(); as user) {
       <div class="account-content">
@@ -86,9 +84,7 @@
           </p>
 
           @if (isDemoAccount()) {
-            <p class="account-lifecycle-note">
-              Account deletion is unavailable in the Demo Vault.
-            </p>
+            <p class="account-lifecycle-note">Account deletion is unavailable in the Demo Vault.</p>
           } @else if (canDeleteAccount()) {
             <button
               #deleteTrigger
@@ -99,9 +95,7 @@
               Delete account
             </button>
           } @else {
-            <p class="account-lifecycle-note">
-              Account deletion is unavailable for this account.
-            </p>
+            <p class="account-lifecycle-note">Account deletion is unavailable for this account.</p>
           }
         </section>
       </div>
@@ -115,11 +109,17 @@
     aria-describedby="delete-dialog-description"
     (cancel)="onDeleteDialogCancel($event)"
   >
-    <form class="account-delete-dialog__form" [formGroup]="deleteForm" (ngSubmit)="confirmDelete()" novalidate>
+    <form
+      class="account-delete-dialog__form"
+      [formGroup]="deleteForm"
+      (ngSubmit)="confirmDelete()"
+      novalidate
+    >
       <p class="account-delete-dialog__label">Account lifecycle</p>
       <h2 id="delete-dialog-title">Delete your account?</h2>
       <p id="delete-dialog-description" class="account-delete-dialog__copy">
-        This permanently removes your Choom Vault account and private collector records. This cannot be undone.
+        This permanently removes your Choom Vault account and private collector records. This cannot
+        be undone.
       </p>
 
       <div class="form-field account-delete-dialog__password">
@@ -131,10 +131,15 @@
           type="password"
           autocomplete="current-password"
           formControlName="currentPassword"
-          [attr.aria-invalid]="deleteForm.controls.currentPassword.invalid && deleteForm.controls.currentPassword.touched"
+          [attr.aria-invalid]="
+            deleteForm.controls.currentPassword.invalid &&
+            deleteForm.controls.currentPassword.touched
+          "
         />
 
-        @if (deleteForm.controls.currentPassword.touched && deleteForm.controls.currentPassword.invalid) {
+        @if (
+          deleteForm.controls.currentPassword.touched && deleteForm.controls.currentPassword.invalid
+        ) {
           <p class="form-error">Enter your current password.</p>
         }
       </div>
@@ -154,11 +159,7 @@
         >
           Cancel
         </button>
-        <button
-          class="account-dialog-delete"
-          type="submit"
-          [disabled]="isDeleting()"
-        >
+        <button class="account-dialog-delete" type="submit" [disabled]="isDeleting()">
           {{ isDeleting() ? 'Deleting…' : 'Delete account' }}
         </button>
       </div>

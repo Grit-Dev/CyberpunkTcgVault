@@ -1,7 +1,4 @@
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
@@ -17,9 +14,7 @@ describe('Home', () => {
   const cardsServiceStub = {
     getCards: () => of(cardsResponse),
 
-    getImageUrl: (
-      imagePath: string | null
-    ) => imagePath ?? ''
+    getImageUrl: (imagePath: string | null) => imagePath ?? '',
   };
 
   beforeEach(async () => {
@@ -31,9 +26,9 @@ describe('Home', () => {
         provideRouter([]),
         {
           provide: CardsService,
-          useValue: cardsServiceStub
-        }
-      ]
+          useValue: cardsServiceStub,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Home);
@@ -49,82 +44,52 @@ describe('Home', () => {
 
   it('should route Explore cards into the real catalogue', () => {
     const exploreLink = fixture.nativeElement.querySelector(
-      '.hero-actions .btn--primary'
+      '.hero-actions .btn--primary',
     ) as HTMLAnchorElement;
 
-    expect(
-      exploreLink.getAttribute('href')
-    ).toBe('/cards');
+    expect(exploreLink.getAttribute('href')).toBe('/cards');
   });
 
   it('does not treat unsupported featured-card metadata as displayable', () => {
-    expect(
-      component.hasMeaningfulValue('Unknown')
-    ).toBe(false);
+    expect(component.hasMeaningfulValue('Unknown')).toBe(false);
 
-    expect(
-      component.hasMeaningfulValue('unknown')
-    ).toBe(false);
+    expect(component.hasMeaningfulValue('unknown')).toBe(false);
 
-    expect(
-      component.hasMeaningfulValue('NO-ID')
-    ).toBe(false);
+    expect(component.hasMeaningfulValue('NO-ID')).toBe(false);
 
-    expect(
-      component.hasMeaningfulValue('')
-    ).toBe(false);
+    expect(component.hasMeaningfulValue('')).toBe(false);
 
-    expect(
-      component.hasMeaningfulValue(null)
-    ).toBe(false);
+    expect(component.hasMeaningfulValue(null)).toBe(false);
 
-    expect(
-      component.hasMeaningfulValue('Iconic')
-    ).toBe(true);
+    expect(component.hasMeaningfulValue('Iconic')).toBe(true);
 
-    expect(
-      component.hasMeaningfulValue('CVO-036')
-    ).toBe(true);
+    expect(component.hasMeaningfulValue('CVO-036')).toBe(true);
 
-    expect(
-      component.hasMeaningfulValue('Nomad')
-    ).toBe(true);
+    expect(component.hasMeaningfulValue('Nomad')).toBe(true);
   });
 
   it('describes Wishlist using only the implemented MVP behaviour', () => {
-    const text =
-      fixture.nativeElement.textContent
-        .replace(/\s+/g, ' ');
+    const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
 
     expect(text).toContain(
-      'Track the exact card printings you are still chasing, manage wanted quantities and see what you already own.'
+      'Track the exact card printings you are still chasing, manage wanted quantities and see what you already own.',
     );
 
-    expect(text).not.toContain(
-      'grading preference'
-    );
+    expect(text).not.toContain('grading preference');
 
-    expect(text).not.toContain(
-      'the reason each item belongs on your list'
-    );
+    expect(text).not.toContain('the reason each item belongs on your list');
   });
 
   it('describes Sealed without stale valuation claims', () => {
-    const text =
-      fixture.nativeElement.textContent
-        .replace(/\s+/g, ' ');
+    const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
 
     expect(text).toContain(
-      'Archive the sealed products you keep unopened, with quantity, edition details, artwork references and private storage information.'
+      'Archive the sealed products you keep unopened, with quantity, edition details, artwork references and private storage information.',
     );
 
-    expect(text).not.toContain(
-      'purchase costs'
-    );
+    expect(text).not.toContain('purchase costs');
 
-    expect(text).not.toContain(
-      'estimated values'
-    );
+    expect(text).not.toContain('estimated values');
   });
 
   it('omits unsupported Featured Card stats instead of rendering placeholder dashes', () => {
@@ -154,37 +119,26 @@ describe('Home', () => {
         isPromo: false,
         isStarterDeckExclusive: false,
         cardNumber: 'CVO-999',
-        imageUrl:
-          '/images/cards/sparse-prototype.png',
-        printings: []
-      }
+        imageUrl: '/images/cards/sparse-prototype.png',
+        printings: [],
+      },
     ];
 
     component.ngOnInit();
     fixture.detectChanges();
 
-    const preview =
-      fixture.nativeElement.querySelector(
-        '.prototype-card'
-      ) as HTMLElement;
+    const preview = fixture.nativeElement.querySelector('.prototype-card') as HTMLElement;
 
     expect(preview).not.toBeNull();
 
-    const text =
-      preview.textContent
-        ?.replace(/\s+/g, ' ')
-        .trim() ?? '';
+    const text = preview.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 
-    expect(
-      preview.querySelector('.card-statline')
-    ).toBeNull();
+    expect(preview.querySelector('.card-statline')).toBeNull();
 
     expect(text).not.toContain('PWR —');
     expect(text).not.toContain('RAM —');
 
-    expect(
-      text.toLowerCase()
-    ).not.toContain('unknown');
+    expect(text.toLowerCase()).not.toContain('unknown');
   });
 
   it('keeps collector examples meaningful when catalogue rarity is unavailable', () => {
@@ -193,24 +147,14 @@ describe('Home', () => {
 
     fixture.detectChanges();
 
-    const text =
-      fixture.nativeElement.textContent
-        .replace(/\s+/g, ' ');
+    const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
 
-    expect(text).toContain(
-      'Near Mint'
-    );
+    expect(text).toContain('Near Mint');
 
-    expect(text).toContain(
-      'Priority want'
-    );
+    expect(text).toContain('Priority want');
 
-    expect(text).not.toContain(
-      'Legendary · Near Mint'
-    );
+    expect(text).not.toContain('Legendary · Near Mint');
 
-    expect(text).not.toContain(
-      'Legendary · Priority want'
-    );
+    expect(text).not.toContain('Legendary · Priority want');
   });
 });

@@ -1,15 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import {
-  Observable,
-  of,
-  throwError
-} from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CapabilitiesService } from '../../../../core/capabilities/capabilities.service';
@@ -25,24 +18,25 @@ describe('Register', () => {
   const capabilitiesServiceStub = {
     isLoaded: signal(true),
     publicRegistrationEnabled,
-    load: () => of({
-      publicRegistrationEnabled: publicRegistrationEnabled(),
-      demoAccessEnabled: true
-    })
+    load: () =>
+      of({
+        publicRegistrationEnabled: publicRegistrationEnabled(),
+        demoAccessEnabled: true,
+      }),
   };
 
   const authServiceStub = {
     register: () => {
       registerCalls += 1;
       return registerResult$;
-    }
+    },
   };
 
   beforeEach(async () => {
     publicRegistrationEnabled.set(false);
     registerCalls = 0;
     registerResult$ = of({
-      message: 'User registered successfully.'
+      message: 'User registered successfully.',
     });
 
     await TestBed.configureTestingModule({
@@ -51,13 +45,13 @@ describe('Register', () => {
         provideRouter([]),
         {
           provide: AuthService,
-          useValue: authServiceStub
+          useValue: authServiceStub,
         },
         {
           provide: CapabilitiesService,
-          useValue: capabilitiesServiceStub
-        }
-      ]
+          useValue: capabilitiesServiceStub,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Register);
@@ -99,9 +93,9 @@ describe('Register', () => {
     fixture.detectChanges();
 
     expect(userName.hasError('usernameLength')).toBe(true);
-    expect(fixture.nativeElement.querySelector('#register-username-error')?.textContent?.trim()).toBe(
-      'Username must be between 3 and 20 characters.'
-    );
+    expect(
+      fixture.nativeElement.querySelector('#register-username-error')?.textContent?.trim(),
+    ).toBe('Username must be between 3 and 20 characters.');
   });
 
   it('does not submit when the username is outside the MVP length rule', () => {
@@ -111,7 +105,7 @@ describe('Register', () => {
     component.registerForm.setValue({
       userName: 'ab',
       email: 'collector@example.com',
-      password: 'password123'
+      password: 'password123',
     });
 
     component.submitRegistration();
@@ -154,22 +148,23 @@ describe('Register', () => {
   it('should restore the submit state and show a safe message after a 409 conflict', () => {
     publicRegistrationEnabled.set(true);
 
-    registerResult$ = throwError(() => new HttpErrorResponse({
-      status: 409
-    }));
+    registerResult$ = throwError(
+      () =>
+        new HttpErrorResponse({
+          status: 409,
+        }),
+    );
 
     const component = fixture.componentInstance;
     component.registerForm.setValue({
       userName: 'nightcity_guest',
       email: 'collector@example.com',
-      password: 'password123'
+      password: 'password123',
     });
 
     component.submitRegistration();
 
     expect(component.isSubmitting()).toBe(false);
-    expect(component.registrationError()).toContain(
-      'Try a different username or email'
-    );
+    expect(component.registrationError()).toContain('Try a different username or email');
   });
 });

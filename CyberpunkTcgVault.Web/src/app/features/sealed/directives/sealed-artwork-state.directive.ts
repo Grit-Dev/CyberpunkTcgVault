@@ -1,10 +1,4 @@
-import {
-  Directive,
-  HostBinding,
-  HostListener,
-  Input,
-  OnChanges
-} from '@angular/core';
+import { Directive, HostBinding, HostListener, Input, OnChanges } from '@angular/core';
 
 /**
  * Keeps a Sealed artwork element hidden until the current source loads.
@@ -12,7 +6,7 @@ import {
  */
 @Directive({
   selector: 'img[appSealedArtworkState]',
-  standalone: true
+  standalone: true,
 })
 export class SealedArtworkStateDirective implements OnChanges {
   @Input({ required: true }) appSealedArtworkState: string | null = null;

@@ -152,17 +152,17 @@
                   hasMeaningfulValue(printing.languageCode) ||
                   hasMeaningfulValue(printing.setCode)
                 ) {
-                <p class="printing-record__line">
-                  @if (hasMeaningfulValue(printing.rarity)) {
-                    <span>{{ printing.rarity }}</span>
-                  }
-                  @if (hasMeaningfulValue(printing.languageCode)) {
-                    <span>{{ printing.languageCode }}</span>
-                  }
-                  @if (hasMeaningfulValue(printing.setCode)) {
-                    <span>Set Code {{ printing.setCode }}</span>
-                  }
-                </p>
+                  <p class="printing-record__line">
+                    @if (hasMeaningfulValue(printing.rarity)) {
+                      <span>{{ printing.rarity }}</span>
+                    }
+                    @if (hasMeaningfulValue(printing.languageCode)) {
+                      <span>{{ printing.languageCode }}</span>
+                    }
+                    @if (hasMeaningfulValue(printing.setCode)) {
+                      <span>Set Code {{ printing.setCode }}</span>
+                    }
+                  </p>
                 }
 
                 @if (printingVariants(printing).length > 0) {
@@ -201,7 +201,7 @@
                       <span class="printing-option__copy">
                         <strong>{{ candidate.cardNumber }}</strong>
                         @if (hasMeaningfulValue(candidate.setName)) {
-                        <span>{{ candidate.setName }}</span>
+                          <span>{{ candidate.setName }}</span>
                         }
                         @if (printingVariants(candidate).length > 0) {
                           <small>{{ printingVariants(candidate).join(' · ') }}</small>

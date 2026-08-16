@@ -1,9 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import {
-  CardCatalogueState,
-  CardCatalogueStateService
-} from './card-catalogue-state.service';
+import { CardCatalogueState, CardCatalogueStateService } from './card-catalogue-state.service';
 
 describe('CardCatalogueStateService', () => {
   let service: CardCatalogueStateService;
@@ -33,9 +30,9 @@ describe('CardCatalogueStateService', () => {
         ram: 2,
         eddies: null,
         sortBy: 'name',
-        sortDirection: 'asc'
+        sortDirection: 'asc',
       },
-      currentPage: 2
+      currentPage: 2,
     };
 
     service.save(state);

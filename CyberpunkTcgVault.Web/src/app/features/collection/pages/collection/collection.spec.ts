@@ -1,22 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import {
-  of,
-  throwError
-} from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { FeedbackService } from '../../../../core/feedback/feedback.service';
 import { CardsService } from '../../../cards/services/cards.service';
-import {
-  OwnedCard,
-  UpdateOwnedCardRequest
-} from '../../models/owned-card';
+import { OwnedCard, UpdateOwnedCardRequest } from '../../models/owned-card';
 import { OwnedCardsService } from '../../services/owned-cards.service';
 import { Collection } from './collection';
 
@@ -38,7 +29,7 @@ const ownedCard: OwnedCard = {
   isOpenForTrade: false,
   isOpenToMessages: true,
   maySellLater: false,
-  notes: null
+  notes: null,
 };
 
 describe('Collection', () => {
@@ -51,15 +42,10 @@ describe('Collection', () => {
 
   const ownedCardsServiceStub = {
     items,
-    load: () => loadFailure
-      ? throwError(() => loadFailure)
-      : of(items()),
+    load: () => (loadFailure ? throwError(() => loadFailure) : of(items())),
     updateQuantity: (item: OwnedCard, quantityOwned: number) => {
       const updated = { ...item, quantityOwned };
-      items.set([
-        ...items().filter(existing => existing.id !== item.id),
-        updated
-      ]);
+      items.set([...items().filter((existing) => existing.id !== item.id), updated]);
       return of(updated);
     },
     updateRecord: (item: OwnedCard, changes: UpdateOwnedCardRequest) => {
@@ -71,16 +57,13 @@ describe('Collection', () => {
       }
 
       const updated = { ...item, ...changes };
-      items.set([
-        ...items().filter(existing => existing.id !== item.id),
-        updated
-      ]);
+      items.set([...items().filter((existing) => existing.id !== item.id), updated]);
       return of(updated);
     },
     remove: (item: OwnedCard) => {
-      items.set(items().filter(existing => existing.id !== item.id));
+      items.set(items().filter((existing) => existing.id !== item.id));
       return of(undefined);
-    }
+    },
   };
 
   beforeEach(async () => {
@@ -96,15 +79,15 @@ describe('Collection', () => {
         provideRouter([]),
         {
           provide: OwnedCardsService,
-          useValue: ownedCardsServiceStub
+          useValue: ownedCardsServiceStub,
         },
         {
           provide: CardsService,
           useValue: {
-            getImageUrl: (path: string | null) => path ?? '/placeholder.png'
-          }
-        }
-      ]
+            getImageUrl: (path: string | null) => path ?? '/placeholder.png',
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Collection);
@@ -113,9 +96,7 @@ describe('Collection', () => {
   });
 
   it('renders one working-archive record for an owned printing', () => {
-    const heading = fixture.nativeElement.querySelector(
-      '.collection-record__name'
-    ) as HTMLElement;
+    const heading = fixture.nativeElement.querySelector('.collection-record__name') as HTMLElement;
 
     expect(heading.textContent?.trim()).toBe('V // StreetKid');
     expect(fixture.nativeElement.textContent).toContain('005a');
@@ -124,9 +105,7 @@ describe('Collection', () => {
   });
 
   it('filters the private collection without changing the owned-card source state', () => {
-    const input = fixture.nativeElement.querySelector(
-      '#collection-search'
-    ) as HTMLInputElement;
+    const input = fixture.nativeElement.querySelector('#collection-search') as HTMLInputElement;
 
     input.value = 'not here';
     input.dispatchEvent(new Event('input'));
@@ -135,7 +114,7 @@ describe('Collection', () => {
     expect(fixture.componentInstance.filteredItems()).toEqual([]);
     expect(items()).toEqual([ownedCard]);
     expect(fixture.nativeElement.textContent).toContain(
-      'No cards in your collection match these filters.'
+      'No cards in your collection match these filters.',
     );
   });
 
@@ -156,14 +135,14 @@ describe('Collection', () => {
         cardPrintingId: 1000 + index,
         cardId: 2000 + index,
         cardName: `Card ${index + 1}`,
-        cardNumber: `${index + 1}`
-      }))
+        cardNumber: `${index + 1}`,
+      })),
     );
     fixture.detectChanges();
 
     const tools = fixture.nativeElement.querySelector('.collection-tools') as HTMLElement;
     const resultsRail = fixture.nativeElement.querySelector(
-      '.collection-results-rail'
+      '.collection-results-rail',
     ) as HTMLElement;
 
     expect(tools.textContent).not.toContain('11 printings');
@@ -193,8 +172,8 @@ describe('Collection', () => {
         cardPrintingId: 1000 + index,
         cardId: 2000 + index,
         cardName: `Card ${index + 1}`,
-        cardNumber: `${index + 1}`
-      }))
+        cardNumber: `${index + 1}`,
+      })),
     );
     fixture.detectChanges();
 
@@ -216,15 +195,13 @@ describe('Collection', () => {
         cardPrintingId: 1000 + index,
         cardId: 2000 + index,
         cardName: `Card ${index + 1}`,
-        cardNumber: `${index + 1}`
-      }))
+        cardNumber: `${index + 1}`,
+      })),
     );
     fixture.detectChanges();
     fixture.componentInstance.goToPage(2);
 
-    const input = fixture.nativeElement.querySelector(
-      '#collection-search'
-    ) as HTMLInputElement;
+    const input = fixture.nativeElement.querySelector('#collection-search') as HTMLInputElement;
     input.value = 'Card 1';
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
@@ -232,25 +209,22 @@ describe('Collection', () => {
     expect(fixture.componentInstance.activePage()).toBe(1);
   });
 
-
   it('preserves the current Collection query state when session recovery sends the user to Login', () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-    vi.spyOn(router, 'url', 'get').mockReturnValue(
-      '/collection?q=V&set=NCL&page=3'
-    );
+    vi.spyOn(router, 'url', 'get').mockReturnValue('/collection?q=V&set=NCL&page=3');
 
     loadFailure = new HttpErrorResponse({
       status: 401,
-      statusText: 'Unauthorized'
+      statusText: 'Unauthorized',
     });
 
     fixture.componentInstance.retry();
 
     expect(navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: {
-        returnUrl: '/collection?q=V&set=NCL&page=3'
-      }
+        returnUrl: '/collection?q=V&set=NCL&page=3',
+      },
     });
   });
 
@@ -261,7 +235,7 @@ describe('Collection', () => {
       cardPrintingId: 1000 + index,
       cardId: 2000 + index,
       cardName: `Card ${index + 1}`,
-      cardNumber: `${index + 1}`
+      cardNumber: `${index + 1}`,
     }));
     items.set(pageItems);
     fixture.detectChanges();
@@ -278,7 +252,7 @@ describe('Collection', () => {
     fixture.componentInstance.beginEdit(ownedCard);
     fixture.componentInstance.recordForm.patchValue({
       condition: 'Excellent',
-      notes: 'Binder copy.'
+      notes: 'Binder copy.',
     });
 
     fixture.componentInstance.saveEdit(ownedCard);
@@ -293,7 +267,7 @@ describe('Collection', () => {
       isOpenForTrade: false,
       isOpenToMessages: true,
       maySellLater: false,
-      notes: 'Binder copy.'
+      notes: 'Binder copy.',
     });
     expect(items()[0].quantityOwned).toBe(2);
   });
@@ -301,7 +275,7 @@ describe('Collection', () => {
   it('closes Edit Record only after a successful save', () => {
     fixture.componentInstance.beginEdit(ownedCard);
     fixture.componentInstance.recordForm.patchValue({
-      condition: 'Excellent'
+      condition: 'Excellent',
     });
 
     fixture.componentInstance.saveEdit(ownedCard);
@@ -314,7 +288,7 @@ describe('Collection', () => {
     fixture.detectChanges();
 
     const detailsState = fixture.nativeElement.querySelector(
-      '.collection-record__details-state'
+      '.collection-record__details-state',
     ) as HTMLElement;
 
     expect(fixture.nativeElement.textContent).toContain('Details added');
@@ -323,17 +297,19 @@ describe('Collection', () => {
     expect(detailsState.closest('a, button')).toBeNull();
     expect(detailsState.getAttribute('role')).toBeNull();
 
-    items.set([{
-      ...ownedCard,
-      condition: null,
-      notes: null,
-      isInMasterCollection: false,
-      isDuplicate: false,
-      isGradingCandidate: false,
-      isOpenForTrade: false,
-      isOpenToMessages: false,
-      maySellLater: false
-    }]);
+    items.set([
+      {
+        ...ownedCard,
+        condition: null,
+        notes: null,
+        isInMasterCollection: false,
+        isDuplicate: false,
+        isGradingCandidate: false,
+        isOpenForTrade: false,
+        isOpenToMessages: false,
+        maySellLater: false,
+      },
+    ]);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).not.toContain('Details added');
@@ -351,7 +327,7 @@ describe('Collection', () => {
     const feedback = TestBed.inject(FeedbackService);
     fixture.componentInstance.beginEdit(ownedCard);
     fixture.componentInstance.recordForm.patchValue({
-      condition: 'Excellent'
+      condition: 'Excellent',
     });
 
     fixture.componentInstance.saveEdit(ownedCard);
@@ -366,14 +342,14 @@ describe('Collection', () => {
       error: {
         title: 'One or more validation errors occurred.',
         errors: {
-          Condition: ['The field Condition must be a string with a maximum length of 50.']
-        }
-      }
+          Condition: ['The field Condition must be a string with a maximum length of 50.'],
+        },
+      },
     });
 
     fixture.componentInstance.beginEdit(ownedCard);
     fixture.componentInstance.recordForm.patchValue({
-      condition: 'Collector entered value'
+      condition: 'Collector entered value',
     });
 
     fixture.componentInstance.saveEdit(ownedCard);
@@ -381,13 +357,14 @@ describe('Collection', () => {
 
     expect(updateRecordCalls).toBe(1);
     expect(fixture.componentInstance.editingRecordId()).toBe(ownedCard.id);
-    expect(fixture.componentInstance.recordForm.controls.condition.value)
-      .toBe('Collector entered value');
-    expect(fixture.nativeElement.textContent).toContain(
-      'Condition must be 50 characters or fewer.'
+    expect(fixture.componentInstance.recordForm.controls.condition.value).toBe(
+      'Collector entered value',
     );
     expect(fixture.nativeElement.textContent).toContain(
-      "We couldn't save this record. Check the details and try again."
+      'Condition must be 50 characters or fewer.',
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      "We couldn't save this record. Check the details and try again.",
     );
     expect(items()).toEqual([ownedCard]);
   });

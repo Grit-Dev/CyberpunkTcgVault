@@ -1,11 +1,5 @@
-import {
-  provideHttpClient,
-  withInterceptors
-} from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { API_ENDPOINTS } from '../http/api-endpoints';
@@ -18,7 +12,7 @@ const demoUser = {
   email: 'demo@example.com',
   roles: ['Demo'],
   emailConfirmed: true,
-  twoFactorEnabled: false
+  twoFactorEnabled: false,
 };
 
 describe('AuthService', () => {
@@ -28,11 +22,9 @@ describe('AuthService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(
-          withInterceptors([apiSecurityInterceptor])
-        ),
-        provideHttpClientTesting()
-      ]
+        provideHttpClient(withInterceptors([apiSecurityInterceptor])),
+        provideHttpClientTesting(),
+      ],
     });
 
     service = TestBed.inject(AuthService);
@@ -67,8 +59,8 @@ describe('AuthService', () => {
       {},
       {
         status: 401,
-        statusText: 'Unauthorized'
-      }
+        statusText: 'Unauthorized',
+      },
     );
 
     expect(service.isAuthenticated()).toBe(false);
@@ -85,8 +77,7 @@ describe('AuthService', () => {
 
     expect(demoRequest.request.method).toBe('POST');
     expect(demoRequest.request.body).toEqual({});
-    expect(demoRequest.request.headers.get('X-XSRF-TOKEN'))
-      .toBe('csrf-token');
+    expect(demoRequest.request.headers.get('X-XSRF-TOKEN')).toBe('csrf-token');
 
     demoRequest.flush(demoUser);
 
@@ -104,22 +95,24 @@ describe('AuthService', () => {
 
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({
-      email: 'collector@example.com'
+      email: 'collector@example.com',
     });
     expect(request.request.headers.get('X-XSRF-TOKEN')).toBe('csrf-token');
 
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
   });
 
   it('should submit the backend-issued reset token without interpreting it', () => {
-    service.resetPassword({
-      userId: 'user-id',
-      token: 'opaque-reset-token',
-      newPassword: 'new-password-123'
-    }).subscribe();
+    service
+      .resetPassword({
+        userId: 'user-id',
+        token: 'opaque-reset-token',
+        newPassword: 'new-password-123',
+      })
+      .subscribe();
 
     const csrfRequest = httpTesting.expectOne(API_ENDPOINTS.auth.csrf);
     csrfRequest.flush({ requestToken: 'csrf-token' });
@@ -130,13 +123,13 @@ describe('AuthService', () => {
     expect(request.request.body).toEqual({
       userId: 'user-id',
       token: 'opaque-reset-token',
-      newPassword: 'new-password-123'
+      newPassword: 'new-password-123',
     });
     expect(request.request.headers.get('X-XSRF-TOKEN')).toBe('csrf-token');
 
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
   });
 
@@ -156,5 +149,4 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
   });
-
 });

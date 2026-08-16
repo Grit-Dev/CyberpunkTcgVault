@@ -1,12 +1,5 @@
-import {
-  Component,
-  signal
-} from '@angular/core';
-import {
-  Router,
-  RouterLink,
-  RouterLinkActive
-} from '@angular/router';
+import { Component, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
@@ -15,12 +8,9 @@ import { CapabilitiesService } from '../../../core/capabilities/capabilities.ser
 @Component({
   selector: 'app-site-header',
   standalone: true,
-  imports: [
-    RouterLink,
-    RouterLinkActive
-  ],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './site-header.html',
-  styleUrl: './site-header.scss'
+  styleUrl: './site-header.scss',
 })
 export class SiteHeader {
   readonly isLoggingOut = signal(false);
@@ -28,8 +18,8 @@ export class SiteHeader {
   constructor(
     readonly authService: AuthService,
     readonly capabilitiesService: CapabilitiesService,
-    private readonly router: Router
-  ) { }
+    private readonly router: Router,
+  ) {}
 
   logout(): void {
     if (this.isLoggingOut()) {
@@ -38,11 +28,12 @@ export class SiteHeader {
 
     this.isLoggingOut.set(true);
 
-    this.authService.logout()
+    this.authService
+      .logout()
       .pipe(
         finalize(() => {
           this.isLoggingOut.set(false);
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -51,7 +42,7 @@ export class SiteHeader {
         error: () => {
           // The backend remains authoritative. A failed logout request leaves
           // the current session state unchanged and simply re-enables the UI.
-        }
+        },
       });
   }
 }

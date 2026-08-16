@@ -1,16 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  signal,
-  ViewChild
-} from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { Component, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
@@ -30,7 +20,7 @@ import { AccountService } from '../../services/account.service';
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './account.html',
-  styleUrl: './account.scss'
+  styleUrl: './account.scss',
 })
 export class Account implements OnInit {
   @ViewChild('deleteDialog')
@@ -56,17 +46,13 @@ export class Account implements OnInit {
     private readonly formBuilder: FormBuilder,
     private readonly accountService: AccountService,
     readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
   ) {
     this.deleteForm = this.formBuilder.nonNullable.group({
       currentPassword: [
         '',
-        [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.maxLength(128)
-        ]
-      ]
+        [Validators.required, Validators.minLength(8), Validators.maxLength(128)],
+      ],
     });
   }
 
@@ -86,19 +72,20 @@ export class Account implements OnInit {
     this.logoutError.set(null);
     this.isLoggingOut.set(true);
 
-    this.authService.logout()
+    this.authService
+      .logout()
       .pipe(finalize(() => this.isLoggingOut.set(false)))
       .subscribe({
         next: () => {
           void this.router.navigate(['/']);
         },
-        error: error => {
+        error: (error) => {
           if (this.handleSessionError(error)) {
             return;
           }
 
           this.logoutError.set("We couldn't log you out. Try again.");
-        }
+        },
       });
   }
 
@@ -168,11 +155,7 @@ export class Account implements OnInit {
     this.deleteError.set(null);
     this.deleteForm.markAllAsTouched();
 
-    if (
-      !this.canDeleteAccount() ||
-      this.deleteForm.invalid ||
-      this.isDeleting()
-    ) {
+    if (!this.canDeleteAccount() || this.deleteForm.invalid || this.isDeleting()) {
       return;
     }
 
@@ -191,16 +174,14 @@ export class Account implements OnInit {
           this.authService.clearAuthenticatedSession();
           void this.router.navigate(['/']);
         },
-        error: error => {
+        error: (error) => {
           if (this.handleSessionError(error)) {
             this.deleteDialog?.nativeElement.close();
             return;
           }
 
-          this.deleteError.set(
-            "We couldn't delete your account. Try again."
-          );
-        }
+          this.deleteError.set("We couldn't delete your account. Try again.");
+        },
       });
   }
 
@@ -212,14 +193,14 @@ export class Account implements OnInit {
       .load()
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: user => this.account.set(user),
-        error: error => {
+        next: (user) => this.account.set(user),
+        error: (error) => {
           if (this.handleSessionError(error)) {
             return;
           }
 
           this.loadError.set(true);
-        }
+        },
       });
   }
 
@@ -230,8 +211,8 @@ export class Account implements OnInit {
 
     void this.router.navigate(['/login'], {
       queryParams: {
-        returnUrl: '/account'
-      }
+        returnUrl: '/account',
+      },
     });
 
     return true;

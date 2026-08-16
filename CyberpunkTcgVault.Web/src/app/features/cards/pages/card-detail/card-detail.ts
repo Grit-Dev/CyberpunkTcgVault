@@ -1,20 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  computed,
-  OnDestroy,
-  OnInit,
-  signal
-} from '@angular/core';
-import {
-  ActivatedRoute,
-  Router,
-  RouterLink
-} from '@angular/router';
-import {
-  forkJoin,
-  Subscription
-} from 'rxjs';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { forkJoin, Subscription } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { DynamicSeoService } from '../../../../core/seo/dynamic-seo.service';
@@ -25,7 +12,10 @@ import { WishlistService } from '../../../wishlist/services/wishlist.service';
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
 import { CardPrinting } from '../../models/card-printing';
 import { Card } from '../../models/card';
-import { CardDetailReturnContext, CardDetailReturnService } from '../../services/card-detail-return.service';
+import {
+  CardDetailReturnContext,
+  CardDetailReturnService,
+} from '../../services/card-detail-return.service';
 import { CardsService } from '../../services/cards.service';
 
 /**
@@ -39,12 +29,9 @@ import { CardsService } from '../../services/cards.service';
 @Component({
   selector: 'app-card-detail',
   standalone: true,
-  imports: [
-    RouterLink,
-    CardArtworkDirective
-  ],
+  imports: [RouterLink, CardArtworkDirective],
   templateUrl: './card-detail.html',
-  styleUrl: './card-detail.scss'
+  styleUrl: './card-detail.scss',
 })
 export class CardDetail implements OnInit, OnDestroy {
   readonly card = signal<Card | null>(null);
@@ -55,7 +42,7 @@ export class CardDetail implements OnInit, OnDestroy {
   readonly returnContext = signal<CardDetailReturnContext>({
     label: 'Vault Archive',
     path: '/cards',
-    queryParams: {}
+    queryParams: {},
   });
 
   readonly collectorError = signal('');
@@ -71,9 +58,9 @@ export class CardDetail implements OnInit, OnDestroy {
       return null;
     }
 
-    return this.ownedCardsService
-      .items()
-      .find(item => item.cardPrintingId === printingId) ?? null;
+    return (
+      this.ownedCardsService.items().find((item) => item.cardPrintingId === printingId) ?? null
+    );
   });
 
   readonly wishlistRecord = computed(() => {
@@ -83,9 +70,7 @@ export class CardDetail implements OnInit, OnDestroy {
       return null;
     }
 
-    return this.wishlistService
-      .items()
-      .find(item => item.cardPrintingId === printingId) ?? null;
+    return this.wishlistService.items().find((item) => item.cardPrintingId === printingId) ?? null;
   });
 
   private readonly subscriptions = new Subscription();
@@ -99,20 +84,20 @@ export class CardDetail implements OnInit, OnDestroy {
     private readonly cardsService: CardsService,
     private readonly ownedCardsService: OwnedCardsService,
     private readonly wishlistService: WishlistService,
-    private readonly seo: DynamicSeoService
-  ) { }
+    private readonly seo: DynamicSeoService,
+  ) {}
 
   ngOnInit(): void {
     this.returnContext.set(
       this.cardDetailReturnService.consume() ?? {
         label: 'Vault Archive',
         path: '/cards',
-        queryParams: {}
-      }
+        queryParams: {},
+      },
     );
 
     this.subscriptions.add(
-      this.route.paramMap.subscribe(params => {
+      this.route.paramMap.subscribe((params) => {
         const id = Number(params.get('id'));
 
         if (!Number.isInteger(id) || id <= 0) {
@@ -121,7 +106,7 @@ export class CardDetail implements OnInit, OnDestroy {
         }
 
         this.loadCard(id);
-      })
+      }),
     );
   }
 
@@ -155,10 +140,10 @@ export class CardDetail implements OnInit, OnDestroy {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        printing: printing.id
+        printing: printing.id,
       },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 
@@ -182,18 +167,16 @@ export class CardDetail implements OnInit, OnDestroy {
     this.isCollectionBusy.set(true);
 
     this.subscriptions.add(
-      this.ownedCardsService
-        .addPrinting(printing.id)
-        .subscribe({
-          next: () => {
-            this.isCollectionBusy.set(false);
-            this.showCollectorMessage('Added to Collection.');
-          },
-          error: error => {
-            this.isCollectionBusy.set(false);
-            this.handleCollectorError(error, 'collection');
-          }
-        })
+      this.ownedCardsService.addPrinting(printing.id).subscribe({
+        next: () => {
+          this.isCollectionBusy.set(false);
+          this.showCollectorMessage('Added to Collection.');
+        },
+        error: (error) => {
+          this.isCollectionBusy.set(false);
+          this.handleCollectorError(error, 'collection');
+        },
+      }),
     );
   }
 
@@ -235,11 +218,11 @@ export class CardDetail implements OnInit, OnDestroy {
           this.isCollectionBusy.set(false);
           this.showCollectorMessage('Removed from Collection.');
         },
-        error: error => {
+        error: (error) => {
           this.isCollectionBusy.set(false);
           this.handleCollectorError(error, 'collection');
-        }
-      })
+        },
+      }),
     );
   }
 
@@ -263,18 +246,16 @@ export class CardDetail implements OnInit, OnDestroy {
     this.isWishlistBusy.set(true);
 
     this.subscriptions.add(
-      this.wishlistService
-        .addPrinting(printing.id)
-        .subscribe({
-          next: () => {
-            this.isWishlistBusy.set(false);
-            this.showCollectorMessage('Wishlist updated.');
-          },
-          error: error => {
-            this.isWishlistBusy.set(false);
-            this.handleCollectorError(error, 'wishlist');
-          }
-        })
+      this.wishlistService.addPrinting(printing.id).subscribe({
+        next: () => {
+          this.isWishlistBusy.set(false);
+          this.showCollectorMessage('Wishlist updated.');
+        },
+        error: (error) => {
+          this.isWishlistBusy.set(false);
+          this.handleCollectorError(error, 'wishlist');
+        },
+      }),
     );
   }
 
@@ -314,11 +295,11 @@ export class CardDetail implements OnInit, OnDestroy {
           this.isWishlistBusy.set(false);
           this.showCollectorMessage('Removed from Wishlist.');
         },
-        error: error => {
+        error: (error) => {
           this.isWishlistBusy.set(false);
           this.handleCollectorError(error, 'wishlist');
-        }
-      })
+        },
+      }),
     );
   }
 
@@ -327,15 +308,9 @@ export class CardDetail implements OnInit, OnDestroy {
       return false;
     }
 
-    return ![
-      'unknown',
-      'no-id',
-      'n/a',
-      'null',
-      'none',
-      '-',
-      '—'
-    ].includes(value.trim().toLowerCase());
+    return !['unknown', 'no-id', 'n/a', 'null', 'none', '-', '—'].includes(
+      value.trim().toLowerCase(),
+    );
   }
 
   printingVariants(printing: CardPrinting): string[] {
@@ -355,60 +330,46 @@ export class CardDetail implements OnInit, OnDestroy {
 
   printingAccessibleLabel(printing: CardPrinting): string {
     const variants = this.printingVariants(printing);
-    const variantText = variants.length > 0
-      ? `, ${variants.join(', ')}`
-      : '';
+    const variantText = variants.length > 0 ? `, ${variants.join(', ')}` : '';
 
-    const setText = this.hasMeaningfulValue(printing.setName)
-      ? ` from ${printing.setName}`
-      : '';
+    const setText = this.hasMeaningfulValue(printing.setName) ? ` from ${printing.setName}` : '';
 
     return `Inspect printing ${printing.cardNumber}${setText}${variantText}`;
   }
 
-  private updateCollectionQuantity(
-    owned: OwnedCard,
-    quantityOwned: number
-  ): void {
+  private updateCollectionQuantity(owned: OwnedCard, quantityOwned: number): void {
     this.clearCollectorFeedback();
     this.isCollectionBusy.set(true);
 
     this.subscriptions.add(
-      this.ownedCardsService
-        .updateQuantity(owned, quantityOwned)
-        .subscribe({
-          next: () => {
-            this.isCollectionBusy.set(false);
-            this.showCollectorMessage('Collection updated.');
-          },
-          error: error => {
-            this.isCollectionBusy.set(false);
-            this.handleCollectorError(error, 'collection');
-          }
-        })
+      this.ownedCardsService.updateQuantity(owned, quantityOwned).subscribe({
+        next: () => {
+          this.isCollectionBusy.set(false);
+          this.showCollectorMessage('Collection updated.');
+        },
+        error: (error) => {
+          this.isCollectionBusy.set(false);
+          this.handleCollectorError(error, 'collection');
+        },
+      }),
     );
   }
 
-  private updateWishlistQuantity(
-    wanted: WishlistItem,
-    wantedQuantity: number
-  ): void {
+  private updateWishlistQuantity(wanted: WishlistItem, wantedQuantity: number): void {
     this.clearCollectorFeedback();
     this.isWishlistBusy.set(true);
 
     this.subscriptions.add(
-      this.wishlistService
-        .updateQuantity(wanted, wantedQuantity)
-        .subscribe({
-          next: () => {
-            this.isWishlistBusy.set(false);
-            this.showCollectorMessage('Wishlist updated.');
-          },
-          error: error => {
-            this.isWishlistBusy.set(false);
-            this.handleCollectorError(error, 'wishlist');
-          }
-        })
+      this.wishlistService.updateQuantity(wanted, wantedQuantity).subscribe({
+        next: () => {
+          this.isWishlistBusy.set(false);
+          this.showCollectorMessage('Wishlist updated.');
+        },
+        error: (error) => {
+          this.isWishlistBusy.set(false);
+          this.handleCollectorError(error, 'wishlist');
+        },
+      }),
     );
   }
 
@@ -422,14 +383,14 @@ export class CardDetail implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.cardsService.getCardById(id).subscribe({
-        next: card => {
+        next: (card) => {
           this.card.set(card);
           this.selectedPrinting.set(this.resolveInitialPrinting(card));
           this.isLoading.set(false);
           this.applyCardSeo(card);
           this.loadCollectorState();
         },
-        error: error => {
+        error: (error) => {
           this.isLoading.set(false);
 
           if (error instanceof HttpErrorResponse && error.status === 404) {
@@ -441,10 +402,10 @@ export class CardDetail implements OnInit, OnDestroy {
           this.seo.apply({
             title: 'Unable to Load Card | Choom Vault',
             description: 'The requested Choom Vault card record could not be loaded.',
-            robots: 'noindex, nofollow'
+            robots: 'noindex, nofollow',
           });
-        }
-      })
+        },
+      }),
     );
   }
 
@@ -459,10 +420,7 @@ export class CardDetail implements OnInit, OnDestroy {
         this.isCollectorStateLoading.set(true);
 
         this.subscriptions.add(
-          forkJoin([
-            this.ownedCardsService.load(),
-            this.wishlistService.load()
-          ]).subscribe({
+          forkJoin([this.ownedCardsService.load(), this.wishlistService.load()]).subscribe({
             next: () => {
               this.isCollectorStateLoading.set(false);
             },
@@ -471,10 +429,10 @@ export class CardDetail implements OnInit, OnDestroy {
               // Public inspection still works if optional private enrichment
               // fails. Any explicit mutation still receives the API's real
               // authentication/authorization response.
-            }
-          })
+            },
+          }),
         );
-      })
+      }),
     );
   }
 
@@ -483,14 +441,10 @@ export class CardDetail implements OnInit, OnDestroy {
       return null;
     }
 
-    const queryPrintingId = Number(
-      this.route.snapshot.queryParamMap.get('printing')
-    );
+    const queryPrintingId = Number(this.route.snapshot.queryParamMap.get('printing'));
 
     if (Number.isInteger(queryPrintingId) && queryPrintingId > 0) {
-      const requestedPrinting = card.printings.find(
-        printing => printing.id === queryPrintingId
-      );
+      const requestedPrinting = card.printings.find((printing) => printing.id === queryPrintingId);
 
       if (requestedPrinting) {
         return requestedPrinting;
@@ -499,7 +453,7 @@ export class CardDetail implements OnInit, OnDestroy {
 
     if (card.cardPrintingId) {
       const primaryPrinting = card.printings.find(
-        printing => printing.id === card.cardPrintingId
+        (printing) => printing.id === card.cardPrintingId,
       );
 
       if (primaryPrinting) {
@@ -523,15 +477,12 @@ export class CardDetail implements OnInit, OnDestroy {
     void this.router.navigate(['/login'], {
       queryParams: {
         returnUrl,
-        intent
-      }
+        intent,
+      },
     });
   }
 
-  private handleCollectorError(
-    error: unknown,
-    target: 'collection' | 'wishlist'
-  ): void {
+  private handleCollectorError(error: unknown, target: 'collection' | 'wishlist'): void {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 401) {
         this.sendToLogin(target);
@@ -546,9 +497,7 @@ export class CardDetail implements OnInit, OnDestroy {
         }
 
         this.showCollectorMessage(
-          target === 'collection'
-            ? 'Collection state refreshed.'
-            : 'Wishlist state refreshed.'
+          target === 'collection' ? 'Collection state refreshed.' : 'Wishlist state refreshed.',
         );
         return;
       }
@@ -565,7 +514,7 @@ export class CardDetail implements OnInit, OnDestroy {
 
       if (error.status === 404) {
         this.collectorError.set(
-          'That collector record is no longer available. Refresh the card and try again.'
+          'That collector record is no longer available. Refresh the card and try again.',
         );
         return;
       }
@@ -574,7 +523,7 @@ export class CardDetail implements OnInit, OnDestroy {
     this.collectorError.set(
       target === 'collection'
         ? 'We could not update your Collection. Try again.'
-        : 'We could not update your Wishlist. Try again.'
+        : 'We could not update your Wishlist. Try again.',
     );
   }
 
@@ -610,7 +559,7 @@ export class CardDetail implements OnInit, OnDestroy {
     this.seo.apply({
       title: 'Card Record Not Found | Choom Vault',
       description: 'The requested card is not currently stored in the Choom Vault Archive.',
-      robots: 'noindex, nofollow'
+      robots: 'noindex, nofollow',
     });
   }
 
@@ -619,18 +568,16 @@ export class CardDetail implements OnInit, OnDestroy {
     const details = [
       this.hasMeaningfulValue(card.cardType) ? card.cardType : null,
       printing && this.hasMeaningfulValue(printing.setName) ? printing.setName : null,
-      printing && this.hasMeaningfulValue(printing.rarity) ? printing.rarity : null
+      printing && this.hasMeaningfulValue(printing.rarity) ? printing.rarity : null,
     ].filter((value): value is string => Boolean(value));
 
-    const qualifier = details.length > 0
-      ? ` ${details.join(' · ')}.`
-      : '';
+    const qualifier = details.length > 0 ? ` ${details.join(' · ')}.` : '';
 
     this.seo.apply({
       title: `${card.name} | Cyberpunk TCG Card | Choom Vault`,
       description: `Inspect ${card.name} in the public Choom Vault card archive.${qualifier}`,
       robots: 'index, follow',
-      canonicalPath: `/cards/${card.id}`
+      canonicalPath: `/cards/${card.id}`,
     });
   }
 }

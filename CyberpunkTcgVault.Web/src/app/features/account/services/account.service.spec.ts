@@ -1,11 +1,5 @@
-import {
-  provideHttpClient,
-  withInterceptors
-} from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { apiSecurityInterceptor } from '../../../core/http/api-security.interceptor';
@@ -18,7 +12,7 @@ const user = {
   email: 'collector@example.com',
   roles: ['User'],
   emailConfirmed: true,
-  twoFactorEnabled: false
+  twoFactorEnabled: false,
 };
 
 describe('AccountService', () => {
@@ -29,8 +23,8 @@ describe('AccountService', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([apiSecurityInterceptor])),
-        provideHttpClientTesting()
-      ]
+        provideHttpClientTesting(),
+      ],
     });
 
     service = TestBed.inject(AccountService);
@@ -42,7 +36,7 @@ describe('AccountService', () => {
   });
 
   it('loads collector-facing account identity from the existing /api/Auth/me contract', () => {
-    service.load().subscribe(response => {
+    service.load().subscribe((response) => {
       expect(response.userName).toBe('IAMATEST');
       expect(response.email).toBe('collector@example.com');
     });
@@ -66,13 +60,13 @@ describe('AccountService', () => {
     expect(request.request.method).toBe('DELETE');
     expect(request.request.body).toEqual({
       currentPassword: 'password-123',
-      authenticatorCode: null
+      authenticatorCode: null,
     });
     expect(request.request.headers.get('X-XSRF-TOKEN')).toBe('csrf-token');
 
     request.flush(null, {
       status: 204,
-      statusText: 'No Content'
+      statusText: 'No Content',
     });
   });
 });

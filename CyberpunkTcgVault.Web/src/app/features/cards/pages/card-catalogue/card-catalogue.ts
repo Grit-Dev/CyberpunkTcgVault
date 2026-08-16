@@ -1,28 +1,15 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  ActivatedRoute,
-  ParamMap,
-  Router,
-  RouterLink
-} from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { CardArtworkDirective } from '../../directives/card-artwork.directive';
-import {
-  CardFilterOptions,
-  CardSetFilterOption
-} from '../../models/card-filter-options';
+import { CardFilterOptions, CardSetFilterOption } from '../../models/card-filter-options';
 import {
   CardFilterKey,
   CardFilters,
   CardSortBy,
-  CardSortDirection
+  CardSortDirection,
 } from '../../models/card-filters';
 import { Card } from '../../models/card';
 import { CardCatalogueStateService } from '../../services/card-catalogue-state.service';
@@ -35,10 +22,7 @@ interface ActiveArchiveFilter {
   value: string;
 }
 
-type ArchiveSortValue =
-  'setOrder-asc' |
-  'name-asc' |
-  'name-desc';
+type ArchiveSortValue = 'setOrder-asc' | 'name-asc' | 'name-desc';
 
 /**
  * Public Vault Archive for fast, artwork-first card discovery.
@@ -49,19 +33,14 @@ type ArchiveSortValue =
 @Component({
   selector: 'app-card-catalogue',
   standalone: true,
-  imports: [
-    FormsModule,
-    RouterLink,
-    CardArtworkDirective
-  ],
+  imports: [FormsModule, RouterLink, CardArtworkDirective],
   templateUrl: './card-catalogue.html',
-  styleUrl: './card-catalogue.scss'
+  styleUrl: './card-catalogue.scss',
 })
 export class CardCatalogue implements OnInit, OnDestroy {
   cards: Card[] = [];
   filters: CardFilters = this.createEmptyFilters();
-  filterOptions: CardFilterOptions =
-    this.createEmptyFilterOptions();
+  filterOptions: CardFilterOptions = this.createEmptyFilterOptions();
 
   currentPage = 1;
   readonly pageSize = 24;
@@ -76,8 +55,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
   errorMessage = '';
   filtersExpanded = false;
 
-  private searchDebounceTimer:
-    ReturnType<typeof setTimeout> | null = null;
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private cardRequest?: Subscription;
   private filterOptionsRequest?: Subscription;
 
@@ -87,22 +65,16 @@ export class CardCatalogue implements OnInit, OnDestroy {
     private readonly cardDetailReturnService: CardDetailReturnService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly changeDetectorRef: ChangeDetectorRef
-  ) { }
+    private readonly changeDetectorRef: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
-    const queryParams =
-      this.route.snapshot.queryParamMap;
-    const restoredState =
-      this.catalogueStateService.consume();
+    const queryParams = this.route.snapshot.queryParamMap;
+    const restoredState = this.catalogueStateService.consume();
 
     if (this.hasArchiveQueryState(queryParams)) {
-      this.filters =
-        this.readFiltersFromQuery(queryParams);
-      this.currentPage =
-        this.readPositiveInteger(
-          queryParams.get('page')
-        ) ?? 1;
+      this.filters = this.readFiltersFromQuery(queryParams);
+      this.currentPage = this.readPositiveInteger(queryParams.get('page')) ?? 1;
     } else if (restoredState) {
       this.filters = restoredState.filters;
       this.currentPage = restoredState.currentPage;
@@ -123,42 +95,22 @@ export class CardCatalogue implements OnInit, OnDestroy {
     const maximumVisiblePages = 5;
 
     if (this.totalPages <= maximumVisiblePages) {
-      return Array.from(
-        { length: this.totalPages },
-        (_, index) => index + 1
-      );
+      return Array.from({ length: this.totalPages }, (_, index) => index + 1);
     }
 
-    let startPage = Math.max(
-      1,
-      this.currentPage - 2
-    );
+    let startPage = Math.max(1, this.currentPage - 2);
 
-    const endPage = Math.min(
-      this.totalPages,
-      startPage + maximumVisiblePages - 1
-    );
+    const endPage = Math.min(this.totalPages, startPage + maximumVisiblePages - 1);
 
-    if (
-      endPage - startPage + 1 <
-      maximumVisiblePages
-    ) {
-      startPage = Math.max(
-        1,
-        endPage - maximumVisiblePages + 1
-      );
+    if (endPage - startPage + 1 < maximumVisiblePages) {
+      startPage = Math.max(1, endPage - maximumVisiblePages + 1);
     }
 
-    return Array.from(
-      { length: endPage - startPage + 1 },
-      (_, index) => startPage + index
-    );
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
   }
 
   get hasSearchQuery(): boolean {
-    return Boolean(
-      this.filters.name?.trim()
-    );
+    return Boolean(this.filters.name?.trim());
   }
 
   get activeFilters(): ActiveArchiveFilter[] {
@@ -169,62 +121,22 @@ export class CardCatalogue implements OnInit, OnDestroy {
       'setCode',
       'Set',
       this.filters.setCode,
-      this.getSetLabel(this.filters.setCode)
+      this.getSetLabel(this.filters.setCode),
     );
-    this.addStringFilter(
-      activeFilters,
-      'cardType',
-      'Type',
-      this.filters.cardType
-    );
-    this.addStringFilter(
-      activeFilters,
-      'rarity',
-      'Rarity',
-      this.filters.rarity
-    );
-    this.addStringFilter(
-      activeFilters,
-      'colour',
-      'Colour',
-      this.filters.colour
-    );
+    this.addStringFilter(activeFilters, 'cardType', 'Type', this.filters.cardType);
+    this.addStringFilter(activeFilters, 'rarity', 'Rarity', this.filters.rarity);
+    this.addStringFilter(activeFilters, 'colour', 'Colour', this.filters.colour);
     this.addStringFilter(
       activeFilters,
       'classification',
       'Classification',
-      this.filters.classification
+      this.filters.classification,
     );
-    this.addStringFilter(
-      activeFilters,
-      'tags',
-      'Tag',
-      this.filters.tags
-    );
-    this.addNumericFilter(
-      activeFilters,
-      'cost',
-      'Cost',
-      this.filters.cost
-    );
-    this.addNumericFilter(
-      activeFilters,
-      'power',
-      'Power',
-      this.filters.power
-    );
-    this.addNumericFilter(
-      activeFilters,
-      'ram',
-      'RAM',
-      this.filters.ram
-    );
-    this.addNumericFilter(
-      activeFilters,
-      'eddies',
-      'Eddies',
-      this.filters.eddies
-    );
+    this.addStringFilter(activeFilters, 'tags', 'Tag', this.filters.tags);
+    this.addNumericFilter(activeFilters, 'cost', 'Cost', this.filters.cost);
+    this.addNumericFilter(activeFilters, 'power', 'Power', this.filters.power);
+    this.addNumericFilter(activeFilters, 'ram', 'RAM', this.filters.ram);
+    this.addNumericFilter(activeFilters, 'eddies', 'Eddies', this.filters.eddies);
 
     return activeFilters;
   }
@@ -238,8 +150,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   get hasActiveFilters(): boolean {
-    return this.hasSearchQuery ||
-      this.hasSelectedFilters;
+    return this.hasSearchQuery || this.hasSelectedFilters;
   }
 
   get hasMoreFiltersActive(): boolean {
@@ -250,81 +161,57 @@ export class CardCatalogue implements OnInit, OnDestroy {
       this.filters.cost !== null ||
       this.filters.power !== null ||
       this.filters.ram !== null ||
-      this.filters.eddies !== null
+      this.filters.eddies !== null,
     );
   }
 
   get activeMoreFilterCount(): number {
     return this.activeFilters.filter(
-      filter => ![
-        'setCode',
-        'cardType',
-        'rarity'
-      ].includes(filter.key)
+      (filter) => !['setCode', 'cardType', 'rarity'].includes(filter.key),
     ).length;
   }
 
   get visibleRarityOptions(): string[] {
-    return this.filterOptions.rarities
-      .filter(rarity => this.hasMeaningfulValue(rarity));
+    return this.filterOptions.rarities.filter((rarity) => this.hasMeaningfulValue(rarity));
   }
 
   get sortValue(): ArchiveSortValue {
     if (this.filters.sortBy === 'name') {
-      return this.filters.sortDirection === 'desc'
-        ? 'name-desc'
-        : 'name-asc';
+      return this.filters.sortDirection === 'desc' ? 'name-desc' : 'name-asc';
     }
 
     return 'setOrder-asc';
   }
 
-  hasMeaningfulValue(
-    value: string | null | undefined
-  ): boolean {
+  hasMeaningfulValue(value: string | null | undefined): boolean {
     if (!value?.trim()) {
       return false;
     }
 
-    const normalisedValue =
-      value.trim().toLowerCase();
+    const normalisedValue = value.trim().toLowerCase();
 
-    return ![
-      'unknown',
-      'no-id',
-      'n/a',
-      'null',
-      'none',
-      '-',
-      '—'
-    ].includes(normalisedValue);
+    return !['unknown', 'no-id', 'n/a', 'null', 'none', '-', '—'].includes(normalisedValue);
   }
 
   onSearchChange(value: string): void {
     this.filters = {
       ...this.filters,
-      name: value
+      name: value,
     };
     this.currentPage = 1;
     this.clearSearchDebounce();
 
-    this.searchDebounceTimer = setTimeout(
-      () => {
-        this.searchDebounceTimer = null;
-        this.syncUrlState();
-        this.loadCards();
-      },
-      300
-    );
+    this.searchDebounceTimer = setTimeout(() => {
+      this.searchDebounceTimer = null;
+      this.syncUrlState();
+      this.loadCards();
+    }, 300);
   }
 
-  onFilterChange(
-    filter: CardFilterKey,
-    value: string | number | null
-  ): void {
+  onFilterChange(filter: CardFilterKey, value: string | number | null): void {
     this.filters = {
       ...this.filters,
-      [filter]: value
+      [filter]: value,
     };
     this.currentPage = 1;
     this.clearSearchDebounce();
@@ -333,23 +220,16 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   onClassificationChange(value: string): void {
-    this.onFilterChange(
-      'classification',
-      value.trim()
-    );
+    this.onFilterChange('classification', value.trim());
   }
 
   onSortChange(value: ArchiveSortValue): void {
-    const [sortBy, sortDirection] =
-      value.split('-') as [
-        CardSortBy,
-        CardSortDirection
-      ];
+    const [sortBy, sortDirection] = value.split('-') as [CardSortBy, CardSortDirection];
 
     this.filters = {
       ...this.filters,
       sortBy,
-      sortDirection
+      sortDirection,
     };
     this.currentPage = 1;
     this.syncUrlState();
@@ -371,7 +251,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
     this.clearSearchDebounce();
     this.filters = {
       ...this.filters,
-      name: ''
+      name: '',
     };
     this.currentPage = 1;
     this.syncUrlState();
@@ -379,40 +259,27 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   removeFilter(filter: CardFilterKey): void {
-    const emptyValue = [
-      'cost',
-      'power',
-      'ram',
-      'eddies'
-    ].includes(filter)
-      ? null
-      : '';
+    const emptyValue = ['cost', 'power', 'ram', 'eddies'].includes(filter) ? null : '';
 
-    this.onFilterChange(
-      filter,
-      emptyValue
-    );
+    this.onFilterChange(filter, emptyValue);
   }
 
   clearFilters(): void {
     this.clearSearchDebounce();
     const sortBy = this.filters.sortBy;
-    const sortDirection =
-      this.filters.sortDirection;
-    this.filters =
-      {
-        ...this.createEmptyFilters(),
-        sortBy,
-        sortDirection
-      };
+    const sortDirection = this.filters.sortDirection;
+    this.filters = {
+      ...this.createEmptyFilters(),
+      sortBy,
+      sortDirection,
+    };
     this.currentPage = 1;
     this.syncUrlState();
     this.loadCards();
   }
 
   toggleFilters(): void {
-    this.filtersExpanded =
-      !this.filtersExpanded;
+    this.filtersExpanded = !this.filtersExpanded;
   }
 
   retryLoad(): void {
@@ -424,23 +291,16 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   rememberArchiveState(): void {
-    this.cardDetailReturnService.save(
-      'archive',
-      this.router.url
-    );
+    this.cardDetailReturnService.save('archive', this.router.url);
 
     this.catalogueStateService.save({
       filters: { ...this.filters },
-      currentPage: this.currentPage
+      currentPage: this.currentPage,
     });
   }
 
   goToPage(page: number): void {
-    if (
-      page < 1 ||
-      page > this.totalPages ||
-      page === this.currentPage
-    ) {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
       return;
     }
 
@@ -450,23 +310,15 @@ export class CardCatalogue implements OnInit, OnDestroy {
   }
 
   previousPage(): void {
-    this.goToPage(
-      this.currentPage - 1
-    );
+    this.goToPage(this.currentPage - 1);
   }
 
   nextPage(): void {
-    this.goToPage(
-      this.currentPage + 1
-    );
+    this.goToPage(this.currentPage + 1);
   }
 
-  formatSetOption(
-    set: CardSetFilterOption
-  ): string {
-    return set.name && set.name !== set.code
-      ? `${set.code} — ${set.name}`
-      : set.code;
+  formatSetOption(set: CardSetFilterOption): string {
+    return set.name && set.name !== set.code ? `${set.code} — ${set.name}` : set.code;
   }
 
   private loadFilterOptions(): void {
@@ -474,25 +326,20 @@ export class CardCatalogue implements OnInit, OnDestroy {
     this.isFilterOptionsLoading = true;
     this.filterOptionsUnavailable = false;
 
-    this.filterOptionsRequest =
-      this.cardsService
-        .getFilterOptions()
-        .subscribe({
-          next: options => {
-            this.filterOptions =
-              this.normaliseFilterOptions(options);
-            this.mergeVisibleRarities(this.cards);
-            this.isFilterOptionsLoading = false;
-            this.changeDetectorRef.markForCheck();
-          },
-          error: () => {
-            this.filterOptions =
-              this.createEmptyFilterOptions();
-            this.filterOptionsUnavailable = true;
-            this.isFilterOptionsLoading = false;
-            this.changeDetectorRef.markForCheck();
-          }
-        });
+    this.filterOptionsRequest = this.cardsService.getFilterOptions().subscribe({
+      next: (options) => {
+        this.filterOptions = this.normaliseFilterOptions(options);
+        this.mergeVisibleRarities(this.cards);
+        this.isFilterOptionsLoading = false;
+        this.changeDetectorRef.markForCheck();
+      },
+      error: () => {
+        this.filterOptions = this.createEmptyFilterOptions();
+        this.filterOptionsUnavailable = true;
+        this.isFilterOptionsLoading = false;
+        this.changeDetectorRef.markForCheck();
+      },
+    });
   }
 
   private loadCards(): void {
@@ -505,75 +352,57 @@ export class CardCatalogue implements OnInit, OnDestroy {
       this.isLoading = true;
     }
 
-    this.cardRequest =
-      this.cardsService
-        .getCardsPage(
-          this.filters,
-          this.currentPage,
-          this.pageSize
-        )
-        .subscribe({
-          next: response => {
-            if (
-              response.totalPages > 0 &&
-              this.currentPage > response.totalPages
-            ) {
-              this.currentPage = response.totalPages;
-              this.syncUrlState();
-              this.loadCards();
-              return;
-            }
-
-            const requestedPage = this.currentPage;
-
-            this.cards = response.items;
-            this.mergeVisibleRarities(response.items);
-            this.totalCount = response.totalCount;
-            this.totalPages = response.totalPages;
-            this.currentPage = response.totalCount === 0
-              ? 1
-              : response.page;
-
-            if (requestedPage !== this.currentPage) {
-              this.syncUrlState();
-            }
-
-            this.isLoading = false;
-            this.isRefreshing = false;
-            this.hasLoadedOnce = true;
-            this.changeDetectorRef.markForCheck();
-          },
-          error: () => {
-            this.cards = [];
-            this.totalCount = 0;
-            this.totalPages = 0;
-            this.currentPage = 1;
-            this.errorMessage =
-              'The Vault Archive could not be loaded.';
-            this.isLoading = false;
-            this.isRefreshing = false;
-            this.hasLoadedOnce = true;
-            this.changeDetectorRef.markForCheck();
+    this.cardRequest = this.cardsService
+      .getCardsPage(this.filters, this.currentPage, this.pageSize)
+      .subscribe({
+        next: (response) => {
+          if (response.totalPages > 0 && this.currentPage > response.totalPages) {
+            this.currentPage = response.totalPages;
+            this.syncUrlState();
+            this.loadCards();
+            return;
           }
-        });
+
+          const requestedPage = this.currentPage;
+
+          this.cards = response.items;
+          this.mergeVisibleRarities(response.items);
+          this.totalCount = response.totalCount;
+          this.totalPages = response.totalPages;
+          this.currentPage = response.totalCount === 0 ? 1 : response.page;
+
+          if (requestedPage !== this.currentPage) {
+            this.syncUrlState();
+          }
+
+          this.isLoading = false;
+          this.isRefreshing = false;
+          this.hasLoadedOnce = true;
+          this.changeDetectorRef.markForCheck();
+        },
+        error: () => {
+          this.cards = [];
+          this.totalCount = 0;
+          this.totalPages = 0;
+          this.currentPage = 1;
+          this.errorMessage = 'The Vault Archive could not be loaded.';
+          this.isLoading = false;
+          this.isRefreshing = false;
+          this.hasLoadedOnce = true;
+          this.changeDetectorRef.markForCheck();
+        },
+      });
   }
 
   private syncUrlState(): void {
-    const queryParams: Record<
-      string,
-      string | number
-    > = {};
+    const queryParams: Record<string, string | number> = {};
 
     this.setStringQuery(queryParams, 'q', this.filters.name);
     this.setStringQuery(queryParams, 'set', this.filters.setCode);
     this.setStringQuery(queryParams, 'type', this.filters.cardType);
     this.setStringQuery(queryParams, 'rarity', this.filters.rarity);
     this.setStringQuery(queryParams, 'colour', this.filters.colour);
-    this.setStringQuery(
-      queryParams,
-      'classification',
-      this.filters.classification
-    );
+    this.setStringQuery(queryParams, 'classification', this.filters.classification);
     this.setStringQuery(queryParams, 'tag', this.filters.tags);
     this.setNumberQuery(queryParams, 'cost', this.filters.cost);
     this.setNumberQuery(queryParams, 'power', this.filters.power);
@@ -591,13 +420,11 @@ export class CardCatalogue implements OnInit, OnDestroy {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams,
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 
-  private readFiltersFromQuery(
-    queryParams: ParamMap
-  ): CardFilters {
+  private readFiltersFromQuery(queryParams: ParamMap): CardFilters {
     const sort = queryParams.get('sort');
     let sortBy: CardSortBy = 'setOrder';
     let sortDirection: CardSortDirection = 'asc';
@@ -615,21 +442,18 @@ export class CardCatalogue implements OnInit, OnDestroy {
       cardType: queryParams.get('type') ?? '',
       rarity: queryParams.get('rarity') ?? '',
       colour: queryParams.get('colour') ?? '',
-      classification:
-        queryParams.get('classification') ?? '',
+      classification: queryParams.get('classification') ?? '',
       tags: queryParams.get('tag') ?? '',
       cost: this.readInteger(queryParams.get('cost')),
       power: this.readInteger(queryParams.get('power')),
       ram: this.readInteger(queryParams.get('ram')),
       eddies: this.readInteger(queryParams.get('eddies')),
       sortBy,
-      sortDirection
+      sortDirection,
     };
   }
 
-  private hasArchiveQueryState(
-    queryParams: ParamMap
-  ): boolean {
+  private hasArchiveQueryState(queryParams: ParamMap): boolean {
     const archiveQueryKeys = [
       'q',
       'set',
@@ -643,28 +467,20 @@ export class CardCatalogue implements OnInit, OnDestroy {
       'ram',
       'eddies',
       'sort',
-      'page'
+      'page',
     ];
 
-    return archiveQueryKeys.some(
-      key => queryParams.has(key)
-    );
+    return archiveQueryKeys.some((key) => queryParams.has(key));
   }
 
-  private getSetLabel(
-    setCode: string | undefined
-  ): string | undefined {
+  private getSetLabel(setCode: string | undefined): string | undefined {
     if (!setCode) {
       return undefined;
     }
 
-    const set = this.filterOptions.sets.find(
-      option => option.code === setCode
-    );
+    const set = this.filterOptions.sets.find((option) => option.code === setCode);
 
-    return set
-      ? this.formatSetOption(set)
-      : setCode;
+    return set ? this.formatSetOption(set) : setCode;
   }
 
   private addStringFilter(
@@ -672,13 +488,13 @@ export class CardCatalogue implements OnInit, OnDestroy {
     key: CardFilterKey,
     label: string,
     value: string | undefined,
-    displayValue = value
+    displayValue = value,
   ): void {
     if (value?.trim() && displayValue) {
       activeFilters.push({
         key,
         label,
-        value: displayValue
+        value: displayValue,
       });
     }
   }
@@ -687,13 +503,13 @@ export class CardCatalogue implements OnInit, OnDestroy {
     activeFilters: ActiveArchiveFilter[],
     key: CardFilterKey,
     label: string,
-    value: number | null | undefined
+    value: number | null | undefined,
   ): void {
     if (value !== null && value !== undefined) {
       activeFilters.push({
         key,
         label,
-        value: String(value)
+        value: String(value),
       });
     }
   }
@@ -701,7 +517,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
   private setStringQuery(
     queryParams: Record<string, string | number>,
     key: string,
-    value: string | undefined
+    value: string | undefined,
   ): void {
     if (value?.trim()) {
       queryParams[key] = value.trim();
@@ -711,35 +527,27 @@ export class CardCatalogue implements OnInit, OnDestroy {
   private setNumberQuery(
     queryParams: Record<string, string | number>,
     key: string,
-    value: number | null | undefined
+    value: number | null | undefined,
   ): void {
     if (value !== null && value !== undefined) {
       queryParams[key] = value;
     }
   }
 
-  private readInteger(
-    value: string | null
-  ): number | null {
+  private readInteger(value: string | null): number | null {
     if (value === null || value.trim() === '') {
       return null;
     }
 
     const numberValue = Number(value);
 
-    return Number.isInteger(numberValue)
-      ? numberValue
-      : null;
+    return Number.isInteger(numberValue) ? numberValue : null;
   }
 
-  private readPositiveInteger(
-    value: string | null
-  ): number | null {
+  private readPositiveInteger(value: string | null): number | null {
     const numberValue = this.readInteger(value);
 
-    return numberValue !== null && numberValue > 0
-      ? numberValue
-      : null;
+    return numberValue !== null && numberValue > 0 ? numberValue : null;
   }
 
   private clearSearchDebounce(): void {
@@ -765,7 +573,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
       ram: null,
       eddies: null,
       sortBy: 'setOrder',
-      sortDirection: 'asc'
+      sortDirection: 'asc',
     };
   }
 
@@ -779,7 +587,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
       ramValues: [],
       eddiesValues: [],
       sets: [],
-      rarities: []
+      rarities: [],
     };
   }
 
@@ -787,13 +595,9 @@ export class CardCatalogue implements OnInit, OnDestroy {
    * Keeps the Archive usable when an older API response omits one of the
    * newer option arrays. No choices are invented.
    */
-  private normaliseFilterOptions(
-    options: CardFilterOptions
-  ): CardFilterOptions {
+  private normaliseFilterOptions(options: CardFilterOptions): CardFilterOptions {
     const meaningfulStrings = (values: string[] | undefined): string[] =>
-      (values ?? [])
-        .map(value => value.trim())
-        .filter(value => this.hasMeaningfulValue(value));
+      (values ?? []).map((value) => value.trim()).filter((value) => this.hasMeaningfulValue(value));
 
     return {
       colours: meaningfulStrings(options.colours),
@@ -804,7 +608,7 @@ export class CardCatalogue implements OnInit, OnDestroy {
       ramValues: options.ramValues ?? [],
       eddiesValues: options.eddiesValues ?? [],
       sets: options.sets ?? [],
-      rarities: meaningfulStrings(options.rarities)
+      rarities: meaningfulStrings(options.rarities),
     };
   }
 
@@ -815,8 +619,8 @@ export class CardCatalogue implements OnInit, OnDestroy {
    */
   private mergeVisibleRarities(cards: Card[]): void {
     const rarities = cards
-      .map(card => card.rarity?.trim() ?? '')
-      .filter(rarity => this.hasMeaningfulValue(rarity));
+      .map((card) => card.rarity?.trim() ?? '')
+      .filter((rarity) => this.hasMeaningfulValue(rarity));
 
     if (rarities.length === 0) {
       return;
@@ -826,12 +630,10 @@ export class CardCatalogue implements OnInit, OnDestroy {
       ...this.filterOptions,
       rarities: [
         ...new Set([
-          ...this.filterOptions.rarities.filter(rarity =>
-            this.hasMeaningfulValue(rarity)
-          ),
-          ...rarities
-        ])
-      ].sort((left, right) => left.localeCompare(right))
+          ...this.filterOptions.rarities.filter((rarity) => this.hasMeaningfulValue(rarity)),
+          ...rarities,
+        ]),
+      ].sort((left, right) => left.localeCompare(right)),
     };
   }
 }

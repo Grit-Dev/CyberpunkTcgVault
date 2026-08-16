@@ -1,5 +1,5 @@
 :host {
-    display: block;
+  display: block;
 }
 
 /*
@@ -7,86 +7,86 @@
  * the component's styleUrls. Only Terms-specific content treatments live here.
  */
 .terms-updated {
-    margin: 24px 0 0;
-    color: var(--colour-text-muted);
-    font-family: var(--font-display);
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    line-height: 1.5;
-    text-transform: uppercase;
+  margin: 24px 0 0;
+  color: var(--colour-text-muted);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  text-transform: uppercase;
 }
 
 .terms-list {
-    margin: 24px 0 26px;
-    padding-left: 1.35rem;
-    color: var(--colour-text-muted);
-    font-size: 0.94rem;
-    line-height: 1.85;
+  margin: 24px 0 26px;
+  padding-left: 1.35rem;
+  color: var(--colour-text-muted);
+  font-size: 0.94rem;
+  line-height: 1.85;
 }
 
-.terms-list li+li {
-    margin-top: 9px;
+.terms-list li + li {
+  margin-top: 9px;
 }
 
 .terms-list li::marker {
-    color: var(--colour-yellow);
+  color: var(--colour-yellow);
 }
 
 .terms-link {
-    display: inline-flex;
-    align-items: center;
-    margin-top: 24px;
-    color: var(--colour-yellow);
-    font-family: var(--font-display);
-    font-size: 0.74rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: color 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 24px;
+  color: var(--colour-yellow);
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 160ms ease;
 }
 
 .terms-link:hover {
-    color: var(--colour-yellow-light);
+  color: var(--colour-yellow-light);
 }
 
 .terms-contact-links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 18px 28px;
-    margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 18px 28px;
+  margin-top: 24px;
 }
 
 .terms-contact-links .terms-link {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .terms-email {
-    max-width: 100%;
-    color: var(--colour-text);
-    font-family: var(--font-display);
-    font-size: 0.92rem;
-    font-weight: 700;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-    text-decoration-color: var(--colour-border-strong);
-    text-underline-offset: 4px;
+  max-width: 100%;
+  color: var(--colour-text);
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  text-decoration-color: var(--colour-border-strong);
+  text-underline-offset: 4px;
 }
 
 .terms-email:hover {
-    text-decoration-color: var(--colour-yellow);
+  text-decoration-color: var(--colour-yellow);
 }
 
 @media (max-width: 700px) {
-    .terms-list {
-        font-size: 0.92rem;
-    }
+  .terms-list {
+    font-size: 0.92rem;
+  }
 
-    .terms-contact-links {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 16px;
-    }
+  .terms-contact-links {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
 }

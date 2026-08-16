@@ -313,7 +313,7 @@
 .sealed-record__metadata > * + *::before {
   margin-inline: 10px;
   color: #59616d;
-  content: "·";
+  content: '·';
 }
 
 .sealed-record__metadata strong {
@@ -494,7 +494,10 @@
 
 .sealed-editor__identity-fields {
   display: grid;
-  grid-template-columns: minmax(260px, 1.25fr) minmax(180px, 0.8fr) minmax(180px, 0.8fr) minmax(110px, 0.35fr);
+  grid-template-columns: minmax(260px, 1.25fr) minmax(180px, 0.8fr) minmax(180px, 0.8fr) minmax(
+      110px,
+      0.35fr
+    );
   align-items: start;
   gap: 18px;
 }
