@@ -45,7 +45,7 @@ describe('Privacy', () => {
     const icoLink = Array.from(root.querySelectorAll('a')).find(
       (link) => link.textContent?.trim() === 'Make a complaint to the ICO',
     );
-    const emailLink = root.querySelector('a[href="mailto:hello.choomvault@outlook.com"]');
+    const emailLink = root.querySelector('a[href="mailto:privacy@choomvault.com"]');
 
     expect(icoLink).toBeTruthy();
     expect(icoLink?.getAttribute('href')).toBe('https://ico.org.uk/make-a-complaint/');

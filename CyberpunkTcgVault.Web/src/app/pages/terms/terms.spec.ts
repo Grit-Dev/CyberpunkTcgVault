@@ -55,7 +55,7 @@ describe('Terms', () => {
 
     expect(hrefs).toContain('/privacy');
     expect(hrefs).toContain('/contact');
-    expect(hrefs).toContain('mailto:hello.choomvault@outlook.com');
+    expect(hrefs).toContain('mailto:rights@choomvault.com');
   });
 
   it('keeps Terms editorial links text-only without directional arrow glyphs', () => {

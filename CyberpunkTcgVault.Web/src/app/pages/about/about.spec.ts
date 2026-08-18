@@ -42,17 +42,42 @@ describe('About', () => {
     expect(text).toContain(
       'Choom Vault is an independent fan-made collector companion. It is not affiliated with, endorsed by or sponsored by those creators, companies or rights holders.',
     );
-    expect(text).toContain('CURRENT DEMONSTRATION');
+
+    expect(text).toContain('LIVE VERSION 1');
     expect(text).toContain('ORIGINAL MATERIAL. APPROVED ROUTES ONLY.');
+
     expect(text).toContain(
-      'The current public demonstration uses Choom Vault prototype material created for this project.',
+      'The live Version 1 release uses Choom Vault prototype material created for this project.',
     );
+
+    expect(text).toContain(
+      'The Collector MVP demonstrates the collector experience without depending on scraped or unauthorised official catalogue data.',
+    );
+
     expect(text).toContain(
       'Any future connection to official Cyberpunk TCG catalogue data or artwork will only be pursued through an approved data or API route',
     );
+
+    expect(text).toContain(
+      'Public registration is currently disabled for the Version 1 release. The restricted Demo Vault provides access to the collector experience without opening general account registration.',
+    );
+
     expect(text).toContain(
       'If Choom Vault remains a carefully made collector experience that people enjoy exploring, building it has already been worthwhile.',
     );
+  });
+
+  it('describes the collector experience as finished Version 1 functionality', () => {
+    const text = fixture.nativeElement.textContent.replace(/\s+/g, ' ');
+
+    expect(text).toContain(
+      'Choom Vault is built around the details collectors actually care about: the version they own, how many copies they have, what they are chasing and how the collection changes over time.',
+    );
+
+    expect(text).not.toContain('Choom Vault is being shaped around');
+    expect(text).not.toContain('CURRENT DEMONSTRATION');
+    expect(text).not.toContain('current public demonstration');
+    expect(text).not.toContain('limited hosted demonstration');
   });
 
   it('uses the approved Explore the Source copy and four verified official resource destinations', () => {
@@ -71,18 +96,21 @@ describe('About', () => {
     expect(resources?.textContent?.replace(/\s+/g, ' ')).toContain(
       'Choom Vault is an independent companion project. For official cards, news and the wider Cyberpunk world, go directly to the people and teams behind it.',
     );
+
     expect(labels).toEqual([
       'Official Cyberpunk TCG',
       'CD PROJEKT RED — Cyberpunk 2077',
       'R. Talsorian Games — Cyberpunk',
       'WeirdCo',
     ]);
+
     expect(domains).toEqual([
       'CYBERPUNKTCG.COM',
       'CYBERPUNK.NET',
       'RTALSORIANGAMES.COM',
       'WEIRDCO.NET',
     ]);
+
     expect(links.map((link) => link.href)).toEqual([
       'https://cyberpunktcg.com/',
       'https://www.cyberpunk.net/',
@@ -105,13 +133,22 @@ describe('About', () => {
     const links = Array.from(caption.querySelectorAll<HTMLAnchorElement>('a'));
 
     expect(links).toHaveLength(2);
-    expect(links[0].href).toBe('https://www.flickr.com/photos/stefans02/52773351835/');
+
+    expect(links[0].href).toBe(
+      'https://www.flickr.com/photos/stefans02/52773351835/',
+    );
     expect(links[0].textContent?.replace(/\s+/g, ' ').trim()).toBe(
       'Cyberpunk 2077 / View At The City — Stefans02',
     );
-    expect(links[1].href).toBe('https://creativecommons.org/licenses/by/4.0/');
+
+    expect(links[1].href).toBe(
+      'https://creativecommons.org/licenses/by/4.0/',
+    );
     expect(links[1].textContent?.trim()).toBe('CC BY 4.0');
-    expect(caption.textContent?.replace(/\s+/g, ' ')).toContain('Cropped for layout');
+
+    expect(caption.textContent?.replace(/\s+/g, ' ')).toContain(
+      'Cropped for layout',
+    );
 
     for (const link of links) {
       expect(link.target).toBe('_blank');
@@ -120,10 +157,12 @@ describe('About', () => {
     }
   });
 
-  it('does not expose the removed public roadmap-style future concepts', () => {
-    const text = ((fixture.nativeElement as HTMLElement).textContent ?? '').toLowerCase();
+  it('does not expose removed roadmap or pre-release language', () => {
+    const text = (
+      (fixture.nativeElement as HTMLElement).textContent ?? ''
+    ).toLowerCase();
 
-    for (const phrase of [
+    const disallowedPhrases = [
       'own. trace. express.',
       'set completion',
       'physical collection verification',
@@ -131,7 +170,13 @@ describe('About', () => {
       'deck tools',
       '/roadmap',
       '100-user',
-    ]) {
+      'current demonstration',
+      'current public demonstration',
+      'limited hosted demonstration',
+      'is being shaped around',
+    ];
+
+    for (const phrase of disallowedPhrases) {
       expect(text).not.toContain(phrase);
     }
   });
@@ -141,6 +186,8 @@ describe('About', () => {
       '.about-environment__media img',
     ) as HTMLImageElement;
 
-    expect(image.getAttribute('src')).toBe('images/about/view-at-the-city.jpg');
+    expect(image.getAttribute('src')).toBe(
+      'images/about/view-at-the-city.jpg',
+    );
   });
 });
